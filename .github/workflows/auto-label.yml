@@ -1,0 +1,47 @@
+name: 🔧 Auto Label & Link PR
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏷️ Set PR Labels Based on Branch Name
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            ${{ steps.extract.outputs.label }}
+
+      - name: 🔍 Extract Branch Info
+        id: extract
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          echo "Branch name: $BRANCH_NAME"
+
+          if [[ "$BRANCH_NAME" == feat/* ]]; then
+            echo "label=✨ Feat" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == fix/* ]]; then
+            echo "label=🐛 Fix" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == design/* ]]; then
+            echo "label=💄 Design" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == refactor/* ]]; then
+            echo "label=♻️ Refactor" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH_NAME" == chore/* ]]; then
+            echo "label=🧹 Chore" >> $GITHUB_OUTPUT
+          else
+            echo "label=기타" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔗 Auto Link Issue (if issue number in branch name)
+        if: contains(github.head_ref, '#')
+        run: |
+          ISSUE_NUMBER=$(echo "${GITHUB_HEAD_REF}" | grep -oP '(?<=#)\d+')
+          if [ -n "$ISSUE_NUMBER" ]; then
+            echo "Linking PR to issue #$ISSUE_NUMBER"
+            gh pr edit ${{ github.event.pull_request.number }} --add-linked-issue "$ISSUE_NUMBER"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

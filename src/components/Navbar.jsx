@@ -14,7 +14,7 @@ const Nav = styled.nav`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 12px 11px;
+  padding: 12px 19px;
 `;
 
 const NavItem = styled(Link)`
@@ -53,6 +53,7 @@ export default function Navbar() {
         <img src={home} alt="HOME" />
         HOME
       </NavItem>
+      <div className="width:6px"></div>
       <NavItem to="/photo" $active={pathname === '/photo'}>
         <img src={photo} alt="PHOTO" />
         PHOTO
@@ -60,10 +61,13 @@ export default function Navbar() {
       <ChatIcon to="/chat" $active={pathname === '/chat'}>
         <img src={chat} alt="CHAT" />
       </ChatIcon>
+
       <NavItem to="/game" $active={pathname === '/game'}>
         <img src={game} alt="GAME" />
         GAME
       </NavItem>
+      <div className="width:6px"></div>
+
       <NavItem to="/mypage" $active={pathname === '/mypage'}>
         <img src={my} alt="MY" />
         MY

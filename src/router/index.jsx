@@ -3,10 +3,12 @@ import MainLayout from '../layouts/MainLayout';
 
 // ✅ 페이지 import
 import Home from '../pages/Home/Home';
-// import Login from "../pages/Login/Login";
-// import MyPage from "../pages/MyPage/MyPage";
 import Photo from '../pages/Photo/Photo';
-// import Game from "../pages/Game/Game";
+import Chat from '../pages/Chat/Chat';
+import Game from '../pages/Game/Game';
+import MyPage from '../pages/MyPage/MyPage';
+
+import Login from '../pages/Login/Login';
 
 export default function Router() {
   return (
@@ -21,17 +23,7 @@ export default function Router() {
             </MainLayout>
           }
         />
-        {/* 로그인 페이지 (Header, Navbar 제외 예정)
-        <Route path="/login" element={<Login />} /> */}
-        {/*  마이페이지 (Header + Navbar 유지)
-        <Route
-          path="/mypage"
-          element={
-            <MainLayout>
-              <MyPage />
-            </MainLayout>
-          }
-        /> */}
+
         {/* 사진 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/photo"
@@ -41,7 +33,16 @@ export default function Router() {
             </MainLayout>
           }
         />
-        {/* 게임 관련 페이지 (Header + Navbar 유지)
+        {/* 채팅 관련 페이지 (Header + Navbar 유지) */}
+        <Route
+          path="/chat"
+          element={
+            <MainLayout>
+              <Chat />
+            </MainLayout>
+          }
+        />
+        {/* 게임 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/game"
           element={
@@ -49,7 +50,18 @@ export default function Router() {
               <Game />
             </MainLayout>
           }
-        /> */}
+        />
+        {/*  마이페이지 (Header + Navbar 유지)*/}
+        <Route
+          path="/mypage"
+          element={
+            <MainLayout>
+              <MyPage />
+            </MainLayout>
+          }
+        />
+        {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

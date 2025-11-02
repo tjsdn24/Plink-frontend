@@ -31,21 +31,60 @@ export const theme = {
       display: "'Gmarket Sans', sans-serif",
       text: "'Pretendard', system-ui, sans-serif",
     },
-    size: {
-      display01: '24px', // Gmarket Sans Bold — 메인화면 타이틀
-      display02: '24px', // Gmarket Sans Medium — 섹션 타이틀
-      headline01: '20px', // Pretendard Bold — 화면 타이틀
-      headline02: '18px', // Pretendard Bold — 콘텐츠/카드 타이틀
-      body01: '16px', // Pretendard Regular — 일반 본문
-      label01: '16px', // Pretendard Bold — 주요 버튼
-      body02: '14px', // Pretendard Regular — 보조 본문
-      label02: '14px', // Pretendard Bold — 보조 버튼
-      caption01: '12px', // Pretendard Regular — 아이콘 하단 텍스트
-    },
+
     weight: {
       regular: 400,
       medium: 500,
       bold: 700,
+    },
+
+    // ✨ Typography 세트 (family + size + weight 묶음)
+    typography: {
+      display01: {
+        family: "'Gmarket Sans', sans-serif",
+        size: '24px',
+        weight: 700, // Bold — 메인화면 타이틀
+      },
+      display02: {
+        family: "'Gmarket Sans', sans-serif",
+        size: '24px',
+        weight: 500, // Medium — 섹션 타이틀
+      },
+      headline01: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '20px',
+        weight: 700, // Bold — 화면 타이틀
+      },
+      headline02: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '18px',
+        weight: 700, // Bold — 콘텐츠/카드 타이틀
+      },
+      body01: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '16px',
+        weight: 400, // Regular — 일반 본문
+      },
+      label01: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '16px',
+        weight: 700, // Bold — 주요 버튼
+      },
+      body02: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '14px',
+        weight: 400, // Regular — 보조 본문
+      },
+      label02: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '14px',
+        weight: 700, // Bold — 보조 버튼
+      },
+      caption01: {
+        family: "'Pretendard', system-ui, sans-serif",
+        size: '12px',
+        weight: 400, // Regular — 아이콘 하단 텍스트
+      },
     },
   },
 

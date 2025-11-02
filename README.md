@@ -2,8 +2,8 @@
 
 ## 📘 프로젝트 개요
 
-> **Plink Frontend**는 React + Vite 기반의 웹 애플리케이션으로,  
-> TailwindCSS와 styled-components를 조합해 유지보수성과 확장성을 높인 구조를 채택했습니다.  
+> **Plink**는 React + Vite 기반의 웹 애플리케이션으로,  
+> 스타일링은 styled-components와 디자이너 정의 테마 시스템(theme.js) 을 활용하여 일관된 디자인과 높은 유지보수성을 확보했습니다.
 > 또한 ESLint, Prettier, Git Flow, GitHub Actions 자동화를 적용해  
 > 코드 품질과 협업 효율을 강화했습니다.
 
@@ -81,25 +81,26 @@ git config --global alias.feature '!f() { \
 > **이슈 생성 → 브랜치 생성 → PR 생성 → 자동 라벨링**이 자동으로 연동됩니다.
 
 📁 자동화 구조  
-Plink-frontend/  
-├─ .github/  
-│ ├─ ISSUE_TEMPLATE/  
-│ ├─ workflows/  
-│ └─ pull_request_template.md  
-├─ public/  
-├─ src/  
-│ ├─ assets/ # 이미지, 아이콘 등  
-│ ├─ components/ # 재사용 가능한 UI 컴포넌트  
-│ ├─ pages/ # 페이지 단위 컴포넌트  
-│ ├─ data/ # 더미 데이터 및 API 응답  
-│ ├─ hooks/ # 커스텀 훅  
-│ ├─ styles/ # 전역 스타일 (Tailwind 설정 포함)  
-│ └─ main.jsx # 진입 파일  
-├─ .eslintrc.cjs  
-├─ .prettierrc  
-├─ tailwind.config.js  
-├─ vite.config.js  
-└─ package.json
+Plink-frontend/
+├─ .github/
+│ ├─ ISSUE_TEMPLATE/ # 이슈 생성 템플릿
+│ ├─ workflows/ # GitHub Actions CI/CD 워크플로우
+│ └─ pull_request_template.md # PR 기본 템플릿
+│
+├─ public/ # 정적 리소스 (favicon, manifest 등)
+│
+├─ src/
+│ ├─ assets/ # 이미지, 아이콘, 폰트 등 정적 파일
+│ ├─ components/ # 재사용 가능한 UI 컴포넌트
+│ ├─ pages/ # 라우팅되는 페이지 단위 컴포넌트
+│ ├─ data/ # 더미 데이터, API 응답 mock
+│ ├─ hooks/ # 커스텀 훅 (useAuth, useModal 등)
+│ ├─ styles/ # 전역 스타일 및 theme.js
+│ └─ main.jsx # 진입 파일 (ThemeProvider, Router 등 설정)
+│
+├─ .eslintrc.cjs # ESLint 설정 (코드 규칙 관리)
+├─ .prettierrc # Prettier 설정 (자동 포맷)
+└─ package.json # 프로젝트 메타 정보 및 의존성
 
 ---
 
@@ -116,13 +117,13 @@ Plink-frontend/
 
 ## 🎨 코드 스타일 및 품질 관리
 
-| 항목      | 도구                                 | 설명                        |
-| --------- | ------------------------------------ | --------------------------- |
-| 코드 포맷 | **Prettier**                         | 저장 시 자동 포맷           |
-| 코드 검사 | **ESLint**                           | 문법 및 규칙 검사           |
-| UI 스타일 | **Tailwind CSS + styled-components** | 유틸리티 + 구조적 스타일    |
-| 개발 서버 | **Vite**                             | 빠른 빌드 & HMR             |
-| 자동화    | **GitHub Actions**                   | PR 라벨링, 이슈 연결 자동화 |
+| 항목      | 도구                  | 설명                                               |
+| --------- | --------------------- | -------------------------------------------------- |
+| 코드 포맷 | **Prettier**          | 저장 시 자동 포맷 및 일관된 코드 스타일 유지       |
+| 코드 검사 | **ESLint**            | 코드 규칙 및 문법 검사로 품질 보장                 |
+| UI 스타일 | **styled-components** | 컴포넌트 단위 스타일 관리 및 테마 기반 디자인 적용 |
+| 개발 서버 | **Vite**              | 빠른 빌드 속도와 HMR(Hot Module Reload) 지원       |
+| 자동화    | **GitHub Actions**    | PR 라벨링, 이슈 트래킹 및 테스트 자동화            |
 
 ---
 

@@ -23,16 +23,19 @@ export default function Navbar() {
   return (
     <Nav>
       <NavItem to="/" $active={pathname === '/'}>
-        home
+        HOME
       </NavItem>
       <NavItem to="/photo" $active={pathname === '/photo'}>
-        photo
+        PHOTO
+      </NavItem>
+      <NavItem to="/chat" $active={pathname === '/chat'}>
+        CHAT
       </NavItem>
       <NavItem to="/game" $active={pathname === '/game'}>
-        game
+        GAME
       </NavItem>
       <NavItem to="/mypage" $active={pathname === '/mypage'}>
-        mypage
+        MY
       </NavItem>
     </Nav>
   );

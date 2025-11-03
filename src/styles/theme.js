@@ -14,6 +14,7 @@ export const theme = {
       black2: '#2C3249', // 보조 글씨
       bg: '#F7F8FF', // 배경
       gray: '#DDE1F0', // 구분선/비활성화
+      gray2: '#9598A3', //시간 글씨
       white: '#FFFFFF', // 카드
     },
 

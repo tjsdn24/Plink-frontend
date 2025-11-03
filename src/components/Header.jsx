@@ -4,6 +4,7 @@ import Login from '../pages/Login/Login';
 import avatarImg from '../assets/icons/HeaderAvatar.svg';
 
 const Bar = styled.header`
+  height: 60px;
   background: ${c('neutral.bg')};
   padding: ${s('md')};
   font-family: ${f('family.display01')};

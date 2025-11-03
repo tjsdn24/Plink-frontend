@@ -9,7 +9,7 @@ import game from '../assets/icons/NavGame.svg';
 import my from '../assets/icons/NavMy.svg';
 
 const Nav = styled.nav`
-  background: ${c('neutral.black')};
+  background: ${c('neutral.black2')};
   height: 60px;
   display: flex;
   justify-content: space-around;
@@ -30,7 +30,7 @@ const NavItem = styled(Link)`
 const ChatIcon = styled(NavItem)`
   flex-basis: 30px;
   background: ${c('brand.pink')};
-  border: 5px solid ${c('neutral.black')};
+  border: 5px solid ${c('neutral.black2')};
   border-radius: 99px;
   padding: 19px;
   transform: translateY(-11px);

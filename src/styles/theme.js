@@ -50,6 +50,16 @@ export const theme = {
         size: '24px',
         weight: 500, // Medium — 섹션 타이틀
       },
+      pink01: {
+        family: "'Gmarket Sans', sans-serif",
+        size: '36px',
+        weight: 700, // Bold — 핑크색 타이틀
+      },
+      pink02: {
+        family: "'Gmarket Sans', sans-serif",
+        size: '20px',
+        weight: 900, // ExtraBold — 핑크색 타이틀
+      },
       headline01: {
         family: "'Pretendard', system-ui, sans-serif",
         size: '20px',

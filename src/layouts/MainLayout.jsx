@@ -15,7 +15,7 @@ const Content = styled.main`
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.gray100};
   padding-top: 60px; /* ✅ 헤더 높이만큼 띄우기 */
-  padding-bottom: 80px; /* ✅ 네브바 높이만큼 띄우기 */
+  padding-bottom: 60px; /* ✅ 네브바 높이만큼 띄우기 */
   overflow-y: auto;
 `;
 

@@ -12,9 +12,9 @@ const Nav = styled.nav`
   background: ${c('neutral.black2')};
   height: 60px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  padding: 12px 19px;
+  padding: 12px 16px;
 `;
 
 const NavItem = styled(Link)`

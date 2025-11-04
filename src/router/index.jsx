@@ -4,6 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 // ✅ 페이지 import
 import Home from '../pages/Home/Home';
 import Photo from '../pages/Photo/Photo';
+import PhotoBooth from '../pages/Photo/PhotoBooth';
 import Chat from '../pages/Chat/Chat';
 import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
@@ -31,6 +32,14 @@ export default function Router() {
           element={
             <MainLayout>
               <Photo />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/photobooth"
+          element={
+            <MainLayout>
+              <PhotoBooth />
             </MainLayout>
           }
         />

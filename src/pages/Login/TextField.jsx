@@ -1,0 +1,93 @@
+import styled from 'styled-components';
+import { c, f } from '../../styles/themeUtils';
+
+const TextFieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  width: 100%;
+`;
+
+const Label = styled.label`
+  font-family: ${f('typography.body01.family')};
+  font-size: ${f('typography.body01.size')};
+  font-weight: ${f('typography.body01.weight')};
+  color: ${c('neutral.black')};
+  line-height: 24px;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${c('neutral.gray')};
+  background: ${c('neutral.white')};
+  font-family: ${f('typography.body01.family')};
+  font-size: ${f('typography.body01.size')};
+  font-weight: ${f('typography.body01.weight')};
+  color: ${c('neutral.black')};
+  line-height: 24px;
+  box-sizing: border-box;
+  outline: none;
+
+  &::placeholder {
+    color: ${c('neutral.gray2')};
+  }
+
+  &:focus {
+    border-color: ${c('brand.pink')};
+  }
+
+  &:disabled {
+    background: ${c('neutral.bg')};
+    cursor: not-allowed;
+  }
+`;
+
+const HelperText = styled.span`
+  font-family: ${f('typography.body01.family')};
+  font-size: ${f('typography.body01.size')};
+  font-weight: ${f('typography.body01.weight')};
+  color: rgba(44, 50, 73, 0.5);
+  line-height: normal;
+  padding-left: 4px;
+`;
+
+export default function TextField({
+  label,
+  placeholder,
+  helperText,
+  type = 'text',
+  value,
+  onChange,
+  name,
+  disabled = false,
+  ...props
+}) {
+  return (
+    <TextFieldContainer>
+      {label && <Label htmlFor={name}>{label}</Label>}
+      <InputWrapper>
+        <Input
+          id={name}
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          {...props}
+        />
+        {helperText && <HelperText>{helperText}</HelperText>}
+      </InputWrapper>
+    </TextFieldContainer>
+  );
+}

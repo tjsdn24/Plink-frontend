@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 import LockIconSvg from '../../assets/icons/Mylock.svg';
@@ -87,11 +88,12 @@ const LoginButton = styled.button`
 `;
 
 export default function LoginPrompt() {
+  const navigate = useNavigate();
+  
   const handleLoginClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Login button clicked');
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (

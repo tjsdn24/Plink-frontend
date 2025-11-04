@@ -17,7 +17,7 @@ const PageContainer = styled.div`
     align-items: flex-start;
     position: relative;
     box-sizing: border-box;
-    margin: -60px -16px 0 -16px;
+    margin: 0 -16px 0 -16px;
     
     padding-bottom: 0;
   `}

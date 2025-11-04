@@ -9,6 +9,7 @@ import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
 
 import Login from '../pages/Login/Login';
+import SignUp from '../pages/Login/SignUp';
 
 export default function Router() {
   return (
@@ -62,6 +63,8 @@ export default function Router() {
         />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />
+        {/* 회원가입 페이지 (Header, Navbar 제외 예정)*/}
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </BrowserRouter>
   );

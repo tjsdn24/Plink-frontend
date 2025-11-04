@@ -4,7 +4,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 import PhotoStart from '../../../src/assets/icons/PhotoStart.svg';
-import NavButton from '../Login/NavButton';
+import NavButton from '../../components/Signup/NavButton';
 const Container = styled.div`
   margin-top: 80px;
   display: flex;

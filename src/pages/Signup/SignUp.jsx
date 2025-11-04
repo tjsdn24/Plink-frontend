@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import SignUpHeader from './SignUpHeader';
-import TextField from './TextField';
-import SignUpTitle from './SignUpTitle';
-import NavButton from './NavButton';
+import PageHeader from '../../components/PageHeader';
+import TextField from '../../components/Signup/TextField';
+import SignUpTitle from '../../components/Signup/SignUpTitle';
+import NavButton from '../../components/Signup/NavButton';
 
 const FieldsContainer = styled.div`
   display: flex;
@@ -33,7 +33,7 @@ export default function SignUp() {
 
   return (
     <div>
-      <SignUpHeader />
+      <PageHeader title="회원가입" />
       <SignUpTitle />
       <FieldsContainer>
         <TextField

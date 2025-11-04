@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { c, f, s } from '../../styles/themeUtils';
-import leftarrowImg from '../../assets/icons/leftarrow.svg';
+import { c, f, s } from '../styles/themeUtils';
+import leftarrowImg from '../assets/icons/leftarrow.svg';
 
 const Bar = styled.header`
   height: 60px;
@@ -20,12 +20,12 @@ const Logo = styled.h1`
   gap: 12px;
 `;
 
-export default function SignUpHeader() {
+export default function PageHeader({ title = '회원가입' }) {
   return (
     <Bar>
       <Logo>
         <img src={leftarrowImg} alt="왼쪽 화살표" />
-        회원가입
+        {title}
       </Logo>
     </Bar>
   );

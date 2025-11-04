@@ -21,14 +21,18 @@ const MainTitle = styled.h2`
   margin: 0;
 `;
 
-export default function SignUpTitle({ userName = '숨쉬는 고양이' }) {
+export default function SignUpTitle({ userName = '숨쉬는 고양이', title }) {
+  const defaultTitle = (
+    <>
+      {userName}님!<br />
+      이제 마지막 단계예요!
+    </>
+  );
+
   return (
     <TitleContainer>
       <TextWrapper>
-        <MainTitle>
-          {userName}님!<br />
-          이제 마지막 단계예요!
-        </MainTitle>
+        <MainTitle>{title || defaultTitle}</MainTitle>
       </TextWrapper>
     </TitleContainer>
   );

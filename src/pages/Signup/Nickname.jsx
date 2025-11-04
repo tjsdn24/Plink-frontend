@@ -1,0 +1,94 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import PageHeader from '../../components/PageHeader';
+import TextField from '../../components/Signup/TextField';
+import SignUpTitle from '../../components/Signup/SignUpTitle';
+import NavButton from '../../components/Signup/NavButton';
+import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
+
+const FieldsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+// 랜덤 닉네임 생성 함수
+const generateRandomNickname = () => {
+  const adjectives = [
+    '멋진', '귀여운', '행복한', '빛나는', '용감한', '똑똑한', '친절한', '활발한',
+    '차분한', '밝은', '강한', '부드러운', '따뜻한', '시원한', '신비로운', '재미있는'
+  ];
+  
+  const nouns = [
+    '고양이', '강아지', '토끼', '햄스터', '다람쥐', '팬더', '곰', '펭귄',
+    '돌고래', '나비', '별', '달', '구름', '바람', '물결', '꽃',
+    '나무', '산', '바다', '하늘', '별빛', '햇살', '달빛', '무지개'
+  ];
+
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  
+  return `${randomAdjective} ${randomNoun}`;
+};
+
+export default function Nickname({ userName = '숨쉬는 고양이' }) {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    nickname: '',
+  });
+
+  const handleBack = () => {
+    navigate('/login');
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRandomNickname = () => {
+    const randomNickname = generateRandomNickname();
+    setFormData((prev) => ({
+      ...prev,
+      nickname: randomNickname,
+    }));
+  };
+
+  const isAllFieldsFilled = formData.nickname.trim() !== '';
+
+  const handleNext = () => {
+    if (isAllFieldsFilled) {
+      navigate('/signup/email');
+    }
+  };
+
+  return (
+    <div>
+      <PageHeader title="회원가입" onBack={handleBack} />
+      <SignUpTitle 
+        title={
+          <>
+            PLINK에서 사용할<br />
+            멋진 닉네임을 알려주세요!
+          </>
+        }
+      />
+      <FieldsContainer>
+        <TextField
+          name="nickname"
+          placeholder={`${userName}`}
+          helperText="닉네임을 입력해주세요."
+          value={formData.nickname}
+          onChange={handleChange}
+          icon={SignUpChangeIcon}
+          onIconClick={handleRandomNickname}
+        />
+      </FieldsContainer>
+      <NavButton isActive={isAllFieldsFilled} onClick={handleNext}>다음 단계로(1/2)</NavButton>
+    </div>
+  );
+}

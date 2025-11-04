@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import WriteIcon from '../../assets/icons/ChatWrite.svg';
 import { c } from '../../styles/themeUtils';
 
-export default function WriteButton() {
+export default function WriteButton({ onClick }) {
   return (
-    <WriteButtonWrapper>
-      <WriteImg src={WriteIcon} />
+    <WriteButtonWrapper onClick={onClick}>
+      <WriteImg src={WriteIcon} alt="글쓰기 아이콘" />
     </WriteButtonWrapper>
   );
 }
@@ -23,7 +23,7 @@ const WriteButtonWrapper = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 100;
+  z-index: 2;
 
   &:hover {
     opacity: 0.9;

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import LoginHeader from './LoginHeader';
+import SignUpHeader from './SignUpHeader';
 import TextField from './TextField';
+import SignUpTitle from './SignUpTitle';
 import NavButton from './NavButton';
 
 const FieldsContainer = styled.div`
@@ -10,10 +11,11 @@ const FieldsContainer = styled.div`
   gap: 12px;
 `;
 
-export default function Login() {
+export default function SignUp() {
   const [formData, setFormData] = useState({
-    email: '',
+    nickname: '',
     password: '',
+    passwordConfirm: '',
   });
 
   const handleChange = (e) => {
@@ -25,18 +27,20 @@ export default function Login() {
   };
 
   const isAllFieldsFilled =
-    formData.email.trim() !== '' &&
-    formData.password.trim() !== '';
+    formData.nickname.trim() !== '' &&
+    formData.password.trim() !== '' &&
+    formData.passwordConfirm.trim() !== '';
 
   return (
     <div>
-      <LoginHeader />
+      <SignUpHeader />
+      <SignUpTitle />
       <FieldsContainer>
         <TextField
-          name="email"
+          name="nickname"
           placeholder="이메일 입력"
           helperText="이메일을 입력해주세요."
-          value={formData.email}
+          value={formData.nickname}
           onChange={handleChange}
         />
         <TextField
@@ -46,8 +50,15 @@ export default function Login() {
           value={formData.password}
           onChange={handleChange}
         />
+        <TextField
+          name="passwordConfirm"
+          placeholder="비밀번호 확인"
+          helperText="영문/숫자/특수문자로 8자 이상 적어주세요."
+          value={formData.passwordConfirm}
+          onChange={handleChange}
+        />
       </FieldsContainer>
-      <NavButton isActive={isAllFieldsFilled}>로그인</NavButton>
+      <NavButton isActive={isAllFieldsFilled}>가입하기</NavButton>
     </div>
   );
 }

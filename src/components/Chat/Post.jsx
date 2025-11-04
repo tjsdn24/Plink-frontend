@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import BasicProfile from '../../assets/icons/BasicProfile.svg';
 import LikeIcon from '../../assets/icons/Like.svg';
 import CommentIcon from '../../assets/icons/Comment.svg';
-import ReportIcon from '../../assets/icons/Report.svg';
+import ReportIcon from '../../assets/icons/report.svg';
 import { f, c } from '../../styles/themeUtils';
 import { postData } from './Posts';
 

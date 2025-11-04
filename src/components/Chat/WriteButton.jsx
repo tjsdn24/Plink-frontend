@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import WriteIcon from '../../assets/icons/Write.svg';
+import WriteIcon from '../../assets/icons/ChatWrite.svg';
 import { c } from '../../styles/themeUtils';
 
 export default function WriteButton() {

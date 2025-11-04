@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import PageHeader from '../../components/PageHeader';
 import TextField from '../../components/Signup/TextField';
@@ -12,8 +13,12 @@ const FieldsContainer = styled.div`
 `;
 
 export default function SignUp() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const nickname = location.state?.nickname || '숨쉬는 고양이';
+  
   const [formData, setFormData] = useState({
-    nickname: '',
+    email: '',
     password: '',
     passwordConfirm: '',
   });
@@ -27,20 +32,35 @@ export default function SignUp() {
   };
 
   const isAllFieldsFilled =
-    formData.nickname.trim() !== '' &&
+    formData.email.trim() !== '' &&
     formData.password.trim() !== '' &&
     formData.passwordConfirm.trim() !== '';
 
+  const handleBack = () => {
+    navigate('/login');
+  };
+
+  const handleSubmit = () => {
+    if (isAllFieldsFilled) {
+      navigate('/signup/complete', {
+        state: {
+          nickname,
+          formData,
+        },
+      });
+    }
+  };
+
   return (
     <div>
-      <PageHeader title="회원가입" />
-      <SignUpTitle />
+      <PageHeader title="회원가입" onBack={handleBack} />
+      <SignUpTitle userName={nickname} />
       <FieldsContainer>
         <TextField
-          name="nickname"
+          name="email"
           placeholder="이메일 입력"
           helperText="이메일을 입력해주세요."
-          value={formData.nickname}
+          value={formData.email}
           onChange={handleChange}
         />
         <TextField
@@ -58,7 +78,7 @@ export default function SignUp() {
           onChange={handleChange}
         />
       </FieldsContainer>
-      <NavButton isActive={isAllFieldsFilled}>가입하기</NavButton>
+      <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>가입하기</NavButton>
     </div>
   );
 }

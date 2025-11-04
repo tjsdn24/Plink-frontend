@@ -8,10 +8,10 @@ import PhotoBooth from '../pages/Photo/PhotoBooth';
 import Chat from '../pages/Chat/Chat';
 import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
-
+import Nickname from '../pages/Signup/Nickname';
 import Login from '../pages/Login/Login';
 import SignUp from '../pages/Signup/SignUp';
-
+import SignUpComplete from '../pages/Signup/SignUpComplete';
 export default function Router() {
   return (
     <BrowserRouter>
@@ -74,6 +74,8 @@ export default function Router() {
         <Route path="/login" element={<Login />} />
         {/* 회원가입 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/nickname" element={<Nickname />} />
+        <Route path="/signup/complete" element={<SignUpComplete />} />
       </Routes>
     </BrowserRouter>
   );

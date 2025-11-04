@@ -9,7 +9,7 @@ import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
 
 import Login from '../pages/Login/Login';
-import SignUp from '../pages/Login/SignUp';
+import SignUp from '../pages/Signup/SignUp';
 
 export default function Router() {
   return (

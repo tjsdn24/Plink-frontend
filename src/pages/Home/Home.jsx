@@ -8,7 +8,7 @@ import EventBox from '../../components/Home/EventBox';
 import HotBox from '../../components/Home/HotBox';
 
 const HomeContainer = styled.div`
-  padding-top: ${s('md')};
+  padding: ${s('md')};
   display: flex;
   flex-direction: column;
   gap: 24px;

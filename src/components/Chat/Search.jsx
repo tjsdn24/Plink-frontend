@@ -11,10 +11,12 @@ export default function Search() {
 
 const SearchBox = styled.input`
   //임시
-  margin: 10px;
-  width: 700px;
+  margin: 10px 15px;
+  width: 95%;
   height: 50px;
-  padding: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;

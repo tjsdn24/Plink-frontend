@@ -12,7 +12,8 @@ export const theme = {
     neutral: {
       black: '#1A1D2D', // 메인 글씨
       black2: '#2C3249', // 보조 글씨
-      bg: '#F7F8FF', // 배경
+      //bg: '#F7F8FF', // 배경   이게 원본인데 너무 연해서 아래컬러 임시 사용
+      bg: '#f2f3feff',
       gray: '#DDE1F0', // 구분선/비활성화
       gray2: '#9598A3', //시간 글씨
       white: '#FFFFFF', // 카드

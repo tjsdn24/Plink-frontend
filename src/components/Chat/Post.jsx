@@ -4,9 +4,8 @@ import LikeIcon from '../../assets/icons/ChatLike.svg';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import ReportIcon from '../../assets/icons/Chatreport.svg';
 import { f, c } from '../../styles/themeUtils';
-import { postData } from './Posts';
 
-export default function Post() {
+export default function Post({ postData }) {
   const renderContent = (contentItem, index) => {
     switch (contentItem.type) {
       case 'text':
@@ -48,50 +47,48 @@ export default function Post() {
   };
 
   return (
-    <>
-      <ChatWrapper>
-        {postData.map(post => (
-          <PostWrapper key={post.id}>
-            <ProfileImg src={BasicProfile} alt="profile" />
-            <PostBox>
-              <Nickname>{post.nickname}</Nickname>
+    <ChatWrapper>
+      {postData.map(post => (
+        <PostWrapper key={post.id}>
+          <ProfileImg src={BasicProfile} alt="profile" />
+          <PostBox>
+            <Nickname>{post.nickname}</Nickname>
 
-              <ContentAndEtcWrapper>
-                <ContentWrapper>
-                  {post.content.map((contentItem, index) => renderContent(contentItem, index))}
-                </ContentWrapper>
+            <ContentAndEtcWrapper>
+              <ContentWrapper>
+                {post.content.map((contentItem, index) => renderContent(contentItem, index))}
+              </ContentWrapper>
 
-                <Etc>
-                  <Reaction>
-                    <Like>
-                      <ReactionIcon src={LikeIcon} alt="like" />
-                      {post.like}
-                    </Like>
-                    <Comment>
-                      <ReactionIcon src={CommentIcon} alt="comment" />
-                      {post.comment}
-                    </Comment>
-                  </Reaction>
-                  <Time>{post.time}</Time>
-                </Etc>
-              </ContentAndEtcWrapper>
-            </PostBox>
-          </PostWrapper>
-        ))}
-      </ChatWrapper>
-    </>
+              <Etc>
+                <Reaction>
+                  <Like>
+                    <ReactionIcon src={LikeIcon} alt="like" />
+                    {post.like}
+                  </Like>
+                  <Comment>
+                    <ReactionIcon src={CommentIcon} alt="comment" />
+                    {post.comment}
+                  </Comment>
+                </Reaction>
+                <Time>{post.time}</Time>
+              </Etc>
+            </ContentAndEtcWrapper>
+          </PostBox>
+        </PostWrapper>
+      ))}
+    </ChatWrapper>
   );
 }
 
 const ChatWrapper = styled.div`
-  background-color: #fff;
+  background-color: ${c('neutral.white')};
 `;
 
 const PostWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   padding: 12px 16px;
-  background-color: ${c('neutral.white')};
+  //background-color: ${c('neutral.white')};
   font-family: ${f('family.display01')};
 `;
 
@@ -234,4 +231,5 @@ const Comment = styled.div`
 const Time = styled.div`
   font-size: 12px;
   color: ${c('neutral.gray2')};
+  margin: 0px 30px 0px 10px;
 `;

@@ -6,6 +6,7 @@ import Home from '../pages/Home/Home';
 import Photo from '../pages/Photo/Photo';
 import PhotoBooth from '../pages/Photo/PhotoBooth';
 import Chat from '../pages/Chat/Chat';
+import Comments from '../pages/Chat/Comments';
 import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
 import Nickname from '../pages/Signup/Nickname';
@@ -64,6 +65,14 @@ export default function Router() {
             </MainLayout>
           }
         />
+        <Route
+          path="/chat/:postId"
+          element={
+            <MainLayout>
+              <Comments />
+            </MainLayout>
+          }
+        />
         {/* 게임 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/game"
@@ -83,45 +92,21 @@ export default function Router() {
           }
         />
         {/* 비밀번호 변경 페이지 (Header 제거, Navbar 유지)*/}
-        <Route
-          path="/mypage/changepassword"
-          element={<ChangePassword />}
-        />
+        <Route path="/mypage/changepassword" element={<ChangePassword />} />
         {/* 프로필 변경 페이지 (Header 제거, Navbar 유지)*/}
-        <Route
-          path="/mypage/profile"
-          element={<Profile />}
-        />
+        <Route path="/mypage/profile" element={<Profile />} />
         {/* 프로필 이미지 변경 페이지 (Header 제거, Navbar 유지)*/}
-        <Route
-          path="/mypage/profile/changeimage"
-          element={<ChangeImage />}
-        />
+        <Route path="/mypage/profile/changeimage" element={<ChangeImage />} />
         {/* 기본 프로필 선택 페이지 (Header 제거, Navbar 유지)*/}
-        <Route
-          path="/mypage/profile/selectimage"
-          element={<SelectImage />}
-        />
+        <Route path="/mypage/profile/selectimage" element={<SelectImage />} />
         {/* 로그아웃 페이지 (Header 제거, Navbar 유지)*/}
-        <Route
-          path="/mypage/logout"
-          element={<Logout />}
-        />
+        <Route path="/mypage/logout" element={<Logout />} />
         {/* 축제 페이지 (Header만 유지, Navbar 제거)*/}
-        <Route
-          path="/festival"
-          element={<Festival />}
-        />
+        <Route path="/festival" element={<Festival />} />
         {/* 축제 정렬 페이지 */}
-        <Route
-          path="/festival/sort"
-          element={<FestivalSort />}
-        />
+        <Route path="/festival/sort" element={<FestivalSort />} />
         {/* Welcome 페이지 */}
-        <Route
-          path="/welcome"
-          element={<Welcome />}
-        />
+        <Route path="/welcome" element={<Welcome />} />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />
         {/* 회원가입 페이지 (Header, Navbar 제외 예정)*/}

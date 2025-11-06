@@ -67,7 +67,6 @@ export default function WritePost({ onClose, onAddPost }) {
     }
 
     const newPost = {
-      id: Date.now(),
       nickname: '익명의 사용자',
       content,
       like: 0,
@@ -75,7 +74,6 @@ export default function WritePost({ onClose, onAddPost }) {
       time: '방금 전',
       category: selectedCategory,
     };
-
     onAddPost(newPost);
     onClose();
   };

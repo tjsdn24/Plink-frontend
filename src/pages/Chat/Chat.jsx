@@ -14,14 +14,20 @@ export default function Chat() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const isFirstLoad = useRef(true);
 
+  //고유 ID 생성 함수
+  const generateId = () => Date.now() + Math.random().toString(36).substr(2, 9);
+
   //localStorage에서 불러오기
   useEffect(() => {
     const saved = localStorage.getItem('posts');
-    if (saved) {
-      setPosts(JSON.parse(saved));
-    } else {
-      setPosts(initialData);
-    }
+    let loaded = saved ? JSON.parse(saved) : initialData;
+
+    //id가 없는 게시글에 자동으로 id 추가
+    const withIds = loaded.map(post => (post.id ? post : { ...post, id: generateId() }));
+
+    setPosts(withIds);
+
+    localStorage.setItem('posts', JSON.stringify(withIds));
   }, []);
 
   //posts 변경 시 localStorage에 자동 저장
@@ -35,7 +41,14 @@ export default function Chat() {
 
   //새로운 글 추가
   const handleAddPost = newPost => {
-    setPosts(prev => [newPost, ...prev]);
+    const id = generateId();
+    const postWithId = { ...newPost, id };
+
+    setPosts(prev => {
+      const updated = [postWithId, ...prev];
+      localStorage.setItem('posts', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   // 카테고리 필터링
@@ -48,6 +61,7 @@ export default function Chat() {
         <Search />
         <ChatCatagory selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       </ChatTop>
+
       <ChatBottom>
         <Post postData={filteredPosts} />
         <WriteButton onClick={() => setOpenWrite(true)} />

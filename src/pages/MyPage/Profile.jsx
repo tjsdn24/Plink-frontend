@@ -1,0 +1,533 @@
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { c, f, s, typography } from '../../styles/themeUtils';
+import PageHeader from '../../components/PageHeader';
+import SignUpTitle from '../../components/Signup/SignUpTitle';
+import TextField from '../../components/Signup/TextField';
+import defaultAvatar from '../../assets/icons/profile/avatar1.svg';
+import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
+import MyPageCameraIcon from '../../assets/icons/MyPageCamera.svg';
+import successIcon from '../../assets/icons/PasswordTrue.svg';
+import errorIcon from '../../assets/icons/PasswordFalse.svg';
+
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background: ${c('neutral.black2')};
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
+const BlurredBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: ${c('neutral.black2')};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+  will-change: transform;
+  transform: translateZ(0);
+`;
+
+const BackgroundContent = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.5;
+  filter: blur(8px);
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+`;
+
+const StyledHeader = styled.div`
+  filter: blur(8px);
+  opacity: 0.6;
+`;
+
+const StyledTitle = styled.div`
+  filter: blur(8px);
+  opacity: 0.6;
+`;
+
+const StyledFields = styled.div`
+  padding: 0 ${s('md')};
+  filter: blur(8px);
+  opacity: 0.6;
+`;
+
+const FieldsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: ${s('lg')};
+`;
+
+const BottomSheet = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: ${c('neutral.white')};
+  border-radius: 24px 24px 0 0;
+  padding: ${s('lg')} ${s('md')} ${s('xl')};
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+  z-index: 10;
+  will-change: transform;
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%) translateZ(0);
+    }
+    to {
+      transform: translateY(0) translateZ(0);
+    }
+  }
+`;
+
+const DragHandle = styled.div`
+  width: 40px;
+  height: 4px;
+  background: ${c('neutral.gray')};
+  border-radius: 2px;
+  margin: 0 auto ${s('md')};
+`;
+
+const Title = styled.h1`
+  ${typography('headline01')};
+  color: ${c('neutral.black')};
+  margin-bottom: ${s('xl')};
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: ${s('xl')};
+  margin-bottom: ${s('xl')};
+`;
+
+const ProfileImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  position: relative;
+`;
+
+const ProfileImageWrapper = styled.div`
+  position: relative;
+  width: 120px;
+  height: 120px;
+`;
+
+const ProfileImage = styled.img`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const CameraIconButton = styled.button`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  border: none;
+  
+  img {
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+  }
+`;
+
+const NicknameFieldsContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const TextFieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  width: 100%;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  position: relative;
+`;
+
+const InputContainer = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px ${({ $hasIcon }) => ($hasIcon ? '48px' : '16px')} 12px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ $status, theme }) => {
+    if ($status === 'success') return theme.colors.sub.green;
+    if ($status === 'error') return theme.colors.sub.red;
+    return theme.colors.neutral.gray;
+  }};
+  background: ${c('neutral.white')};
+  font-family: ${f('typography.body01.family')};
+  font-size: ${f('typography.body01.size')};
+  font-weight: ${f('typography.body01.weight')};
+  color: ${c('neutral.black')};
+  line-height: 24px;
+  box-sizing: border-box;
+  outline: none;
+
+  &::placeholder {
+    color: ${c('neutral.gray2')};
+  }
+
+  &:focus {
+    border-color: ${({ $status, theme }) => {
+      if ($status === 'success') return theme.colors.sub.green;
+      if ($status === 'error') return theme.colors.sub.red;
+      return theme.colors.brand.pink;
+    }};
+  }
+
+  &:disabled {
+    background: ${c('neutral.bg')};
+    cursor: not-allowed;
+  }
+`;
+
+const IconButton = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  img {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+`;
+
+const HelperText = styled.span`
+  font-family: ${f('typography.body02.family')};
+  font-size: ${f('typography.body02.size')};
+  font-weight: ${f('typography.body02.weight')};
+  color: ${({ $status, theme }) => {
+    if ($status === 'success') return theme.colors.sub.green;
+    if ($status === 'error') return theme.colors.sub.red;
+    return 'rgba(44, 50, 73, 0.5)';
+  }};
+  line-height: normal;
+  padding-left: 4px;
+`;
+
+function NicknameTextField({ 
+  name, 
+  placeholder, 
+  helperText, 
+  value, 
+  onChange, 
+  onIconClick,
+  status 
+}) {
+  const hasIcon = !!status || !!onIconClick;
+  const statusIconSrc = status === 'success' ? successIcon : status === 'error' ? errorIcon : null;
+
+  return (
+    <TextFieldContainer>
+      <InputWrapper>
+        <InputContainer>
+          <Input
+            id={name}
+            name={name}
+            type="text"
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            $hasIcon={hasIcon}
+            $status={status}
+          />
+          {statusIconSrc && (
+            <IconButton type="button" disabled>
+              <img src={statusIconSrc} alt={status === 'success' ? '성공' : '에러'} />
+            </IconButton>
+          )}
+          {!status && onIconClick && (
+            <IconButton type="button" onClick={onIconClick}>
+              <img src={SignUpChangeIcon} alt="랜덤 닉네임" />
+            </IconButton>
+          )}
+        </InputContainer>
+        {helperText && <HelperText $status={status}>{helperText}</HelperText>}
+      </InputWrapper>
+    </TextFieldContainer>
+  );
+}
+
+const ButtonContainer = styled.div`
+  margin-top: auto;
+  padding-top: ${s('lg')};
+  width: 100%;
+`;
+
+const LoginButton = styled.button`
+  width: 100%;
+  padding: 20px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: none;
+  background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.pink'))};
+  color: ${c('neutral.white')};
+  ${typography('label01')};
+  text-align: center;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.darkPink'))};
+  }
+
+  &:active {
+    background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.darkPink'))};
+  }
+`;
+
+// 랜덤 닉네임 생성 함수
+const generateRandomNickname = () => {
+  const adjectives = [
+    '멋진', '귀여운', '행복한', '빛나는', '용감한', '똑똑한', '친절한', '활발한',
+    '차분한', '밝은', '강한', '부드러운', '따뜻한', '시원한', '신비로운', '재미있는'
+  ];
+  
+  const nouns = [
+    '고양이', '강아지', '토끼', '햄스터', '다람쥐', '팬더', '곰', '펭귄',
+    '돌고래', '나비', '별', '달', '구름', '바람', '물결', '꽃',
+    '나무', '산', '바다', '하늘', '별빛', '햇살', '달빛', '무지개'
+  ];
+
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  
+  return `${randomAdjective} ${randomNoun}`;
+};
+
+export default function Profile({ 
+  currentNickname = '숨쉬는 고양이',
+  currentProfileImage
+}) {
+  const navigate = useNavigate();
+  
+  // localStorage에서 현재 프로필 정보 가져오기
+  const getStoredNickname = () => {
+    return localStorage.getItem('userNickname') || currentNickname || '숨쉬는 고양이';
+  };
+  
+  const getStoredProfileImage = () => {
+    return localStorage.getItem('userProfileImage') || currentProfileImage || defaultAvatar;
+  };
+  
+  const [formData, setFormData] = useState({
+    nickname: getStoredNickname(),
+  });
+  
+  const [profileImage, setProfileImage] = useState(getStoredProfileImage());
+  
+  const [nicknameStatus, setNicknameStatus] = useState(null); // null | 'success' | 'error'
+  const [helperMessage, setHelperMessage] = useState('2~8자 이내로 작성해주세요.');
+  
+  const initialNickname = getStoredNickname();
+
+  // 프로필 이미지 업데이트 감지
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const storedImage = localStorage.getItem('userProfileImage');
+      if (storedImage) {
+        setProfileImage(storedImage);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
+
+  // 닉네임 유효성 검사
+  const validateNickname = (name) => {
+    if (!name || name.trim() === '') return null;
+    
+    const length = name.trim().length;
+    if (length < 2 || length > 8) {
+      return false;
+    }
+    
+    // 실제로는 API 호출로 중복 확인해야 함
+    // 여기서는 예시로 "뛰었다가 달리는 고양이"는 사용 불가능으로 처리
+    const unavailableNames = ['뛰었다가 달리는 고양이', 'test', 'admin'];
+    if (unavailableNames.includes(name.trim())) {
+      return false;
+    }
+    
+    return true;
+  };
+
+  useEffect(() => {
+    if (formData.nickname && formData.nickname !== initialNickname) {
+      const isValid = validateNickname(formData.nickname);
+      if (isValid === null) {
+        setNicknameStatus(null);
+        setHelperMessage('2~8자 이내로 작성해주세요.');
+      } else if (isValid) {
+        setNicknameStatus('success');
+        setHelperMessage('사용 가능한 닉네임이에요!');
+      } else {
+        setNicknameStatus('error');
+        setHelperMessage('사용 불가능한 닉네임이에요!');
+      }
+    } else {
+      setNicknameStatus(null);
+      setHelperMessage('2~8자 이내로 작성해주세요.');
+    }
+  }, [formData.nickname, initialNickname]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRandomNickname = () => {
+    const randomNickname = generateRandomNickname();
+    setFormData((prev) => ({
+      ...prev,
+      nickname: randomNickname,
+    }));
+  };
+
+  const handleSave = () => {
+    if (nicknameStatus === 'success' && formData.nickname.trim() !== '') {
+      // localStorage에 저장
+      localStorage.setItem('userNickname', formData.nickname.trim());
+      localStorage.setItem('userProfileImage', profileImage);
+      
+      // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
+      window.dispatchEvent(new Event('profileUpdated'));
+      
+      // 마이페이지로 이동
+      navigate('/mypage');
+    }
+  };
+
+  const handleProfileImageClick = () => {
+    // ChangeImage 페이지로 이동
+    navigate('/mypage/profile/changeimage');
+  };
+
+  const isFormValid = nicknameStatus === 'success';
+
+  // 배경 콘텐츠를 메모이제이션하여 불필요한 리렌더링 방지
+  const backgroundContent = useMemo(
+    () => (
+      <BackgroundContent>
+        <StyledHeader>
+          <PageHeader title="프로필 변경" />
+        </StyledHeader>
+        <StyledTitle>
+          <SignUpTitle userName={initialNickname} />
+        </StyledTitle>
+        <StyledFields>
+          <FieldsContainer>
+            <TextField
+              name="email"
+              placeholder="이메일 입력"
+              helperText="이메일을 입력해주세요."
+              value=""
+              onChange={() => {}}
+              disabled
+            />
+          </FieldsContainer>
+        </StyledFields>
+      </BackgroundContent>
+    ),
+    [initialNickname]
+  );
+
+  return (
+    <PageContainer>
+      {backgroundContent}
+      <BlurredBackground />
+      <BottomSheet>
+        <DragHandle />
+        <Title>프로필 변경</Title>
+        <Content>
+          <ProfileImageContainer>
+            <ProfileImageWrapper>
+              <ProfileImage src={profileImage} alt="프로필" />
+              <CameraIconButton onClick={handleProfileImageClick}>
+                <img src={MyPageCameraIcon} alt="카메라" />
+              </CameraIconButton>
+            </ProfileImageWrapper>
+          </ProfileImageContainer>
+          <NicknameFieldsContainer>
+            <NicknameTextField
+              name="nickname"
+              placeholder={initialNickname}
+              helperText={helperMessage}
+              value={formData.nickname}
+              onChange={handleChange}
+              onIconClick={handleRandomNickname}
+              status={nicknameStatus}
+            />
+          </NicknameFieldsContainer>
+        </Content>
+        <ButtonContainer>
+          <LoginButton onClick={handleSave} disabled={!isFormValid}>
+            수정하기
+          </LoginButton>
+        </ButtonContainer>
+      </BottomSheet>
+    </PageContainer>
+  );
+}

@@ -5,6 +5,7 @@ import { c, s, typography } from '../../styles/themeUtils';
 import defaultAvatar from '../../assets/icons/profile/avatar1.svg';
 import LoginPrompt from './LoginPrompt';
 
+
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -199,8 +200,8 @@ const ContentWrapper = styled.div`
 
 export default function MyPage({
   isLoggedIn: propIsLoggedIn,
-  profileImage,
-  nickname = '숨쉬는 고양이님!',
+  profileImage: propProfileImage,
+  nickname: propNickname,
   storyCount = 7,
   empathyCount = 12,
   commentCount = 36,
@@ -215,12 +216,32 @@ export default function MyPage({
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  // 프로필 데이터 state
+  const [userNickname, setUserNickname] = useState(() => {
+    if (propNickname !== undefined) {
+      return propNickname;
+    }
+    return localStorage.getItem('userNickname') || '숨쉬는 고양이님!';
+  });
+
+  const [userProfileImage, setUserProfileImage] = useState(() => {
+    if (propProfileImage !== undefined) {
+      return propProfileImage;
+    }
+    return localStorage.getItem('userProfileImage') || defaultAvatar;
+  });
+
   // 기본 프로필 이미지 (API에서 제공되지 않을 경우)
-  const displayProfileImage = profileImage || defaultAvatar;
+  const displayProfileImage = userProfileImage || defaultAvatar;
 
   // 비밀번호 변경 페이지로 이동
   const handleChangePassword = () => {
     navigate('/mypage/changepassword');
+  };
+
+  // 프로필 변경 페이지로 이동
+  const handleChangeProfile = () => {
+    navigate('/mypage/profile');
   };
 
   // 로그인 상태 변경 감지
@@ -247,6 +268,38 @@ export default function MyPage({
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [isLoggedIn]);
+
+  // 프로필 업데이트 감지
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const storedNickname = localStorage.getItem('userNickname');
+      const storedProfileImage = localStorage.getItem('userProfileImage');
+      
+      if (storedNickname) {
+        setUserNickname(storedNickname);
+      }
+      if (storedProfileImage) {
+        setUserProfileImage(storedProfileImage);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    // 컴포넌트 마운트 시에도 확인
+    const storedNickname = localStorage.getItem('userNickname');
+    const storedProfileImage = localStorage.getItem('userProfileImage');
+    
+    if (storedNickname && storedNickname !== userNickname) {
+      setUserNickname(storedNickname);
+    }
+    if (storedProfileImage && storedProfileImage !== userProfileImage) {
+      setUserProfileImage(storedProfileImage);
+    }
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, [userNickname, userProfileImage]);
 
   // 비로그인 상태에서 스크롤 비활성화
   useEffect(() => {
@@ -275,7 +328,7 @@ export default function MyPage({
                 <ProfileImage src={displayProfileImage} alt="프로필" />
               </ProfileImageWrapper>
               <ProfileInfo>
-                <UserName>{nickname}</UserName>
+                <UserName>{userNickname}님!</UserName>
                 <Greeting>재밌게 즐기고 계신가요?</Greeting>
               </ProfileInfo>
             </ProfileHeader>
@@ -308,7 +361,7 @@ export default function MyPage({
               <MenuItem onClick={handleChangePassword}>
                 <MenuItemLabel>비밀번호 변경</MenuItemLabel>
               </MenuItem>
-              <MenuItem className="with-border">
+              <MenuItem className="with-border" onClick={handleChangeProfile}>
                 <MenuItemLabel>프로필 변경</MenuItemLabel>
               </MenuItem>
             </MenuList>
@@ -332,7 +385,7 @@ export default function MyPage({
           <Section>
             <SectionTitle>계정관리</SectionTitle>
             <MenuList>
-              <MenuItem>
+              <MenuItem onClick={() => navigate('/mypage/logout')}>
                 <MenuItemLabel>로그아웃</MenuItemLabel>
               </MenuItem>
               <MenuItem>

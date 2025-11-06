@@ -17,6 +17,10 @@ import Auth from '../pages/Signup/Auth';
 import NewPassword from '../pages/Signup/NewPassword';
 import NewComplete from '../pages/Signup/NewComplete';
 import ChangePassword from '../pages/MyPage/ChangePassword';
+import Profile from '../pages/MyPage/Profile';
+import ChangeImage from '../pages/MyPage/ChangeImage';
+import SelectImage from '../pages/MyPage/SelectImage';
+import Logout from '../pages/MyPage/Logout';
 export default function Router() {
   return (
     <BrowserRouter>
@@ -79,6 +83,26 @@ export default function Router() {
         <Route
           path="/mypage/changepassword"
           element={<ChangePassword />}
+        />
+        {/* 프로필 변경 페이지 (Header 제거, Navbar 유지)*/}
+        <Route
+          path="/mypage/profile"
+          element={<Profile />}
+        />
+        {/* 프로필 이미지 변경 페이지 (Header 제거, Navbar 유지)*/}
+        <Route
+          path="/mypage/profile/changeimage"
+          element={<ChangeImage />}
+        />
+        {/* 기본 프로필 선택 페이지 (Header 제거, Navbar 유지)*/}
+        <Route
+          path="/mypage/profile/selectimage"
+          element={<SelectImage />}
+        />
+        {/* 로그아웃 페이지 (Header 제거, Navbar 유지)*/}
+        <Route
+          path="/mypage/logout"
+          element={<Logout />}
         />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />

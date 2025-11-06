@@ -37,7 +37,7 @@ export default function SignUp() {
     formData.passwordConfirm.trim() !== '';
 
   const handleBack = () => {
-    navigate('/login');
+    navigate('/signup/nickname');
   };
 
   const handleSubmit = () => {

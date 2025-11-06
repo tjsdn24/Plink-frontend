@@ -1,75 +1,49 @@
-import React, { useState } from 'react';
-import { useCamera } from '../../hooks/useCamera';
-import { usePhotoBooth } from '../../hooks/usePhotoBooth';
-import { composeImages2x2 } from '../../hooks/composeImages';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import usePhotoBooth from '../../hooks/usePhotoBooth';
+import VideoView from '../../components/Photo/VideoView';
+import PhotoGrid from '../../components/Photo/PhotoGrid';
+import CaptureButton from '../../components/Photo/CaptureButton';
 
 export default function PhotoBooth() {
-  const { videoRef, ready, startCamera, stopCamera } = useCamera();
-  const { canvasRef, shots, countdown, countdownAndShoot } = usePhotoBooth(videoRef);
-  const [final, setFinal] = useState(null);
+  const navigate = useNavigate();
+  const { videoRef, canvasRef, photos, isComplete, takePhoto } = usePhotoBooth();
 
-  const handleDownload = async () => {
-    const result = await composeImages2x2(shots);
-    setFinal(result);
-    const a = document.createElement('a');
-    a.href = result;
-    a.download = '2x2-photo.png';
-    a.click();
-  };
+  // 4장 모두 찍히면 자동으로 편집 페이지로 이동
+  useEffect(() => {
+    if (isComplete) {
+      navigate('/photo/edit', { state: { photos } });
+    }
+  }, [isComplete, navigate, photos]);
 
   return (
-    <div style={{ textAlign: 'center', padding: '1rem' }}>
-      <>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          style={{
-            width: '360px',
-            aspectRatio: '3 / 4',
-            objectFit: 'cover',
-            borderRadius: '10px',
-            border: '2px solid #ddd',
-            marginTop: '1rem',
-          }}
-        />
-        {countdown && (
-          <div
-            style={{
-              fontSize: '48px',
-              fontWeight: 'bold',
-              color: 'crimson',
-            }}
-          >
-            {countdown}
-          </div>
-        )}
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={countdownAndShoot}>4장 촬영</button>
-          {shots.length === 4 && (
-            <button onClick={handleDownload} style={{ marginLeft: '1rem' }}>
-              2x2 저장
-            </button>
-          )}
-          <button onClick={stopCamera} style={{ marginLeft: '1rem' }}>
-            카메라 끄기
-          </button>
-        </div>
-
-        {final && (
-          <img
-            src={final}
-            alt="2x2 결과"
-            style={{
-              marginTop: '1rem',
-              width: '400px',
-              border: '1px solid #ccc',
-            }}
-          />
-        )}
-      </>
-    </div>
+    <Container>
+      <VideoView videoRef={videoRef} canvasRef={canvasRef} />
+      <PhotoGrid photos={photos} />
+      <GuideText>
+        {photos.length < 4 ? `${photos.length + 1}/4번째 사진을 촬영하세요` : '촬영 완료 🎉'}
+      </GuideText>
+      <CaptureButton onClick={takePhoto} disabled={photos.length >= 4} />
+    </Container>
   );
 }
+
+/* styled-components */
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: #000;
+  color: #fff;
+  height: 100vh;
+  position: fixed;
+`;
+
+const GuideText = styled.div`
+  color: #ccc;
+  margin-top: 8px;
+  font-size: 0.9rem;
+`;

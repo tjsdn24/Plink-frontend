@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
-import Navbar from '../components/Navbar';
+import PageHeader from '../components/PageHeader';
 
 const Wrapper = styled.div`
   display: flex;
@@ -14,8 +13,8 @@ const Content = styled.main`
   flex: 1;
   /* padding: 16px; */
   background-color: ${({ theme }) => theme.colors.gray100};
-  padding-top: 60px; /* 헤더 높이만큼 띄우기 */
-  padding-bottom: 60px; /* 네브바 높이만큼 띄우기 */
+  padding-top: 60px; /* ✅ 헤더 높이만큼 띄우기 */
+  padding-bottom: 60px; /* ✅ 네브바 높이만큼 띄우기 */
   overflow-y: auto;
 `;
 
@@ -27,24 +26,14 @@ const FixedHeader = styled.div`
   z-index: 1000;
 `;
 
-const FixedNavbar = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-`;
-
-export default function MainLayout({ children }) {
+export default function PageLayout({ title, children }) {
+  const handleBack = () => window.history.back();
   return (
     <Wrapper>
       <FixedHeader>
-        <Header />
+        <PageHeader title={title} onBack={handleBack} />
       </FixedHeader>
       <Content>{children}</Content>
-      <FixedNavbar>
-        <Navbar />
-      </FixedNavbar>
     </Wrapper>
   );
 }

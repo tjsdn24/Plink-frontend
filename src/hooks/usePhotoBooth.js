@@ -1,51 +1,61 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export function usePhotoBooth(videoRef) {
+export default function usePhotoBooth() {
+  const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [shots, setShots] = useState([]);
-  const [countdown, setCountdown] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [isComplete, setIsComplete] = useState(false);
 
-  const takeShot = () => {
-    const video = videoRef.current;
+  // 카메라 연결
+  useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then(stream => {
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      })
+      .catch(err => console.error('카메라 접근 실패:', err));
+
+    return () => {
+      const stream = videoRef.current?.srcObject;
+      if (stream) stream.getTracks().forEach(track => track.stop());
+    };
+  }, []);
+
+  // 사진 촬영
+  const takePhoto = () => {
     const canvas = canvasRef.current;
-    if (!video || !canvas) return;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
 
-    const w = 900;
-    const h = 1200; // 3:4 비율
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, w, h);
-    return canvas.toDataURL('image/png');
-  };
-
-  const countdownAndShoot = async (count = 3, total = 4) => {
-    const photos = [];
-    for (let i = 0; i < total; i++) {
-      await runCountdown(count);
-      const shot = takeShot();
-      if (shot) photos.push(shot);
-      await delay(800);
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.warn('비디오 준비 중입니다.');
+      return;
     }
-    setShots(photos);
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // 좌우 반전
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    //정방형 자르기
+    const minSize = Math.min(video.videoWidth, video.videoHeight);
+    const sx = (video.videoWidth - minSize) / 2;
+    const sy = (video.videoHeight - minSize) / 2;
+
+    canvas.width = minSize;
+    canvas.height = minSize;
+
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, minSize, minSize, 0, 0, canvas.width, canvas.height);
+
+    const imageUrl = canvas.toDataURL('image/png');
+    const updated = [...photos, imageUrl];
+    setPhotos(updated);
+    if (updated.length === 4) setIsComplete(true);
   };
 
-  const runCountdown = sec =>
-    new Promise(resolve => {
-      let n = sec;
-      setCountdown(n);
-      const timer = setInterval(() => {
-        n -= 1;
-        setCountdown(n);
-        if (n <= 0) {
-          clearInterval(timer);
-          setCountdown(null);
-          resolve();
-        }
-      }, 1000);
-    });
-
-  const delay = ms => new Promise(r => setTimeout(r, ms));
-
-  return { canvasRef, shots, countdown, countdownAndShoot };
+  return { videoRef, canvasRef, photos, isComplete, takePhoto };
 }

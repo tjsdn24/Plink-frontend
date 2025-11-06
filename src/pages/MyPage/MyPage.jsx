@@ -1,13 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 import defaultAvatar from '../../assets/icons/profile/avatar1.svg';
 import LoginPrompt from './LoginPrompt';
 
+
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ $isLoggedIn }) => ($isLoggedIn ? s('md') : s('lg'))};
+  gap: ${({ $isLoggedIn }) => ($isLoggedIn ? s('sm') : s('lg'))};
   ${({ $isLoggedIn }) =>
     !$isLoggedIn &&
     `
@@ -25,13 +27,13 @@ const PageContainer = styled.div`
 
 const ProfileCardWrapper = styled.div`
   background: ${c('neutral.white')};
-  padding: ${s('xs')} ${s('md')};
+  padding: ${s('xs')} ${s('xl')};
   box-sizing: border-box;
 `;
 
 const ProfileCard = styled.div`
   background: ${c('neutral.white')};
-  padding: 12px 16px 16px 16px;
+  padding: 4px 8px 8px 8px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -133,7 +135,7 @@ const Section = styled.div`
 const SectionTitle = styled.div`
   ${typography('headline02')};
   color: ${c('neutral.black')};
-  padding: ${s('md')};
+  padding: ${s('md')} ${s('xl')} ${s('sm')} ${s('xl')};
   color: var(--color-neutral-black, #1A1D2D);
 
 /* Headline-02 */
@@ -147,11 +149,11 @@ line-height: normal;
 const MenuList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding-top: 0;
 `;
 
 const MenuItem = styled.li`
-  padding: ${s('md')};
+  padding: ${s('md')} ${s('xl')};
   ${typography('body01')};
   color: ${c('neutral.black')};
   cursor: pointer;
@@ -197,15 +199,107 @@ const ContentWrapper = styled.div`
 `;
 
 export default function MyPage({
-  isLoggedIn = false,
-  profileImage,
-  nickname = '숨쉬는 고양이님!',
+  isLoggedIn: propIsLoggedIn,
+  profileImage: propProfileImage,
+  nickname: propNickname,
   storyCount = 7,
   empathyCount = 12,
   commentCount = 36,
 }) {
+  const navigate = useNavigate();
+  
+  // localStorage에서 로그인 상태 확인
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (propIsLoggedIn !== undefined) {
+      return propIsLoggedIn;
+    }
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  // 프로필 데이터 state
+  const [userNickname, setUserNickname] = useState(() => {
+    if (propNickname !== undefined) {
+      return propNickname;
+    }
+    return localStorage.getItem('userNickname') || '숨쉬는 고양이님!';
+  });
+
+  const [userProfileImage, setUserProfileImage] = useState(() => {
+    if (propProfileImage !== undefined) {
+      return propProfileImage;
+    }
+    return localStorage.getItem('userProfileImage') || defaultAvatar;
+  });
+
   // 기본 프로필 이미지 (API에서 제공되지 않을 경우)
-  const displayProfileImage = profileImage || defaultAvatar;
+  const displayProfileImage = userProfileImage || defaultAvatar;
+
+  // 비밀번호 변경 페이지로 이동
+  const handleChangePassword = () => {
+    navigate('/mypage/changepassword');
+  };
+
+  // 프로필 변경 페이지로 이동
+  const handleChangeProfile = () => {
+    navigate('/mypage/profile');
+  };
+
+  // 로그인 상태 변경 감지
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    };
+
+    // 다른 탭에서의 localStorage 변경 감지
+    window.addEventListener('storage', handleStorageChange);
+    
+    // 컴포넌트 마운트 시 및 로그인 후 상태 확인
+    const checkLoginStatus = () => {
+      const currentStatus = localStorage.getItem('isLoggedIn') === 'true';
+      if (currentStatus !== isLoggedIn) {
+        setIsLoggedIn(currentStatus);
+      }
+    };
+
+    // 초기 확인
+    checkLoginStatus();
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [isLoggedIn]);
+
+  // 프로필 업데이트 감지
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const storedNickname = localStorage.getItem('userNickname');
+      const storedProfileImage = localStorage.getItem('userProfileImage');
+      
+      if (storedNickname) {
+        setUserNickname(storedNickname);
+      }
+      if (storedProfileImage) {
+        setUserProfileImage(storedProfileImage);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    // 컴포넌트 마운트 시에도 확인
+    const storedNickname = localStorage.getItem('userNickname');
+    const storedProfileImage = localStorage.getItem('userProfileImage');
+    
+    if (storedNickname && storedNickname !== userNickname) {
+      setUserNickname(storedNickname);
+    }
+    if (storedProfileImage && storedProfileImage !== userProfileImage) {
+      setUserProfileImage(storedProfileImage);
+    }
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, [userNickname, userProfileImage]);
 
   // 비로그인 상태에서 스크롤 비활성화
   useEffect(() => {
@@ -234,7 +328,7 @@ export default function MyPage({
                 <ProfileImage src={displayProfileImage} alt="프로필" />
               </ProfileImageWrapper>
               <ProfileInfo>
-                <UserName>{nickname}</UserName>
+                <UserName>{userNickname}님!</UserName>
                 <Greeting>재밌게 즐기고 계신가요?</Greeting>
               </ProfileInfo>
             </ProfileHeader>
@@ -264,10 +358,10 @@ export default function MyPage({
                   <MenuItemValue>abcd1234!</MenuItemValue>
                 </MenuItemLabel>
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={handleChangePassword}>
                 <MenuItemLabel>비밀번호 변경</MenuItemLabel>
               </MenuItem>
-              <MenuItem className="with-border">
+              <MenuItem className="with-border" onClick={handleChangeProfile}>
                 <MenuItemLabel>프로필 변경</MenuItemLabel>
               </MenuItem>
             </MenuList>
@@ -291,7 +385,7 @@ export default function MyPage({
           <Section>
             <SectionTitle>계정관리</SectionTitle>
             <MenuList>
-              <MenuItem>
+              <MenuItem onClick={() => navigate('/mypage/logout')}>
                 <MenuItemLabel>로그아웃</MenuItemLabel>
               </MenuItem>
               <MenuItem>

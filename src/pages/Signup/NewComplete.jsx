@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { s } from '../../styles/themeUtils';
 import SuccessEmojiIcon from '../../assets/icons/SuccessEmoji.svg';
@@ -23,26 +23,15 @@ const FieldsContainer = styled.div`
   margin-top: ${s('lg')};
 `;
 
-export default function SignUpComplete() {
+export default function NewComplete() {
   const navigate = useNavigate();
   const location = useLocation();
   const nickname = location.state?.nickname || '숨쉬는 고양이';
-  const formData = useMemo(
-    () =>
-      location.state?.formData || {
-        email: '',
-        password: '',
-        passwordConfirm: '',
-      },
-    [location.state?.formData]
-  );
-
-  // 회원가입 완료 시 닉네임을 localStorage에 저장
-  useEffect(() => {
-    if (nickname) {
-      localStorage.setItem('userNickname', nickname);
-    }
-  }, [nickname]);
+  const formData = useMemo(() => location.state?.formData || {
+    email: '',
+    password: '',
+    passwordConfirm: '',
+  }, [location.state?.formData]);
 
   const handleLogin = () => {
     navigate('/login');
@@ -93,13 +82,13 @@ export default function SignUpComplete() {
 
   return (
     <BottomSheet
-      title="회원가입"
+      title="비밀번호 찾기"
       emojiIcon={SuccessEmojiIcon}
-      emojiAlt="회원가입 완료"
-      mainMessage="회원가입이 완료되었어요!"
+      emojiAlt="비밀번호 변경 완료"
+      mainMessage="비밀번호 변경이 완료되었어요!"
       subMessages={[
-        '서비스에 가입해주셔서 감사합니다',
-        "즐거운 'PLINK'되세요!",
+        '변경된 비밀번호로 로그인 후',
+        "'PLINK'를 즐겨보세요!",
       ]}
       buttonText="로그인하기"
       onButtonClick={handleLogin}

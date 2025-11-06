@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, f, s } from '../styles/themeUtils';
 import Login from '../pages/Login/Login';
@@ -21,14 +22,26 @@ const Logo = styled.h1`
   font-size: 24px;
   color: ${c('brand.pink')};
 `;
-const LoginButton = styled.button``;
+const LoginButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: ${f('family.display01')};
+`;
 
 export default function Header() {
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
   return (
     <Bar>
       <Logo> PLINK</Logo>
       <LoginWrapper>
-        <LoginButton>로그인이 필요합니다</LoginButton>
+        <LoginButton onClick={handleLoginClick}>로그인이 필요합니다</LoginButton>
 
         <img src={avatarImg} alt="아바타 아이콘" />
       </LoginWrapper>

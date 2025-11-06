@@ -14,10 +14,12 @@ const Wrapper = styled.div`
 const Content = styled.main`
   flex: 1;
   /* padding: 16px; */
+
   background-color: ${({ theme, whiteBackground }) =>
     whiteBackground ? 'white' : theme.colors.gray100}; /*Chat배경색 흰색으로 변경*/
   padding-top: 60px; /* ✅ 헤더 높이만큼 띄우기 */
   padding-bottom: 60px; /* ✅ 네브바 높이만큼 띄우기 */
+
   overflow-y: auto;
 `;
 
@@ -46,6 +48,7 @@ export default function MainLayout({ children }) {
       <FixedHeader>
         <Header />
       </FixedHeader>
+
 
       <Content whiteBackground={whiteBackground}>{children}</Content>
 

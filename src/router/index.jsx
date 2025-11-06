@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-
+import PageLayout from '../layouts/PageLayout';
 // ✅ 페이지 import
 import Home from '../pages/Home/Home';
 import Photo from '../pages/Photo/Photo';
 import PhotoBooth from '../pages/Photo/PhotoBooth';
+import PhotoEdit from '../pages/Photo/PhotoEdit';
 import Chat from '../pages/Chat/Chat';
 import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
@@ -37,22 +38,32 @@ export default function Router() {
             </MainLayout>
           }
         />
-
-        {/* 사진 관련 페이지 (Header + Navbar 유지) */}
+        {/* 사진 관련 페이지 (Header 유지) */}
         <Route
           path="/photo"
           element={
-            <MainLayout>
-              <Photo />
-            </MainLayout>
+            <PageLayout title={'Photo'}>
+              {' '}
+              <Photo />{' '}
+            </PageLayout>
           }
-        />
+        />{' '}
         <Route
-          path="/photobooth"
+          path="/photo/booth"
           element={
-            <MainLayout>
-              <PhotoBooth />
-            </MainLayout>
+            <PageLayout title={''}>
+              {' '}
+              <PhotoBooth />{' '}
+            </PageLayout>
+          }
+        />{' '}
+        <Route
+          path="/photo/edit"
+          element={
+            <PageLayout title={'다시 찍기'}>
+              {' '}
+              <PhotoEdit />{' '}
+            </PageLayout>
           }
         />
         {/* 채팅 관련 페이지 (Header + Navbar 유지) */}

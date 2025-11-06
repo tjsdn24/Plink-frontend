@@ -20,7 +20,11 @@ export const postData = [
     content: [
       {
         type: 'images',
-        data: ['https://example.com/image2.jpg', 'https://example.com/image3.jpg'],
+        data: [
+          'https://example.com/image1.jpg',
+          'https://example.com/image2.jpg',
+          'https://example.com/image3.jpg', //최대 3개 첨부가능
+        ],
       },
       {
         type: 'text',

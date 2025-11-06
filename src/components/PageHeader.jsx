@@ -54,11 +54,7 @@ export default function PageHeader({ title = '회원가입', onBack }) {
 
   return (
     <Bar>
-      {onBack ? (
-        <BackButton onClick={onBack}>{content}</BackButton>
-      ) : (
-        <Logo>{content}</Logo>
-      )}
+      {onBack ? <BackButton onClick={onBack}>{content}</BackButton> : <Logo>{content}</Logo>}
     </Bar>
   );
 }

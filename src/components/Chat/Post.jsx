@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Report from './Report';
 import styled from 'styled-components';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import LikeIcon from '../../assets/icons/ChatLike.svg';
@@ -6,13 +9,23 @@ import ReportIcon from '../../assets/icons/Chatreport.svg';
 import { f, c } from '../../styles/themeUtils';
 
 export default function Post({ postData }) {
-  const renderContent = (contentItem, index) => {
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleReportClick = () => setIsReportOpen(true);
+  const closeReport = () => setIsReportOpen(false);
+
+  const handlePostClick = postId => {
+    navigate(`/chat/${postId}`, { state: { post: postData.find(p => p.id === postId) } });
+  };
+
+  const renderContent = (contentItem, index, postId) => {
     switch (contentItem.type) {
       case 'text':
         return (
           <ContentRow key={index}>
-            <ContentBox>{contentItem.data}</ContentBox>
-            <Report src={ReportIcon} alt="report" />
+            <ContentBox onClick={() => handlePostClick(postId)}>{contentItem.data}</ContentBox>
+            <ReportButton src={ReportIcon} alt="report" onClick={handleReportClick} />
           </ContentRow>
         );
 
@@ -47,36 +60,41 @@ export default function Post({ postData }) {
   };
 
   return (
-    <ChatWrapper>
-      {postData.map(post => (
-        <PostWrapper key={post.id}>
-          <ProfileImg src={BasicProfile} alt="profile" />
-          <PostBox>
-            <Nickname>{post.nickname}</Nickname>
+    <>
+      <ChatWrapper>
+        {postData.map(post => (
+          <PostWrapper key={post.id}>
+            <ProfileImg src={BasicProfile} alt="profile" />
+            <PostBox>
+              <Nickname>{post.nickname}</Nickname>
 
-            <ContentAndEtcWrapper>
-              <ContentWrapper>
-                {post.content.map((contentItem, index) => renderContent(contentItem, index))}
-              </ContentWrapper>
+              <ContentAndEtcWrapper>
+                <ContentWrapper>
+                  {post.content.map((contentItem, index) =>
+                    renderContent(contentItem, index, post.id)
+                  )}
+                </ContentWrapper>
 
-              <Etc>
-                <Reaction>
-                  <Like>
-                    <ReactionIcon src={LikeIcon} alt="like" />
-                    {post.like}
-                  </Like>
-                  <Comment>
-                    <ReactionIcon src={CommentIcon} alt="comment" />
-                    {post.comment}
-                  </Comment>
-                </Reaction>
-                <Time>{post.time}</Time>
-              </Etc>
-            </ContentAndEtcWrapper>
-          </PostBox>
-        </PostWrapper>
-      ))}
-    </ChatWrapper>
+                <Etc>
+                  <Reaction>
+                    <Like>
+                      <ReactionIcon src={LikeIcon} alt="like" />
+                      {post.like}
+                    </Like>
+                    <Comment>
+                      <ReactionIcon src={CommentIcon} alt="comment" />
+                      {post.comment}
+                    </Comment>
+                  </Reaction>
+                  <Time>{post.time}</Time>
+                </Etc>
+              </ContentAndEtcWrapper>
+            </PostBox>
+          </PostWrapper>
+        ))}
+      </ChatWrapper>
+      {isReportOpen && <Report onClose={closeReport} />}
+    </>
   );
 }
 
@@ -190,7 +208,7 @@ const PollVotes = styled.span`
   font-weight: 600;
 `;
 
-const Report = styled.img`
+const ReportButton = styled.img`
   width: 18px;
   height: 18px;
   cursor: pointer;

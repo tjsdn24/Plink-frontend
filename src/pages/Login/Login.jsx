@@ -154,7 +154,9 @@ export default function Login() {
 
   const handleLogin = () => {
     if (isAllFieldsFilled) {
-      navigate('/');
+      // 로그인 상태를 localStorage에 저장
+      localStorage.setItem('isLoggedIn', 'true');
+      navigate('/mypage');
     }
   };
 

@@ -16,6 +16,7 @@ import Password from '../pages/Signup/Password';
 import Auth from '../pages/Signup/Auth';
 import NewPassword from '../pages/Signup/NewPassword';
 import NewComplete from '../pages/Signup/NewComplete';
+import ChangePassword from '../pages/MyPage/ChangePassword';
 export default function Router() {
   return (
     <BrowserRouter>
@@ -73,6 +74,11 @@ export default function Router() {
               <MyPage />
             </MainLayout>
           }
+        />
+        {/* 비밀번호 변경 페이지 (Header 제거, Navbar 유지)*/}
+        <Route
+          path="/mypage/changepassword"
+          element={<ChangePassword />}
         />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />

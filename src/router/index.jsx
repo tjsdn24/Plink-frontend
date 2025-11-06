@@ -21,6 +21,9 @@ import Profile from '../pages/MyPage/Profile';
 import ChangeImage from '../pages/MyPage/ChangeImage';
 import SelectImage from '../pages/MyPage/SelectImage';
 import Logout from '../pages/MyPage/Logout';
+import Festival from '../pages/Festival/Festival';
+import FestivalSort from '../pages/Festival/FestivalSort';
+import Welcome from '../pages/Welcome/Welcome';
 export default function Router() {
   return (
     <BrowserRouter>
@@ -103,6 +106,21 @@ export default function Router() {
         <Route
           path="/mypage/logout"
           element={<Logout />}
+        />
+        {/* 축제 페이지 (Header만 유지, Navbar 제거)*/}
+        <Route
+          path="/festival"
+          element={<Festival />}
+        />
+        {/* 축제 정렬 페이지 */}
+        <Route
+          path="/festival/sort"
+          element={<FestivalSort />}
+        />
+        {/* Welcome 페이지 */}
+        <Route
+          path="/welcome"
+          element={<Welcome />}
         />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />

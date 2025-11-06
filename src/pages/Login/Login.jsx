@@ -156,12 +156,12 @@ export default function Login() {
     if (isAllFieldsFilled) {
       // 로그인 상태를 localStorage에 저장
       localStorage.setItem('isLoggedIn', 'true');
-      navigate('/mypage');
+      navigate('/festival');
     }
   };
 
   const handleGuestLogin = () => {
-    navigate('/');
+    navigate('/festival');
   };
 
   const handleSignUp = (e) => {

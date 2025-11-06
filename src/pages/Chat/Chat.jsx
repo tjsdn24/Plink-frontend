@@ -5,7 +5,7 @@ import ChatCatagory from '../../components/Chat/ChatCatagory';
 import Post from '../../components/Chat/Post';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
-import { postData as initialData } from '../../components/Chat/posts.js';
+import { postData as initialData } from '../../components/Chat/PostData.js';
 import { c } from '../../styles/themeUtils';
 
 export default function Chat() {

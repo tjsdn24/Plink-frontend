@@ -96,15 +96,30 @@ const LocationInfoItem = styled(InfoItem)`
   }
 `;
 
-export default function FestivalCard({ festival }) {
+export default function FestivalCard({ festival, disabled }) {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate('/welcome');
+    if (!disabled) {
+      // 환영 페이지를 이미 본 축제인지 확인
+      const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
+      const hasWelcomed = welcomedFestivals.includes(festival.id);
+      
+      if (hasWelcomed) {
+        // 이미 환영 페이지를 본 축제면 바로 홈으로 이동
+        navigate('/');
+      } else {
+        // 처음 보는 축제면 환영 페이지로 이동
+        navigate('/welcome', { state: { festival } });
+      }
+    }
   };
 
   return (
-    <FestivalCardContainer onClick={handleCardClick}>
+    <FestivalCardContainer 
+      onClick={handleCardClick}
+      style={{ cursor: disabled ? 'default' : 'pointer', pointerEvents: disabled ? 'none' : 'auto' }}
+    >
       <FestivalImage>
         <img src={festival.image} alt={festival.name} />
       </FestivalImage>

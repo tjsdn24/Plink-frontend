@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
@@ -192,6 +192,13 @@ export default function SignUpComplete() {
     password: '',
     passwordConfirm: '',
   };
+
+  // 회원가입 완료 시 닉네임을 localStorage에 저장
+  useEffect(() => {
+    if (nickname) {
+      localStorage.setItem('userNickname', nickname);
+    }
+  }, [nickname]);
 
   const handleLogin = () => {
     navigate('/login');

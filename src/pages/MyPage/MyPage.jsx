@@ -244,6 +244,10 @@ export default function MyPage({
     navigate('/mypage/profile');
   };
 
+  const handleOpenMyActivity = path => {
+    navigate(path);
+  };
+
   // 로그인 상태 변경 감지
   useEffect(() => {
     const handleStorageChange = () => {
@@ -370,13 +374,13 @@ export default function MyPage({
           <Section>
             <SectionTitle>내 활동 보기</SectionTitle>
             <MenuList>
-              <MenuItem>
+              <MenuItem onClick={() => handleOpenMyActivity('/mypage/chat')}>
                 <MenuItemLabel>내가 쓴 이야기</MenuItemLabel>
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => handleOpenMyActivity('/mypage/like')}>
                 <MenuItemLabel>내가 공감한 이야기</MenuItemLabel>
               </MenuItem>
-              <MenuItem className="with-border">
+              <MenuItem className="with-border" onClick={() => handleOpenMyActivity('/mypage/comment')}>
                 <MenuItemLabel>내가 댓글단 이야기</MenuItemLabel>
               </MenuItem>
             </MenuList>

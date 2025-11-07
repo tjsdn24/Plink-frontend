@@ -10,6 +10,9 @@ import Chat from '../pages/Chat/Chat';
 import Comments from '../pages/Chat/Comments';
 import Game from '../pages/Game/Game';
 import MyPage from '../pages/MyPage/MyPage';
+import MyActivityChat from '../pages/MyPage/MyActivity/MyActivityChat';
+import MyActivityLike from '../pages/MyPage/MyActivity/MyActivityLike';
+import MyActivityComment from '../pages/MyPage/MyActivity/MyActivityComment';
 import Nickname from '../pages/Signup/Nickname';
 import Login from '../pages/Login/Login';
 import SignUp from '../pages/Signup/SignUp';
@@ -102,6 +105,9 @@ export default function Router() {
             </MainLayout>
           }
         />
+        <Route path="/mypage/chat" element={<MyActivityChat />} />
+        <Route path="/mypage/like" element={<MyActivityLike />} />
+        <Route path="/mypage/comment" element={<MyActivityComment />} />
         {/* 비밀번호 변경 페이지 (Header 제거, Navbar 유지)*/}
         <Route path="/mypage/changepassword" element={<ChangePassword />} />
         {/* 프로필 변경 페이지 (Header 제거, Navbar 유지)*/}

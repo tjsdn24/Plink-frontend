@@ -21,10 +21,10 @@ const HomeContainer = styled.div`
 const CircleImg = styled.img`
   position: absolute;
   z-index: -1;
-  top: ${({ top }) => top + '60px' || 'auto'};
+  top: ${({ top }) => top || 'auto'};
   left: ${({ left }) => left || 'auto'};
   right: ${({ right }) => right || 'auto'};
-  bottom: ${({ bottom }) => bottom - '60px' || 'auto'};
+  bottom: ${({ bottom }) => bottom || 'auto'};
 `;
 export default function Home() {
   return (
@@ -35,10 +35,10 @@ export default function Home() {
         <VoteBox />
         <EventBox />
         <HotBox />
-        <CircleImg src={Pink} top="323px" right="-177px" />
-        <CircleImg src={Purple} top="866px" left="-118px" />
-        <CircleImg src={Purple} bottom="223px" right="-139px" />
-        <CircleImg src={Pink} bottom="-107px" left="-276px" />
+        <CircleImg src={Pink} top="-20px" right="-577px" />
+        <CircleImg src={Purple} top="666px" left="-499px" />
+        <CircleImg src={Purple} top="800px" right="-577px" />
+        <CircleImg src={Pink} top="1000px" left="-499px" />
       </HomeContainer>
     </>
   );

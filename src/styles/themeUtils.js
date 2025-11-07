@@ -25,3 +25,4 @@ export const typography =
       font-weight: ${t.weight};
     `;
   };
+export const shadow = key => theme.shadow[key];

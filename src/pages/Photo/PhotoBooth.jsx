@@ -38,6 +38,7 @@ const Container = styled.div`
   gap: 24px;
   background: #000;
   color: #fff;
+  width: 100%;
   height: 100vh;
   position: fixed;
 `;

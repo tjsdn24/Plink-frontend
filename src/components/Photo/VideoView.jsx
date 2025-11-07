@@ -15,6 +15,7 @@ export default function VideoView({ videoRef, canvasRef }) {
 
 const Wrapper = styled.div`
   width: 100%;
+  max-height: 50%;
   display: flex;
   justify-content: center;
 `;

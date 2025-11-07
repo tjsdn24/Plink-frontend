@@ -39,15 +39,17 @@ const Container = styled.div`
   align-items: center;
   padding-top: 60px;
   gap: 16px;
-  color: ${c('neutral.white')};
-  background: ${c('neutral.black')};
+  position: fixed;
   text-align: center;
   min-height: 100vh;
-  position: fixed;
+  width: 100%;
+  color: ${c('neutral.white')};
+  background: ${c('neutral.black')};
 `;
 
 const PreviewCanvas = styled.canvas`
-  width: 100%;
+  height: 425px;
+  width: 375px;
   background: #111;
   transition: 0.3s ease;
 `;
@@ -60,9 +62,7 @@ const SaveButton = styled.button`
   padding: 10px 24px;
   cursor: pointer;
   margin-top: 12px;
-  transition:
-    background 0.2s ease,
-    transform 0.1s ease;
+  transition: transform 0.1s ease;
   &:active {
     transform: scale(0.97);
   }

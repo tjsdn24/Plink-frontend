@@ -49,7 +49,6 @@ export default function MainLayout({ children }) {
         <Header />
       </FixedHeader>
 
-
       <Content whiteBackground={whiteBackground}>{children}</Content>
 
       <FixedNavbar>

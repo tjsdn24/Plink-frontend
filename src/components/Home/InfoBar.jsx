@@ -2,6 +2,8 @@ import firework from '../../assets/images/HomeFirework.webp';
 import locationicon from '../../assets/icons/HomeLocation.svg';
 import calendaricon from '../../assets/icons/HomeCalendar.svg';
 import usersIcon from '../../assets/icons/HomeUsers.svg';
+import { useNavigate } from 'react-router-dom';
+
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 

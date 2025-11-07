@@ -25,6 +25,7 @@ const TitleText = styled.span`
   ${typography('headline02')};
 `;
 const ArrowWrapper = styled.button`
+  color: ${c('neutral.black')};
   ${typography('caption01')};
   display: flex;
   flex-direction: row;
@@ -34,7 +35,13 @@ const ArrowWrapper = styled.button`
 const TitleDescription = styled.span`
   ${typography('body01')};
 `;
-export default function TitleBar({ title = '제목', imageurl, description = '설명' }) {
+export default function TitleBar({
+  title = '제목',
+  imageurl,
+  description = '설명',
+  onClick,
+  showArrow = false,
+}) {
   return (
     <TitleBarContainer>
       <TopWrapper>
@@ -42,10 +49,12 @@ export default function TitleBar({ title = '제목', imageurl, description = '�
           <img src={imageurl} alt="이미지" />
           <TitleText>{title}</TitleText>
         </TitleWrapper>
-        <ArrowWrapper>
-          전체보기
-          <img src={homearrow} alt="화살표 아이콘" />
-        </ArrowWrapper>
+        {showArrow && (
+          <ArrowWrapper onClick={onClick}>
+            전체보기
+            <img src={homearrow} alt="화살표 아이콘" />
+          </ArrowWrapper>
+        )}
       </TopWrapper>
 
       <TitleDescription>{description}</TitleDescription>

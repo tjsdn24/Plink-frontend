@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import Search from '../../components/Chat/Search';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
 import Post from '../../components/Chat/Post';
+import NonSearch from '../../components/Chat/NonSearch';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import { postData as initialData } from '../../components/Chat/PostData.js';
@@ -12,6 +13,7 @@ export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const isFirstLoad = useRef(true);
 
   //고유 ID 생성 함수
@@ -52,18 +54,41 @@ export default function Chat() {
   };
 
   // 카테고리 필터링
-  const filteredPosts =
-    selectedCategory === '전체' ? posts : posts.filter(post => post.category === selectedCategory);
+  const filteredPosts = useMemo(() => {
+    const categoryFiltered =
+      selectedCategory === '전체'
+        ? posts
+        : posts.filter(post => post.category === selectedCategory);
+
+    if (!searchKeyword.trim()) return categoryFiltered;
+
+    const keyword = searchKeyword.trim().toLowerCase();
+
+    return categoryFiltered.filter(post =>
+      post.content.some(item => {
+        if (item.type !== 'text' || typeof item.data !== 'string') return false;
+        return item.data.toLowerCase().includes(keyword);
+      })
+    );
+  }, [posts, selectedCategory, searchKeyword]);
+
+  const handleSearchChange = useCallback(event => {
+    setSearchKeyword(event.target.value);
+  }, []);
 
   return (
     <ChatWrapper>
       <ChatTop>
-        <Search />
+        <Search value={searchKeyword} onChange={handleSearchChange} />
         <ChatCatagory selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       </ChatTop>
 
       <ChatBottom>
-        <Post postData={filteredPosts} />
+        {filteredPosts.length > 0 ? (
+          <Post postData={filteredPosts} highlightKeyword={searchKeyword} />
+        ) : (
+          <NonSearch onWrite={() => setOpenWrite(true)} />
+        )}
         <WriteButton onClick={() => setOpenWrite(true)} />
         {openWrite && <WritePost onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />}
       </ChatBottom>

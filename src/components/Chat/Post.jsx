@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Report from './Report';
 import styled from 'styled-components';
@@ -8,9 +8,12 @@ import CommentIcon from '../../assets/icons/ChatComment.svg';
 import ReportIcon from '../../assets/icons/Chatreport.svg';
 import { f, c } from '../../styles/themeUtils';
 
-export default function Post({ postData }) {
+export default function Post({ postData, highlightKeyword = '' }) {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const navigate = useNavigate();
+
+  const normalizedKeyword = highlightKeyword.trim().toLowerCase();
+  const hasKeyword = normalizedKeyword.length > 0;
 
   const handleReportClick = () => setIsReportOpen(true);
   const closeReport = () => setIsReportOpen(false);
@@ -19,12 +22,37 @@ export default function Post({ postData }) {
     navigate(`/chat/${postId}`, { state: { post: postData.find(p => p.id === postId) } });
   };
 
+  const highlightText = useMemo(() => {
+    if (!hasKeyword) return null;
+
+    return text => {
+      if (typeof text !== 'string') return text;
+      const lower = text.toLowerCase();
+      const index = lower.indexOf(normalizedKeyword);
+      if (index === -1) return text;
+
+      const before = text.slice(0, index);
+      const match = text.slice(index, index + normalizedKeyword.length);
+      const after = text.slice(index + normalizedKeyword.length);
+
+      return (
+        <>
+          {before}
+          <Highlight>{match}</Highlight>
+          {after}
+        </>
+      );
+    };
+  }, [hasKeyword, normalizedKeyword]);
+
   const renderContent = (contentItem, index, postId) => {
     switch (contentItem.type) {
       case 'text':
         return (
           <ContentRow key={index}>
-            <ContentBox onClick={() => handlePostClick(postId)}>{contentItem.data}</ContentBox>
+            <ContentBox onClick={() => handlePostClick(postId)}>
+              {hasKeyword ? highlightText(contentItem.data) : contentItem.data}
+            </ContentBox>
             <ReportButton src={ReportIcon} alt="report" onClick={handleReportClick} />
           </ContentRow>
         );
@@ -156,6 +184,11 @@ const ContentBox = styled.div`
   line-height: 1.4;
   font-size: 14px;
   color: #333;
+`;
+
+const Highlight = styled.span`
+  font-weight: 700;
+  color: ${c('neutral.black')};
 `;
 
 const ImagesWrapper = styled.div`

@@ -1,16 +1,13 @@
 import styled from 'styled-components';
-//import { c, f, s } from '../../styles/themeUtils';
+import { forwardRef } from 'react';
 
-export default function Search() {
-  return (
-    <>
-      <SearchBox placeholder="원하는 이야기를 검색해보세요." />
-    </>
-  );
-}
+const Search = forwardRef(({ value, onChange, placeholder = '원하는 이야기를 검색해보세요.' }, ref) => {
+  return <SearchBox ref={ref} value={value} onChange={onChange} placeholder={placeholder} />;
+});
+
+export default Search;
 
 const SearchBox = styled.input`
-  //임시
   margin: 10px 15px;
   width: 95%;
   height: 50px;
@@ -20,4 +17,5 @@ const SearchBox = styled.input`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 16px;
 `;

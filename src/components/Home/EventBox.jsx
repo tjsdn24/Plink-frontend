@@ -48,9 +48,9 @@ export default function EventBox() {
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={(e, { offset, velocity }) => {
               const swipe = offset.x + velocity.x * 0.5;
-              if (swipe < -100)
+              if (swipe < -60)
                 paginate(1); // 왼쪽으로 스와이프 → 다음
-              else if (swipe > 100) paginate(-1); // 오른쪽으로 스와이프 → 이전
+              else if (swipe > 60) paginate(-1); // 오른쪽으로 스와이프 → 이전
             }}
             initial={{ x: direction > 0 ? 100 : -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -112,5 +112,5 @@ const Dot = styled.div`
   border-radius: 50%;
   background: ${({ active }) => (active ? c('brand.pink') : '#ddd')};
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
 `;

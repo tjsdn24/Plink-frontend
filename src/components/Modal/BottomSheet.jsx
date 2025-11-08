@@ -6,7 +6,12 @@ const PageContainer = styled.div`
   background: ${c('neutral.black2')};
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: ${({ $isOverlay }) => ($isOverlay ? 'fixed' : 'relative')};
+  top: ${({ $isOverlay }) => ($isOverlay ? 0 : 'auto')};
+  left: ${({ $isOverlay }) => ($isOverlay ? 0 : 'auto')};
+  right: ${({ $isOverlay }) => ($isOverlay ? 0 : 'auto')};
+  bottom: ${({ $isOverlay }) => ($isOverlay ? 0 : 'auto')};
+  z-index: ${({ $isOverlay }) => ($isOverlay ? 2000 : 'auto')};
 `;
 
 const BlurredBackground = styled.div`
@@ -79,7 +84,7 @@ const DragHandle = styled.div`
 const Title = styled.h1`
   ${typography('headline01')};
   color: ${c('neutral.black')};
-  margin-bottom: ${s('xl')};
+  margin-bottom: ${({ $spacing }) => s($spacing || 'xl')};
 `;
 
 const Content = styled.div`
@@ -88,7 +93,7 @@ const Content = styled.div`
   align-items: center;
   flex: 1;
   gap: ${s('sm')};
-  margin-bottom: ${s('xl')};
+  margin-bottom: ${({ $spacing }) => s($spacing || 'xl')};
 `;
 
 const Emoji = styled.div`
@@ -144,19 +149,19 @@ const ActionButton = styled.button`
   padding: 20px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   border: none;
-  background: ${c('brand.pink')};
-  color: ${c('neutral.white')};
+  background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.pink'))};
+  color: ${({ disabled }) => (disabled ? 'rgba(44, 50, 73, 0.50)' : c('neutral.white'))};
   ${typography('label01')};
   text-align: center;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: ${c('brand.darkPink')};
+    background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.darkPink'))};
   }
 
   &:active {
-    background: ${c('brand.darkPink')};
+    background: ${({ disabled }) => (disabled ? c('neutral.gray') : c('brand.darkPink'))};
   }
 `;
 
@@ -170,8 +175,13 @@ const ActionButton = styled.button`
  * @param {string[]} subMessages - 서브 메시지 배열
  * @param {string} buttonText - 버튼 텍스트
  * @param {function} onButtonClick - 버튼 클릭 핸들러
+ * @param {boolean} buttonDisabled - 버튼 비활성화 여부 (기본값: false)
  * @param {ReactNode} backgroundContent - 배경에 표시할 콘텐츠 (선택적)
  * @param {boolean} showDragHandle - 드래그 핸들 표시 여부 (기본값: true)
+ * @param {ReactNode} children - 커스텀 콘텐츠 (선택적)
+ * @param {boolean} isOverlay - 화면 전체 오버레이 여부 (기본값: false)
+ * @param {string} headerSpacing - 제목과 본문 사이 간격 키 (기본값: 'xl')
+ * @param {string} contentSpacing - 본문과 버튼 사이 간격 키 (기본값: 'xl')
  */
 export default function BottomSheet({
   title,
@@ -182,8 +192,13 @@ export default function BottomSheet({
   subMessages = [],
   buttonText,
   onButtonClick,
+  buttonDisabled = false,
   backgroundContent,
   showDragHandle = true,
+  children,
+  isOverlay = false,
+  headerSpacing = 'xl',
+  contentSpacing = 'xl',
 }) {
   // 이모지 렌더링 로직
   const renderEmoji = () => {
@@ -210,7 +225,7 @@ export default function BottomSheet({
 
   const emojiContent = renderEmoji();
   return (
-    <PageContainer>
+    <PageContainer $isOverlay={isOverlay}>
       {backgroundContent && (
         <BackgroundContent>
           <StyledBackgroundWrapper>{backgroundContent}</StyledBackgroundWrapper>
@@ -219,8 +234,8 @@ export default function BottomSheet({
       <BlurredBackground />
       <BottomSheetContainer>
         {showDragHandle && <DragHandle />}
-        {title && <Title>{title}</Title>}
-        <Content>
+        {title && <Title $spacing={headerSpacing}>{title}</Title>}
+        <Content $spacing={contentSpacing}>
           {emojiContent && <Emoji>{emojiContent}</Emoji>}
           {mainMessage && <MainMessage>{mainMessage}</MainMessage>}
           {subMessages.length > 0 && (
@@ -230,10 +245,11 @@ export default function BottomSheet({
               ))}
             </SubMessage>
           )}
+          {children}
         </Content>
         {buttonText && (
           <ButtonContainer>
-            <ActionButton onClick={onButtonClick}>
+            <ActionButton onClick={onButtonClick} disabled={buttonDisabled}>
               {buttonText}
             </ActionButton>
           </ButtonContainer>

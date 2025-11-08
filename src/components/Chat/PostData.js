@@ -1,3 +1,5 @@
+import ChatSampleImg from '../../assets/icons/ChatSampleImg.svg';
+
 export const postData = [
   {
     id: 1,
@@ -10,33 +12,40 @@ export const postData = [
       { nickname: '유다빈', text: '까치산 최고' },
     ],
     time: '5분 전',
+    category: '기타',
   },
   {
     id: 2,
-    nickname: '현우',
+    nickname: '눈멍이',
     content: [
-      { type: 'text', data: '주말에 다녀온 여행 사진 공유해요 📸' },
+      { type: 'text', data: '같이 공연보실 분??' },
       {
         type: 'images',
         data: [
-          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-          'https://images.unsplash.com/photo-1526772662000-3f88f10405ff',
+          'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTEwMDZfMjk2%2FMDAxNzU5NzMyODI3Njgy.G5oNbKDSUlILNHIk2VjSSbKyaParDerv9jB4UeyUie4g.Hy75tZTMSjcMx5CcI1oixkNjPBTou48uCUr7SgjQvBgg.JPEG%2FIMG%25A3%25DF3237.JPG&type=sc960_832',
+          'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzEwMDhfNjkg%2FMDAxNjk2NzU2MzI2Nzgy.rFzp46ZMtF2qiFeawKsJB1qpjvW6nwqGCReY6CqA4jAg.l0S57DdtLF4zO9SOdb3MtGXt2Un8ENJl21nUM4GlGYYg.JPEG.albaca%2FIMG_2708.JPG&type=sc960_832',
+          'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTEwMDRfMTE2%2FMDAxNzU5NTE4NjcyMTc5.r5Ll2N01vWNdbryUrpTVx1JFh7mucrmV85lralnrhxAg.1azJbiGyyiCkEHeGxJbdnsp1mqJnBt001B_oJYfJZMUg.JPEG%2FIMG%25A3%25DF5773.JPG&type=sc960_832',
         ],
       },
     ],
     like: 15,
     comment: 5,
     comments: [
-      { nickname: '소연', text: '풍경 너무 예쁘네요!' },
-      { nickname: '진호', text: '어디 다녀오셨어요?' },
+      { nickname: '가나디', time: '2분전', text: '저요저요제가아니면안돼요' },
+      { nickname: '듀듀', text: '이 사진은 뭔가요?' },
+      { nickname: '마루', text: '마루총총' },
+      { nickname: '임주스', text: '피크닉?' },
+      { nickname: '냐옹이', text: '안냐옹' },
+      { nickname: '멈머', text: '월월ㄹㄹ' },
     ],
     time: '20분 전',
+    category: '만남/동행',
   },
   {
     id: 3,
-    nickname: '예린',
+    nickname: '메로나',
     content: [
-      { type: 'text', data: '오늘 점심 뭐 먹을까요? 🍱' },
+      { type: 'text', data: '오늘 점심 뭐 먹을까요??? ' },
       {
         type: 'poll',
         data: {
@@ -47,7 +56,8 @@ export const postData = [
     ],
     like: 4,
     comment: 1,
-    comments: [{ nickname: '다현', text: '전 비빔밥이요 😋' }],
+    comments: [{ nickname: '다현', text: '김치말이국수 추천' }],
     time: '1시간 전',
+    category: '질문/요청',
   },
 ];

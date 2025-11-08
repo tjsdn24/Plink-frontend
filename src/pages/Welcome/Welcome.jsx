@@ -8,25 +8,61 @@ import Header from '../../components/Header';
 import FestivalCard from '../../components/Festival/FestivalCard';
 import Firework from './Firework';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
-import ChatArrowIcon from '../../assets/icons/ChatArrow.svg';
+import ChatArrowIcon from '../../assets/icons/ChatArrowDown.svg';
 import FestivalImage from '../../assets/images/4호선톤.webp';
 
 // 랜덤 닉네임 생성 함수
 const generateRandomNickname = () => {
   const adjectives = [
-    '멋진', '귀여운', '행복한', '빛나는', '용감한', '똑똑한', '친절한', '활발한',
-    '차분한', '밝은', '강한', '부드러운', '따뜻한', '시원한', '신비로운', '재미있는'
+    '멋진',
+    '귀여운',
+    '행복한',
+    '빛나는',
+    '용감한',
+    '똑똑한',
+    '친절한',
+    '활발한',
+    '차분한',
+    '밝은',
+    '강한',
+    '부드러운',
+    '따뜻한',
+    '시원한',
+    '신비로운',
+    '재미있는',
   ];
-  
+
   const nouns = [
-    '고양이', '강아지', '토끼', '햄스터', '다람쥐', '팬더', '곰', '펭귄',
-    '돌고래', '나비', '별', '달', '구름', '바람', '물결', '꽃',
-    '나무', '산', '바다', '하늘', '별빛', '햇살', '달빛', '무지개', '눈멍이'
+    '고양이',
+    '강아지',
+    '토끼',
+    '햄스터',
+    '다람쥐',
+    '팬더',
+    '곰',
+    '펭귄',
+    '돌고래',
+    '나비',
+    '별',
+    '달',
+    '구름',
+    '바람',
+    '물결',
+    '꽃',
+    '나무',
+    '산',
+    '바다',
+    '하늘',
+    '별빛',
+    '햇살',
+    '달빛',
+    '무지개',
+    '눈멍이',
   ];
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
   const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-  
+
   return `${randomAdjective} ${randomNoun}`;
 };
 
@@ -63,15 +99,15 @@ export default function Welcome() {
     date: '2025.11.15',
     location: '국민대학교',
     image: FestivalImage,
-    dday: 'D-DAY'
+    dday: 'D-DAY',
   };
 
   // 더미 축제 데이터 (배경에 표시)
   const festivals = [festival];
-  
+
   // 로그인 상태 확인
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  
+
   // 회원가입 시 선택한 닉네임 가져오기 (로그인 상태일 때만)
   const getRegisteredNickname = () => {
     if (isLoggedIn) {
@@ -83,14 +119,14 @@ export default function Welcome() {
     }
     return null;
   };
-  
+
   const registeredNickname = getRegisteredNickname();
 
   // 애니메이션이 완료되면 호출되는 함수
   const onAnimationComplete = useCallback(() => {
     if (isSpinning) {
       // 다음 슬롯으로 이동
-      setCurrentIndex((prev) => (prev + 1) % nicknameList.length);
+      setCurrentIndex(prev => (prev + 1) % nicknameList.length);
     }
   }, [isSpinning, nicknameList.length]);
 
@@ -101,21 +137,21 @@ export default function Welcome() {
       setFinalNickname(registeredNickname);
       setIsSpinning(false);
       setShowFirework(true);
-      
+
       // 환영 페이지를 본 것으로 기록
       const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
       if (!welcomedFestivals.includes(festival.id)) {
         welcomedFestivals.push(festival.id);
         localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
       }
-      
+
       // 2초 후 홈으로 이동
       setTimeout(() => {
         navigate('/');
       }, 2000);
       return;
     }
-    
+
     // 비로그인 상태: 슬롯 효과 있음
     const pool = generateNicknamePool(50);
     // 최종 닉네임을 리스트에 추가
@@ -123,13 +159,13 @@ export default function Welcome() {
     pool.push(finalNickname);
     setNicknameList(pool);
     setCurrentIndex(0);
-    
+
     const speedTimers = [];
-    
+
     // 슬롯 속도 변화 함수
     const changeSlotSpeed = (delay, speed) => {
       const timer = setTimeout(() => {
-        setSlotVariants((prev) => ({
+        setSlotVariants(prev => ({
           ...prev,
           transition: { duration: speed, times: [0, 1] },
         }));
@@ -143,12 +179,12 @@ export default function Welcome() {
     changeSlotSpeed(1200, 0.3); // 속도 줄이기 2
     changeSlotSpeed(2200, 0.6); // 속도 줄이기 3
     changeSlotSpeed(3200, 1.2); // 속도 줄이기 4
-    
+
     stopTimeoutRef.current = setTimeout(() => {
       // 최종 닉네임 인덱스로 이동
       const finalIndex = pool.length - 1;
       setCurrentIndex(finalIndex);
-      
+
       // 슬롯 멈추기
       setSlotVariants({
         initial: { opacity: 1, y: 0 },
@@ -157,29 +193,29 @@ export default function Welcome() {
         transition: { duration: 0.001, times: [0, 1] },
       });
       setIsSpinning(false);
-      
+
       // 최종 닉네임 선택
       setFinalNickname(finalNickname);
-      
+
       // 닉네임을 localStorage에 저장
       localStorage.setItem('nickname', finalNickname);
-      
+
       // 환영 페이지를 본 것으로 기록
       const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
       if (!welcomedFestivals.includes(festival.id)) {
         welcomedFestivals.push(festival.id);
         localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
       }
-      
+
       // 폭죽 효과 시작
       setShowFirework(true);
-      
+
       // 4초 후 홈으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
       setTimeout(() => {
         navigate('/');
       }, 4000);
     }, 4700); // 5200ms -> 4700ms (0.5초 감소)
-    
+
     return () => {
       if (stopTimeoutRef.current) {
         clearTimeout(stopTimeoutRef.current);
@@ -194,15 +230,11 @@ export default function Welcome() {
       <FixedHeader>
         <Header />
       </FixedHeader>
-      
+
       <PageContainer>
         <SearchBarContainer>
           <SearchBar>
-            <SearchInput
-              type="text"
-              placeholder="원하는 축제를 검색해보세요."
-              readOnly
-            />
+            <SearchInput type="text" placeholder="원하는 축제를 검색해보세요." readOnly />
             <SearchIconWrapper>
               <SearchIconImg src={SearchIcon} alt="검색" />
             </SearchIconWrapper>
@@ -218,7 +250,7 @@ export default function Welcome() {
         </TitleSection>
 
         <FestivalList>
-          {festivals.map((fest) => (
+          {festivals.map(fest => (
             <FestivalCard key={fest.id} festival={fest} disabled={true} />
           ))}
         </FestivalList>
@@ -240,17 +272,11 @@ export default function Welcome() {
                     transition={slotVariants.transition}
                     onAnimationComplete={onAnimationComplete}
                   >
-                    <SlotItemBox>
-                      {nicknameList[currentIndex]}님!
-                    </SlotItemBox>
+                    <SlotItemBox>{nicknameList[currentIndex]}님!</SlotItemBox>
                   </motion.div>
                 </AnimatePresence>
               ) : (
-                finalNickname && (
-                  <SlotItemBox>
-                    {finalNickname}님!
-                  </SlotItemBox>
-                )
+                finalNickname && <SlotItemBox>{finalNickname}님!</SlotItemBox>
               )}
             </SlotContainer>
             {!isSpinning && finalNickname && (
@@ -271,11 +297,9 @@ export default function Welcome() {
           }}
         />
       )}
-
     </PageWrapper>
   );
 }
-
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -428,7 +452,13 @@ const SlotContainer = styled.div`
   margin-bottom: 8px;
   overflow: hidden;
   mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
 `;
 
 const SlotItemBox = styled.div`
@@ -448,7 +478,7 @@ const WelcomeLine = styled.div`
   line-height: 1.4;
   font-family: 'Gmarket Sans', sans-serif;
   margin-top: 5px;
-  
+
   .festival-name {
     color: ${c('brand.pink')};
   }

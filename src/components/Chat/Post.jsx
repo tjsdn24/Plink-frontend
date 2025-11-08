@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import LikeIcon from '../../assets/icons/ChatLike.svg';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
-import ReportIcon from '../../assets/icons/Chatreport.svg';
+import ReportIcon from '../../assets/icons/ChatReport.svg';
 import { f, c } from '../../styles/themeUtils';
 
 export default function Post({ postData, highlightKeyword = '' }) {
@@ -98,7 +98,7 @@ export default function Post({ postData, highlightKeyword = '' }) {
 
               <ContentAndEtcWrapper>
                 <ContentWrapper>
-                  {post.content.map((contentItem, index) =>
+                  {post?.content.map((contentItem, index) =>
                     renderContent(contentItem, index, post.id)
                   )}
                 </ContentWrapper>

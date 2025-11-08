@@ -40,7 +40,7 @@ export default function Nickname({ userName = '숨쉬는 고양이' }) {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     // 비로그인 상태이고 localStorage에 닉네임이 있으면 사용
     if (!isLoggedIn) {
-      const storedNickname = localStorage.getItem('userNickname');
+      const storedNickname = localStorage.getItem('nickname');
       if (storedNickname) {
         // "님!" 제거 (저장 시 "님!"이 포함되어 있을 수 있음)
         return storedNickname.replace(/님!?$/, '');

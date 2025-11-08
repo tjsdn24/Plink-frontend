@@ -217,11 +217,11 @@ export default function MyPage({
   });
 
   // 프로필 데이터 state
-  const [userNickname, setUserNickname] = useState(() => {
+  const [nickname, setNickname] = useState(() => {
     if (propNickname !== undefined) {
       return propNickname;
     }
-    return localStorage.getItem('userNickname') || '숨쉬는 고양이님!';
+    return localStorage.getItem('nickname') || '숨쉬는 고양이님!';
   });
 
   const [userProfileImage, setUserProfileImage] = useState(() => {
@@ -276,11 +276,11 @@ export default function MyPage({
   // 프로필 업데이트 감지
   useEffect(() => {
     const handleProfileUpdate = () => {
-      const storedNickname = localStorage.getItem('userNickname');
+      const storedNickname = localStorage.getItem('nickname');
       const storedProfileImage = localStorage.getItem('userProfileImage');
       
       if (storedNickname) {
-        setUserNickname(storedNickname);
+        setNickname(storedNickname);
       }
       if (storedProfileImage) {
         setUserProfileImage(storedProfileImage);
@@ -290,11 +290,11 @@ export default function MyPage({
     window.addEventListener('profileUpdated', handleProfileUpdate);
     
     // 컴포넌트 마운트 시에도 확인
-    const storedNickname = localStorage.getItem('userNickname');
+    const storedNickname = localStorage.getItem('nickname');
     const storedProfileImage = localStorage.getItem('userProfileImage');
     
-    if (storedNickname && storedNickname !== userNickname) {
-      setUserNickname(storedNickname);
+    if (storedNickname && storedNickname !== nickname) {
+      setNickname(storedNickname);
     }
     if (storedProfileImage && storedProfileImage !== userProfileImage) {
       setUserProfileImage(storedProfileImage);
@@ -303,7 +303,7 @@ export default function MyPage({
     return () => {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
     };
-  }, [userNickname, userProfileImage]);
+  }, [nickname, userProfileImage]);
 
   // 비로그인 상태에서 스크롤 비활성화
   useEffect(() => {
@@ -332,7 +332,7 @@ export default function MyPage({
                 <ProfileImage src={displayProfileImage} alt="프로필" />
               </ProfileImageWrapper>
               <ProfileInfo>
-                <UserName>{userNickname}님!</UserName>
+                <UserName>{nickname}님!</UserName>
                 <Greeting>재밌게 즐기고 계신가요?</Greeting>
               </ProfileInfo>
             </ProfileHeader>

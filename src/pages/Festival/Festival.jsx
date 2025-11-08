@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 import Header from '../../components/Header';
 import FestivalCard from '../../components/Festival/FestivalCard';
-import ChatArrowIcon from '../../assets/icons/ChatArrow.svg';
+import ChatArrowIcon from '../../assets/icons/ChatArrowDown.svg';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import FestivalImage from '../../assets/images/4호선톤.webp';
 
@@ -81,7 +81,7 @@ const TitleSection = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: ${s('lg')} 0 ${s('md')} 0;
-  margin-top: -${s('xl')}
+  margin-top: -${s('xl')};
 `;
 
 const Title = styled.h1`
@@ -120,7 +120,7 @@ const FestivalList = styled.div`
 export default function Festival() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState(() => {
     // location state에서 가져오거나 localStorage에서 가져오기
@@ -144,8 +144,8 @@ export default function Festival() {
       date: '2025.11.15',
       location: '국민대학교',
       image: FestivalImage,
-      dday: 'D-DAY'
-    }
+      dday: 'D-DAY',
+    },
   ];
 
   return (
@@ -155,34 +155,33 @@ export default function Festival() {
       </FixedHeader>
       <PageContainer>
         <SearchBarContainer>
-        <SearchBar>
-          <SearchInput
-            type="text"
-            placeholder="원하는 축제를 검색해보세요."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <SearchIconWrapper>
-            <SearchIconImg src={SearchIcon} alt="검색" />
-          </SearchIconWrapper>
-        </SearchBar>
-      </SearchBarContainer>
+          <SearchBar>
+            <SearchInput
+              type="text"
+              placeholder="원하는 축제를 검색해보세요."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            <SearchIconWrapper>
+              <SearchIconImg src={SearchIcon} alt="검색" />
+            </SearchIconWrapper>
+          </SearchBar>
+        </SearchBarContainer>
 
-      <TitleSection>
-        <Title>축제 명단</Title>
-        <SortContainer onClick={() => navigate('/festival/sort', { state: { sortOrder } })}>
-          <SortText>{sortOrder === 'latest' ? '최신순' : '가나다순'}</SortText>
-          <SortArrow src={ChatArrowIcon} alt="정렬" />
-        </SortContainer>
-      </TitleSection>
+        <TitleSection>
+          <Title>축제 명단</Title>
+          <SortContainer onClick={() => navigate('/festival/sort', { state: { sortOrder } })}>
+            <SortText>{sortOrder === 'latest' ? '최신순' : '가나다순'}</SortText>
+            <SortArrow src={ChatArrowIcon} alt="정렬" />
+          </SortContainer>
+        </TitleSection>
 
-      <FestivalList>
-        {festivals.map((festival) => (
-          <FestivalCard key={festival.id} festival={festival} />
-        ))}
-      </FestivalList>
+        <FestivalList>
+          {festivals.map(festival => (
+            <FestivalCard key={festival.id} festival={festival} />
+          ))}
+        </FestivalList>
       </PageContainer>
     </PageWrapper>
   );
 }
-

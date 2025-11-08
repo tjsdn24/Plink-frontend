@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { c } from '../../styles/themeUtils';
-import ArrowImg from '../../assets/icons/ChatArrow.svg';
+import ArrowImg from '../../assets/icons/ChatArrowDown.svg';
 import ChatPoll from '../../assets/icons/ChatPoll.svg';
 import ChatPollPink from '../../assets/icons/ChatPollPink.svg';
 import ChatPhoto from '../../assets/icons/ChatPhoto.svg';

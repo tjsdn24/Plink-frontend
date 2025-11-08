@@ -9,6 +9,9 @@ import PhotoEdit from '../pages/Photo/PhotoEdit';
 import Chat from '../pages/Chat/Chat';
 import Comments from '../pages/Chat/Comments';
 import Game from '../pages/Game/Game';
+import GamePlay from '../pages/Game/GamePlay';
+import GameRank from '../pages/Game/GameRank';
+
 import MyPage from '../pages/MyPage/MyPage';
 import MyActivityChat from '../pages/MyPage/MyActivity/MyActivityChat';
 import MyActivityLike from '../pages/MyPage/MyActivity/MyActivityLike';
@@ -48,26 +51,23 @@ export default function Router() {
           path="/photo"
           element={
             <PageLayout title={'Photo'}>
-              {' '}
-              <Photo />{' '}
+              <Photo />
             </PageLayout>
           }
-        />{' '}
+        />
         <Route
           path="/photo/booth"
           element={
             <PageLayout title={''}>
-              {' '}
-              <PhotoBooth />{' '}
+              <PhotoBooth />
             </PageLayout>
           }
-        />{' '}
+        />
         <Route
           path="/photo/edit"
           element={
             <PageLayout title={'다시 찍기'}>
-              {' '}
-              <PhotoEdit />{' '}
+              <PhotoEdit />
             </PageLayout>
           }
         />
@@ -95,6 +95,22 @@ export default function Router() {
             <MainLayout>
               <Game />
             </MainLayout>
+          }
+        />
+        <Route
+          path="/game/play"
+          element={
+            <PageLayout title={' '}>
+              <GamePlay />
+            </PageLayout>
+          }
+        />
+        <Route
+          path="/game/rank"
+          element={
+            <PageLayout title={' '}>
+              <GameRank />
+            </PageLayout>
           }
         />
         {/*  마이페이지 (Header + Navbar 유지)*/}

@@ -56,7 +56,6 @@ export default function TitleBar({
           </ArrowWrapper>
         )}
       </TopWrapper>
-
       <TitleDescription>{description}</TitleDescription>
     </TitleBarContainer>
   );

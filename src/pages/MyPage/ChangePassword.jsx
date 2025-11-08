@@ -7,119 +7,21 @@ import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
 import successIcon from '../../assets/icons/PasswordTrue.svg';
 import errorIcon from '../../assets/icons/PasswordFalse.svg';
-
-const FieldsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const TextFieldContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 16px;
-  width: 100%;
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  position: relative;
-`;
-
-const InputContainer = styled.div`
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 12px ${({ $hasIcon }) => ($hasIcon ? '48px' : '16px')} 12px 16px;
-  border-radius: ${({ theme }) => theme.radius.md};
-  border: 1px solid ${({ $status, theme }) => {
-    if ($status === 'success') return theme.colors.sub.green;
-    if ($status === 'error') return theme.colors.sub.red;
-    return theme.colors.neutral.gray;
-  }};
-  background: ${c('neutral.white')};
-  font-family: ${f('typography.body01.family')};
-  font-size: ${f('typography.body01.size')};
-  font-weight: ${f('typography.body01.weight')};
-  color: ${c('neutral.black')};
-  line-height: 24px;
-  box-sizing: border-box;
-  outline: none;
-
-  &::placeholder {
-    color: ${c('neutral.gray2')};
-  }
-
-  &:focus {
-    border-color: ${({ $status, theme }) => {
-      if ($status === 'success') return theme.colors.sub.green;
-      if ($status === 'error') return theme.colors.sub.red;
-      return theme.colors.brand.pink;
-    }};
-  }
-
-  &:disabled {
-    background: ${c('neutral.bg')};
-    cursor: not-allowed;
-  }
-`;
-
-const IconButton = styled.button`
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-
-  img {
-    width: 24px;
-    height: 24px;
-    pointer-events: none;
-  }
-`;
-
-const HelperText = styled.span`
-  font-family: ${f('typography.body02.family')};
-  font-size: ${f('typography.body02.size')};
-  font-weight: ${f('typography.body02.weight')};
-  color: ${({ $status, theme }) => {
-    if ($status === 'success') return theme.colors.sub.green;
-    if ($status === 'error') return theme.colors.sub.red;
-    return 'rgba(44, 50, 73, 0.5)';
-  }};
-  line-height: normal;
-  padding-left: 4px;
-`;
+import EyeOpen from '../../assets/icons/EyeOpen.svg';
+import EyeClosed from '../../assets/icons/EyeClosed.svg';
 
 function PasswordTextField({ 
   name, 
-  type = 'text', 
   placeholder, 
   helperText, 
   value, 
   onChange, 
-  status 
+  status,
+  isVisible,
+  onToggleVisibility
 }) {
-  const hasIcon = !!status;
   const statusIconSrc = status === 'success' ? successIcon : status === 'error' ? errorIcon : null;
+  const toggleIcon = isVisible ? EyeOpen : EyeClosed;
 
   return (
     <TextFieldContainer>
@@ -128,20 +30,29 @@ function PasswordTextField({
           <Input
             id={name}
             name={name}
-            type={type}
+            type={isVisible ? 'text' : 'password'}
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            $hasIcon={hasIcon}
+            $hasToggle
             $status={status}
           />
-          {statusIconSrc && (
-            <IconButton type="button" disabled>
-              <img src={statusIconSrc} alt={status === 'success' ? '성공' : '에러'} />
-            </IconButton>
-          )}
+          <ToggleButton type="button" onClick={onToggleVisibility}>
+            <img src={toggleIcon} alt={isVisible ? '비밀번호 숨기기' : '비밀번호 표시'} />
+          </ToggleButton>
         </InputContainer>
-        {helperText && <HelperText $status={status}>{helperText}</HelperText>}
+        {helperText && (
+          <HelperText $status={status}>
+            {helperText}
+            {statusIconSrc && (
+              <img
+                src={statusIconSrc}
+                alt={status === 'success' ? '성공' : '에러'}
+                style={{ marginLeft: 6, verticalAlign: 'middle', width: 16, height: 16 }}
+              />
+            )}
+          </HelperText>
+        )}
       </InputWrapper>
     </TextFieldContainer>
   );
@@ -156,6 +67,12 @@ export default function ChangePassword() {
     newPasswordConfirm: '',
   });
 
+  const [visibility, setVisibility] = useState({
+    currentPassword: false,
+    newPassword: false,
+    newPasswordConfirm: false,
+  });
+
   const [fieldStatus, setFieldStatus] = useState({
     currentPassword: null, // null | 'success' | 'error'
     newPassword: null,
@@ -168,8 +85,10 @@ export default function ChangePassword() {
     newPasswordConfirm: '변경할 비밀번호를 다시 입력해주세요.',
   });
 
-  // 실제 현재 비밀번호 (실제로는 API에서 가져와야 함)
-  const ACTUAL_CURRENT_PASSWORD = 'abcd1234!';
+  const DEFAULT_PASSWORD = 'abcd1234!';
+  const [storedCurrentPassword, setStoredCurrentPassword] = useState(
+    () => localStorage.getItem('userPassword') || DEFAULT_PASSWORD
+  );
 
   // 비밀번호 유효성 검사
   const validatePassword = (password) => {
@@ -184,15 +103,15 @@ export default function ChangePassword() {
   useEffect(() => {
     // 현재 비밀번호 검증
     if (formData.currentPassword) {
-      const isValid = formData.currentPassword === ACTUAL_CURRENT_PASSWORD;
+      const isValid = formData.currentPassword === storedCurrentPassword;
       setFieldStatus(prev => ({
         ...prev,
         currentPassword: isValid ? 'success' : 'error',
       }));
       setHelperMessages(prev => ({
         ...prev,
-        currentPassword: isValid 
-          ? '현재 비밀번호를 입력해주세요.' 
+        currentPassword: isValid
+          ? '현재 비밀번호가 확인되었습니다.'
           : '사용 중인 비밀번호가 아닙니다.',
       }));
     } else {
@@ -205,7 +124,7 @@ export default function ChangePassword() {
         currentPassword: '현재 비밀번호를 입력해주세요.',
       }));
     }
-  }, [formData.currentPassword]);
+  }, [formData.currentPassword, storedCurrentPassword]);
 
   useEffect(() => {
     // 새 비밀번호 검증
@@ -259,11 +178,30 @@ export default function ChangePassword() {
     }
   }, [formData.newPasswordConfirm, formData.newPassword]);
 
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setStoredCurrentPassword(localStorage.getItem('userPassword') || DEFAULT_PASSWORD);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleToggleVisibility = (field) => {
+    setVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field],
     }));
   };
 
@@ -278,6 +216,23 @@ export default function ChangePassword() {
 
   const handleSubmit = () => {
     if (isAllFieldsValid) {
+      localStorage.setItem('userPassword', formData.newPassword);
+      setStoredCurrentPassword(formData.newPassword);
+      setFormData({
+        currentPassword: '',
+        newPassword: '',
+        newPasswordConfirm: '',
+      });
+      setFieldStatus({
+        currentPassword: null,
+        newPassword: null,
+        newPasswordConfirm: null,
+      });
+      setHelperMessages({
+        currentPassword: '현재 비밀번호를 입력해주세요.',
+        newPassword: '영문/숫자/특수문자로 8자 이상 작성해주세요.',
+        newPasswordConfirm: '변경할 비밀번호를 다시 입력해주세요.',
+      });
       navigate('/mypage', {
         state: {
           newPassword: formData.newPassword,
@@ -300,33 +255,142 @@ export default function ChangePassword() {
       <FieldsContainer>
         <PasswordTextField
           name="currentPassword"
-          type="text"
           placeholder="현재 비밀번호"
           helperText={helperMessages.currentPassword}
           value={formData.currentPassword}
           onChange={handleChange}
           status={fieldStatus.currentPassword}
+          isVisible={visibility.currentPassword}
+          onToggleVisibility={() => handleToggleVisibility('currentPassword')}
         />
         <PasswordTextField
           name="newPassword"
-          type="text"
           placeholder="변경할 비밀번호"
           helperText={helperMessages.newPassword}
           value={formData.newPassword}
           onChange={handleChange}
           status={fieldStatus.newPassword}
+          isVisible={visibility.newPassword}
+          onToggleVisibility={() => handleToggleVisibility('newPassword')}
         />
         <PasswordTextField
           name="newPasswordConfirm"
-          type="text"
           placeholder="비밀번호 확인"
           helperText={helperMessages.newPasswordConfirm}
           value={formData.newPasswordConfirm}
           onChange={handleChange}
           status={fieldStatus.newPasswordConfirm}
+          isVisible={visibility.newPasswordConfirm}
+          onToggleVisibility={() => handleToggleVisibility('newPasswordConfirm')}
         />
       </FieldsContainer>
       <NavButton isActive={isAllFieldsValid} onClick={handleSubmit}>변경하기</NavButton>
     </div>
   );
 }
+
+const FieldsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const TextFieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  width: 100%;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  position: relative;
+`;
+
+const InputContainer = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px ${({ $hasToggle }) => ($hasToggle ? '48px' : '16px')} 12px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ $status, theme }) => {
+    if ($status === 'success') return theme.colors.sub.green;
+    if ($status === 'error') return theme.colors.sub.red;
+    return theme.colors.neutral.gray;
+  }};
+  background: ${c('neutral.white')};
+  font-family: ${f('typography.body01.family')};
+  font-size: ${f('typography.body01.size')};
+  font-weight: ${f('typography.body01.weight')};
+  color: ${c('neutral.black')};
+  line-height: 24px;
+  box-sizing: border-box;
+  outline: none;
+
+  &::placeholder {
+    color: ${c('neutral.gray2')};
+  }
+
+  &:focus {
+    border-color: ${({ $status, theme }) => {
+      if ($status === 'success') return theme.colors.sub.green;
+      if ($status === 'error') return theme.colors.sub.red;
+      return theme.colors.brand.pink;
+    }};
+  }
+
+  &:disabled {
+    background: ${c('neutral.bg')};
+    cursor: not-allowed;
+  }
+
+  &::-ms-reveal,
+  &::-ms-clear {
+    display: none;
+  }
+`;
+
+const ToggleButton = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  img {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+`;
+
+const HelperText = styled.span`
+  font-family: ${f('typography.body02.family')};
+  font-size: ${f('typography.body02.size')};
+  font-weight: ${f('typography.body02.weight')};
+  color: ${({ $status, theme }) => {
+    if ($status === 'success') return theme.colors.sub.green;
+    if ($status === 'error') return theme.colors.sub.red;
+    return 'rgba(44, 50, 73, 0.5)';
+  }};
+  line-height: normal;
+  padding-left: 4px;
+`;

@@ -5,6 +5,8 @@ import PageHeader from '../../components/PageHeader';
 import TextField from '../../components/Signup/TextField';
 import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
+import EyeOpen from '../../assets/icons/EyeOpen.svg';
+import EyeClosed from '../../assets/icons/EyeClosed.svg';
 
 const FieldsContainer = styled.div`
   display: flex;
@@ -22,6 +24,8 @@ export default function SignUp() {
     password: '',
     passwordConfirm: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,10 +35,16 @@ export default function SignUp() {
     }));
   };
 
+  const passwordMismatch =
+    formData.passwordConfirm.trim() !== '' &&
+    formData.password.trim() !== '' &&
+    formData.password !== formData.passwordConfirm;
+
   const isAllFieldsFilled =
     formData.email.trim() !== '' &&
     formData.password.trim() !== '' &&
-    formData.passwordConfirm.trim() !== '';
+    formData.passwordConfirm.trim() !== '' &&
+    formData.password === formData.passwordConfirm;
 
   const handleBack = () => {
     navigate('/signup/nickname');
@@ -69,13 +79,23 @@ export default function SignUp() {
           helperText="비밀번호를 입력해주세요."
           value={formData.password}
           onChange={handleChange}
+          type={showPassword ? 'text' : 'password'}
+          icon={showPassword ? EyeOpen : EyeClosed}
+          onIconClick={() => setShowPassword(prev => !prev)}
         />
         <TextField
           name="passwordConfirm"
           placeholder="비밀번호 확인"
-          helperText="영문/숫자/특수문자로 8자 이상 적어주세요."
+          helperText={
+            passwordMismatch
+              ? '비밀번호가 일치하지 않습니다.'
+              : '영문/숫자/특수문자로 8자 이상 적어주세요.'
+          }
           value={formData.passwordConfirm}
           onChange={handleChange}
+          type={showPasswordConfirm ? 'text' : 'password'}
+          icon={showPasswordConfirm ? EyeOpen : EyeClosed}
+          onIconClick={() => setShowPasswordConfirm(prev => !prev)}
         />
       </FieldsContainer>
       <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>가입하기</NavButton>

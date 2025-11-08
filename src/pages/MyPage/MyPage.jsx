@@ -202,6 +202,7 @@ export default function MyPage({
   isLoggedIn: propIsLoggedIn,
   profileImage: propProfileImage,
   nickname: propNickname,
+  userId: propUserId,
   storyCount = 7,
   empathyCount = 12,
   commentCount = 36,
@@ -222,6 +223,13 @@ export default function MyPage({
       return propNickname;
     }
     return localStorage.getItem('nickname') || '숨쉬는 고양이';
+  });
+
+  const [userId, setUserId] = useState(() => {
+    if (propUserId !== undefined) {
+      return propUserId;
+    }
+    return localStorage.getItem('userId') || '';
   });
 
   const [userProfileImage, setUserProfileImage] = useState(() => {
@@ -252,6 +260,7 @@ export default function MyPage({
   useEffect(() => {
     const handleStorageChange = () => {
       setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+      setUserId(localStorage.getItem('userId') || '');
     };
 
     // 다른 탭에서의 localStorage 변경 감지
@@ -263,6 +272,7 @@ export default function MyPage({
       if (currentStatus !== isLoggedIn) {
         setIsLoggedIn(currentStatus);
       }
+      setUserId(localStorage.getItem('userId') || '');
     };
 
     // 초기 확인
@@ -272,6 +282,16 @@ export default function MyPage({
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (propUserId !== undefined) {
+      setUserId(propUserId);
+      return;
+    }
+
+    const storedUserId = localStorage.getItem('userId') || '';
+    setUserId(storedUserId);
+  }, [propUserId]);
 
   // 프로필 업데이트 감지
   useEffect(() => {
@@ -359,7 +379,7 @@ export default function MyPage({
               <MenuItem>
                 <MenuItemLabel>
                   아이디
-                  <MenuItemValue>abcd1234!</MenuItemValue>
+                  <MenuItemValue>{userId || '아이디 정보가 없습니다'}</MenuItemValue>
                 </MenuItemLabel>
               </MenuItem>
               <MenuItem onClick={handleChangePassword}>

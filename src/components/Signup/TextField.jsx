@@ -58,6 +58,11 @@ const Input = styled.input`
     background: ${c('neutral.bg')};
     cursor: not-allowed;
   }
+
+  &::-ms-reveal,
+  &::-ms-clear {
+    display: none;
+  }
 `;
 
 const IconButton = styled.button`

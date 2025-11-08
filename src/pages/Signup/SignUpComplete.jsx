@@ -37,12 +37,18 @@ export default function SignUpComplete() {
     [location.state?.formData]
   );
 
-  // 회원가입 완료 시 닉네임을 localStorage에 저장
+  // 회원가입 완료 시 사용자 정보를 localStorage에 저장
   useEffect(() => {
     if (nickname) {
       localStorage.setItem('nickname', nickname);
     }
-  }, [nickname]);
+    if (formData.email) {
+      localStorage.setItem('userId', formData.email);
+    }
+    if (formData.password) {
+      localStorage.setItem('userPassword', formData.password);
+    }
+  }, [nickname, formData.email, formData.password]);
 
   const handleLogin = () => {
     navigate('/login');

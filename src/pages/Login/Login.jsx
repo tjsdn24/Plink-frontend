@@ -8,6 +8,116 @@ import LoginButton from '../../components/Login/LoginButton';
 import LoginNavButton from '../../components/Login/NavButton';
 import Pink from '../../assets/icons/LoginPink.svg';
 import Purple from '../../assets/icons/LoginPurple.svg';
+import EyeOpen from '../../assets/icons/EyeOpen.svg';
+import EyeClosed from '../../assets/icons/EyeClosed.svg';
+
+export default function Login() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
+
+  const isAllFieldsFilled = formData.email.trim() !== '' && formData.password.trim() !== '';
+
+  const handleLogin = () => {
+    if (isAllFieldsFilled) {
+      const storedEmail = localStorage.getItem('userId') || '';
+      const storedPassword = localStorage.getItem('userPassword') || '';
+      const isCredentialMatch =
+        formData.email.trim() === storedEmail && formData.password === storedPassword;
+
+      if (!isCredentialMatch) {
+        setErrorMessage('이메일 또는 비밀번호가 일치하지 않습니다.');
+        return;
+      }
+
+      // 로그인 상태를 localStorage에 저장
+      localStorage.setItem('userId', formData.email.trim());
+      localStorage.setItem('isLoggedIn', 'true');
+      navigate('/festival');
+    }
+  };
+
+  const handleGuestLogin = () => {
+    navigate('/festival');
+  };
+
+  const handleSignUp = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/signup/nickname');
+  };
+
+  const handleFindPassword = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/signup/password');
+  };
+  return (
+    <>
+      <Container>
+        <LogoHeaderContainer>
+          <LogoHeader />
+        </LogoHeaderContainer>
+        <LoginTitleContainer>
+          <LoginTitle>PLINK에 오신 것을 환영합니다!</LoginTitle>
+        </LoginTitleContainer>
+        <FieldsContainer>
+          <TextField
+            name="email"
+            placeholder="이메일"
+            value={formData.email}
+            onChange={handleChange}
+            type="email"
+          />
+          <TextField
+            name="password"
+            placeholder="비밀번호"
+            value={formData.password}
+            onChange={handleChange}
+            type={showPassword ? 'text' : 'password'}
+            icon={showPassword ? EyeOpen : EyeClosed}
+            onIconClick={() => setShowPassword(prev => !prev)}
+            helperText={errorMessage || undefined}
+          />
+        </FieldsContainer>
+        <LoginButtonContainer>
+          <LoginButton
+            isActive={isAllFieldsFilled}
+            onClick={handleLogin}
+            disabled={!isAllFieldsFilled}
+          >
+            입장하기
+          </LoginButton>
+        </LoginButtonContainer>
+        <LinkContainer>
+          <LinkText onClick={handleSignUp}>회원가입</LinkText>
+          <Separator>ㅣ</Separator>
+          <LinkText onClick={handleFindPassword}>비밀번호 찾기</LinkText>
+        </LinkContainer>
+        <CircleImg src={Purple} bottom="-340px" right="10px" />
+        <CircleImg src={Pink} bottom="-320px" left="130px" />
+      </Container>
+      <LoginNavButton onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
+    </>
+  );
+}
+
 
 const Container = styled.div`
   display: flex;
@@ -114,96 +224,11 @@ const Separator = styled.span`
   user-select: none;
 `;
 
-export default function Login() {
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const isAllFieldsFilled = formData.email.trim() !== '' && formData.password.trim() !== '';
-
-  const handleLogin = () => {
-    if (isAllFieldsFilled) {
-      // 로그인 상태를 localStorage에 저장
-      localStorage.setItem('isLoggedIn', 'true');
-      navigate('/festival');
-    }
-  };
-
-  const handleGuestLogin = () => {
-    navigate('/festival');
-  };
-
-  const handleSignUp = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/signup/nickname');
-  };
-
-  const handleFindPassword = e => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/signup/password');
-  };
-  const CircleImg = styled.img`
-    position: absolute;
-    z-index: -1;
-    top: ${({ top }) => top || 'auto'};
-    left: ${({ left }) => left || 'auto'};
-    right: ${({ right }) => right || 'auto'};
-    bottom: ${({ bottom }) => bottom || 'auto'};
-  `;
-  return (
-    <>
-      <Container>
-        <LogoHeaderContainer>
-          <LogoHeader />
-        </LogoHeaderContainer>
-        <LoginTitleContainer>
-          <LoginTitle>PLINK에 오신 것을 환영합니다!</LoginTitle>
-        </LoginTitleContainer>
-        <FieldsContainer>
-          <TextField
-            name="email"
-            placeholder="이메일"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <TextField
-            name="password"
-            placeholder="비밀번호"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </FieldsContainer>
-        <LoginButtonContainer>
-          <LoginButton
-            isActive={isAllFieldsFilled}
-            onClick={handleLogin}
-            disabled={!isAllFieldsFilled}
-          >
-            입장하기
-          </LoginButton>
-        </LoginButtonContainer>
-        <LinkContainer>
-          <LinkText onClick={handleSignUp}>회원가입</LinkText>
-          <Separator>ㅣ</Separator>
-          <LinkText onClick={handleFindPassword}>비밀번호 찾기</LinkText>
-        </LinkContainer>
-        <CircleImg src={Purple} bottom="-340px" right="10px" />
-        <CircleImg src={Pink} bottom="-320px" left="130px" />
-      </Container>
-      <LoginNavButton onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
-    </>
-  );
-}
+const CircleImg = styled.img`
+  position: absolute;
+  z-index: -1;
+  top: ${({ top }) => top || 'auto'};
+  left: ${({ left }) => left || 'auto'};
+  right: ${({ right }) => right || 'auto'};
+  bottom: ${({ bottom }) => bottom || 'auto'};
+`;

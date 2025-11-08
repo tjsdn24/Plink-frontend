@@ -43,20 +43,20 @@ export const postData = [
   },
   {
     id: 3,
-    nickname: '메로나',
+    nickname: '커비',
     content: [
-      { type: 'text', data: '오늘 점심 뭐 먹을까요??? ' },
+      { type: 'text', data: '점메추' },
       {
         type: 'poll',
         data: {
-          options: ['김치찌개', '비빔밥', '돈까스', '샐러드'],
+          options: ['된찌', '엽떡', '고치돈', '샌드위치'],
           votes: [5, 8, 3, 2],
         },
       },
     ],
     like: 4,
     comment: 1,
-    comments: [{ nickname: '다현', text: '김치말이국수 추천' }],
+    comments: [{ nickname: '김치러버', text: '김치말이국수 추천' }],
     time: '1시간 전',
     category: '질문/요청',
   },

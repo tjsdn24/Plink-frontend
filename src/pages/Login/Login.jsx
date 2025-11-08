@@ -170,7 +170,7 @@ export default function Login() {
           <LogoHeader />
         </LogoHeaderContainer>
         <LoginTitleContainer>
-          <LoginTitle>축제를 즐길 준비가 되셨나요?</LoginTitle>
+          <LoginTitle>PLINK에 오신 것을 환영합니다!</LoginTitle>
         </LoginTitleContainer>
         <FieldsContainer>
           <TextField

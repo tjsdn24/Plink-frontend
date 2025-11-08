@@ -221,7 +221,7 @@ export default function MyPage({
     if (propNickname !== undefined) {
       return propNickname;
     }
-    return localStorage.getItem('nickname') || '숨쉬는 고양이님!';
+    return localStorage.getItem('nickname') || '숨쉬는 고양이';
   });
 
   const [userProfileImage, setUserProfileImage] = useState(() => {

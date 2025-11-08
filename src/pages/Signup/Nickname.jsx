@@ -108,8 +108,8 @@ export default function Nickname({ userName = '숨쉬는 고양이' }) {
           icon={SignUpChangeIcon}
           onIconClick={handleRandomNickname}
         />
-      </FieldsContainer>
-      <NavButton isActive={isAllFieldsFilled} onClick={handleNext}>다음 단계로(1/2)</NavButton>
-    </div>
+
+          </FieldsContainer>
+      <NavButton isActive={isAllFieldsFilled} onClick={handleNext}>다음 단계로(1/2)</NavButton></div>
   );
 }

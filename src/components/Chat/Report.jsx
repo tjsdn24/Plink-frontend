@@ -1,51 +1,199 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { c } from '../../styles/themeUtils';
+import BottomSheet from '../Modal/BottomSheet';
+import NavButton from '../Signup/NavButton';
+import ChatIcon from '../../assets/icons/HomeTalk.svg';
+import AlertIcon from '../../assets/icons/ChatAlert.svg';
+import { c, s, typography } from '../../styles/themeUtils';
+
+const REPORT_REASONS = [
+  '스팸/홍보/도배 글이에요',
+  '욕설/혐오 표현이 포함되어 있어요',
+  '개인정보 노출이 걱정돼요',
+  '불법 정보 또는 음란물이에요',
+  '기타 문제가 있어요',
+];
+
+const REASON_SUMMARY_MAP = {
+  '스팸/홍보/도배 글이에요': '스팸 또는 광고성 콘텐츠',
+  '욕설/혐오 표현이 포함되어 있어요': '욕설 또는 혐오 표현',
+  '개인정보 노출이 걱정돼요': '개인정보 노출 우려',
+  '불법 정보 또는 음란물이에요': '불법 정보 또는 음란물',
+  '기타 문제가 있어요': '기타 문제 신고',
+};
 
 export default function Report({ onClose }) {
+  const [selectedReason, setSelectedReason] = useState('');
+  const [additionalDetails, setAdditionalDetails] = useState('');
+  const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+
+  const isStepOne = step === 1;
+  const isStepTwo = step === 2;
+  const isStepThree = step === 3;
+
+  const summaryMessage = REASON_SUMMARY_MAP[selectedReason] || selectedReason;
+  const mainMessage = isStepOne
+    ? '신고 사유를 선택해주세요'
+    : isStepTwo
+      ? summaryMessage
+      : '신고가 접수되었어요.';
+  const subMessages = isStepOne
+    ? ['허위 신고 시 이용이 제한될 수 있어요.']
+    : isStepTwo
+      ? ['신고 내용 접수 후 가이드라인에 따라 검토를 합니다.', '추가적인 내용을 알려주시면 처리에 도움이 됩니다.']
+      : ['즐거운 축제를 위해 도와주셔서 감사합니다.', '더 나은 서비스를 제공하겠습니다.'];
+  const emoji = isStepThree
+    ? <EmojiImage src={AlertIcon} alt="신고 완료" />
+    : isStepTwo
+      ? <EmojiImage src={ChatIcon} alt="신고 안내" />
+      : undefined;
+  const buttonLabel = isStepOne ? '다음 단계로 (1/2)' : isStepTwo ? '신고하기' : '확인';
+  const isButtonActive = isStepOne ? Boolean(selectedReason) : true;
+
+  const handleReasonSelect = reason => {
+    setSelectedReason(reason);
+  };
+
+  const handleAction = () => {
+    if (isStepOne) {
+      if (!selectedReason) {
+        alert('신고 사유를 선택해주세요.');
+        return;
+      }
+      setStep(2);
+      return;
+    }
+
+    if (isStepTwo) {
+      // TODO: 신고 API 연동
+      setStep(3);
+      return;
+    }
+
+    setSelectedReason('');
+    setAdditionalDetails('');
+    setStep(1);
+    onClose();
+    navigate('/chat');
+  };
+
   return (
-    <Overlay onClick={onClose}>
-      <Sheet onClick={e => e.stopPropagation()}>
-        <Handle />
-        <h3>신고하기</h3>
-        <p>신고 사유를 선택해주세요.</p>
-        <button onClick={onClose}>닫기</button>
-      </Sheet>
-    </Overlay>
+    <BottomSheet
+      title="신고하기"
+      emoji={emoji}
+      mainMessage={mainMessage}
+      subMessages={subMessages}
+      isOverlay
+      headerSpacing={isStepThree ? 'xl' : 'lg'}
+      contentSpacing="lg"
+    >
+      {isStepOne && (
+        <ReasonList>
+          {REPORT_REASONS.map(reason => (
+            <ReasonButton
+              key={reason}
+              type="button"
+              $selected={selectedReason === reason}
+              onClick={() => handleReasonSelect(reason)}
+            >
+              {reason}
+            </ReasonButton>
+          ))}
+        </ReasonList>
+      )}
+      {isStepTwo && (
+        <StepTwoContainer>
+          <SelectedReasonBadge>{summaryMessage}</SelectedReasonBadge>
+          <DetailTextarea
+            placeholder="추가적인 내용을 알려주세요."
+            value={additionalDetails}
+            onChange={event => setAdditionalDetails(event.target.value)}
+          />
+        </StepTwoContainer>
+      )}
+      {isStepThree && <SuccessSpacer />}
+      <NavButton
+        isActive={isButtonActive}
+        disabled={!isButtonActive}
+        onClick={handleAction}
+      >
+        {buttonLabel}
+      </NavButton>
+    </BottomSheet>
   );
 }
 
-const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+const ReasonList = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 999;
+  flex-direction: column;
+  gap: ${s('sm')};
+  width: 100%;
+  margin-top: ${s('lg')};
+  align-self: stretch;
 `;
 
-const Sheet = styled.div`
+const ReasonButton = styled.button`
   width: 100%;
-  height: 50%;
-  background: ${c('neutral.bg')};
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  padding: 20px;
-  animation: slideUp 0.3s ease-out;
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
+  padding: 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ $selected }) => ($selected ? c('brand.pink') : c('neutral.gray'))};
+  background: ${({ $selected }) => ($selected ? '#FFF0F7' : c('neutral.white'))};
+  color: ${c('neutral.black')};
+  ${typography('body01')};
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: ${c('brand.pink')};
   }
 `;
 
-const Handle = styled.div`
-  width: 40px;
-  height: 4px;
-  background: #ccc;
-  border-radius: 2px;
-  margin: 0 auto 10px;
+const StepTwoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${s('md')};
+  width: 100%;
+  align-self: stretch;
+  margin-top: ${s('lg')};
+`;
+
+const SelectedReasonBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff0f7;
+  color: ${c('brand.pink')};
+  ${typography('label02')};
+`;
+
+const SuccessSpacer = styled.div`
+  height: ${s('xl')};
+`;
+
+
+const EmojiImage = styled.img`
+  width: 64px;
+  height: 64px;
+`;
+
+const DetailTextarea = styled.textarea`
+  width: 100%;
+  min-height: 140px;
+  padding: 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${c('neutral.gray')};
+  background: ${c('neutral.white')};
+  color: ${c('neutral.black')};
+  ${typography('body02')};
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+
+  &::placeholder {
+    color: ${c('neutral.gray2')};
+  }
 `;

@@ -8,6 +8,7 @@ export default function CaptureButton({ onClick, children }) {
 
 const Button = styled.button`
   border-radius: 99px;
+  margin-top: 10%;
   width: 80px;
   height: 80px;
   border: 4px solid ${c('brand.pink')};

@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { c, s, typography } from '../../styles/themeUtils';
+
 import styled from 'styled-components';
 import usePhotoBooth from '../../hooks/usePhotoBooth';
 import VideoView from '../../components/Photo/VideoView';
@@ -42,9 +44,6 @@ const Container = styled.div`
   height: 100vh;
   position: fixed;
 `;
-
 const GuideText = styled.div`
-  color: #ccc;
-  margin-top: 8px;
-  font-size: 0.9rem;
+  ${typography('label01')};
 `;

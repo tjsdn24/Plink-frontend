@@ -6,6 +6,8 @@ import { c, s, typography } from '../../styles/themeUtils';
 
 import PhotoStart from '../../../src/assets/icons/PhotoStart.svg';
 import NavButton from '../../components/Signup/NavButton';
+import Pink from '../../assets/icons/LoginPink.svg';
+import Purple from '../../assets/icons/LoginPurple.svg';
 
 export default function Photo() {
   const navigate = useNavigate();
@@ -14,7 +16,7 @@ export default function Photo() {
     navigate('/photo/booth');
   };
   return (
-    <>
+    <PageContainer>
       <Container>
         <Icon src={PhotoStart} alt="포토부스 시작 아이콘" />
         <Wrapper>
@@ -30,16 +32,28 @@ export default function Photo() {
         <NavButton isActive onClick={handleClick}>
           촬영하기
         </NavButton>
+        <CircleImg src={Purple} bottom="-340px" right="10px" />
+        <CircleImg src={Pink} bottom="-320px" left="130px" />
       </Container>
-    </>
+    </PageContainer>
   );
 }
+const PageContainer = styled.div`
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden; /* 스크롤 차단 */
+  z-index: 0;
+`;
 const Container = styled.div`
-  margin-top: 80px;
+  padding-top: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: ${s('lg')};
+  height: 100%;
 `;
 const Icon = styled.img`
   height: 80px;
@@ -56,4 +70,13 @@ const Title = styled.h1`
 const Description = styled.p`
   ${typography('body02')};
   text-align: center;
+`;
+
+const CircleImg = styled.img`
+  position: absolute;
+  z-index: -1;
+  top: ${({ top }) => top || 'auto'};
+  left: ${({ left }) => left || 'auto'};
+  right: ${({ right }) => right || 'auto'};
+  bottom: ${({ bottom }) => bottom || 'auto'};
 `;

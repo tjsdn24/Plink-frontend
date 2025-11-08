@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import styled from 'styled-components';
-import Search from '../../components/Chat/Search';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
 import Post from '../../components/Chat/Post';
 import NonSearch from '../../components/Chat/NonSearch';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import { postData as initialData } from '../../components/Chat/PostData.js';
-import { c } from '../../styles/themeUtils';
+import SearchIcon from '../../assets/icons/SearchIcon.svg';
+import { c, s, typography } from '../../styles/themeUtils';
 
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
@@ -79,7 +79,19 @@ export default function Chat() {
   return (
     <ChatWrapper>
       <ChatTop>
-        <Search value={searchKeyword} onChange={handleSearchChange} />
+        <SearchBarContainer>
+          <SearchBar>
+            <SearchInput
+              type="text"
+              value={searchKeyword}
+              onChange={handleSearchChange}
+              placeholder="원하는 이야기를 검색해보세요."
+            />
+            <SearchIconWrapper>
+              <SearchIconImg src={SearchIcon} alt="검색" />
+            </SearchIconWrapper>
+          </SearchBar>
+        </SearchBarContainer>
         <ChatCatagory selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       </ChatTop>
 
@@ -106,3 +118,48 @@ const ChatTop = styled.div`
 `;
 
 const ChatBottom = styled.div``;
+
+const SearchBarContainer = styled.div`
+  padding: ${s('xs')} 0;
+`;
+
+const SearchBar = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 12px 48px 12px 16px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: none;
+  background: ${c('neutral.white')};
+  ${typography('body01')};
+  color: ${c('neutral.black')};
+  outline: none;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: ${c('neutral.gray2')};
+  }
+`;
+
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 16px;
+`;
+
+const SearchIconImg = styled.img`
+  width: 20px;
+  height: 20px;
+`;

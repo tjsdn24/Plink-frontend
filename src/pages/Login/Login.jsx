@@ -6,8 +6,8 @@ import LogoHeader from '../../components/LogoHeader';
 import TextField from '../../components/Signup/TextField';
 import LoginButton from '../../components/Login/LoginButton';
 import LoginNavButton from '../../components/Login/NavButton';
-import NavCircle1 from '../../assets/icons/LoginPink.svg';
-import NavCircle2 from '../../assets/icons/LoginPurple.svg';
+import Pink from '../../assets/icons/LoginPink.svg';
+import Purple from '../../assets/icons/LoginPurple.svg';
 
 const Container = styled.div`
   display: flex;
@@ -30,7 +30,7 @@ const LogoHeaderContainer = styled.div`
   > header {
     width: 100%;
     justify-content: center !important;
-    
+
     h1 {
       width: 100%;
       text-align: center;
@@ -114,43 +114,23 @@ const Separator = styled.span`
   user-select: none;
 `;
 
-const NavCircle1Container = styled.div`
-  position: absolute;
-  top: 60%;
-  transform: translateY(0%);
-  left: 0;
-  z-index: 1;
-  pointer-events: none;
-`;
-
-const NavCircle2Container = styled.div`
-  position: absolute;
-  top: 60%;
-  transform: translateY(0%);
-  right: -15%;
-  z-index: 1;
-  pointer-events: none;
-`;
-
 export default function Login() {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const isAllFieldsFilled =
-    formData.email.trim() !== '' &&
-    formData.password.trim() !== '';
+  const isAllFieldsFilled = formData.email.trim() !== '' && formData.password.trim() !== '';
 
   const handleLogin = () => {
     if (isAllFieldsFilled) {
@@ -164,18 +144,25 @@ export default function Login() {
     navigate('/festival');
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = e => {
     e.preventDefault();
     e.stopPropagation();
     navigate('/signup/nickname');
   };
 
-  const handleFindPassword = (e) => {
+  const handleFindPassword = e => {
     e.preventDefault();
     e.stopPropagation();
     navigate('/signup/password');
   };
-
+  const CircleImg = styled.img`
+    position: absolute;
+    z-index: -1;
+    top: ${({ top }) => top || 'auto'};
+    left: ${({ left }) => left || 'auto'};
+    right: ${({ right }) => right || 'auto'};
+    bottom: ${({ bottom }) => bottom || 'auto'};
+  `;
   return (
     <>
       <Container>
@@ -183,10 +170,7 @@ export default function Login() {
           <LogoHeader />
         </LogoHeaderContainer>
         <LoginTitleContainer>
-          <LoginTitle>
-            축제를 즐길 준비가
-            되셨나요?
-          </LoginTitle>
+          <LoginTitle>축제를 즐길 준비가 되셨나요?</LoginTitle>
         </LoginTitleContainer>
         <FieldsContainer>
           <TextField
@@ -203,8 +187,8 @@ export default function Login() {
           />
         </FieldsContainer>
         <LoginButtonContainer>
-          <LoginButton 
-            isActive={isAllFieldsFilled} 
+          <LoginButton
+            isActive={isAllFieldsFilled}
             onClick={handleLogin}
             disabled={!isAllFieldsFilled}
           >
@@ -216,12 +200,8 @@ export default function Login() {
           <Separator>ㅣ</Separator>
           <LinkText onClick={handleFindPassword}>비밀번호 찾기</LinkText>
         </LinkContainer>
-        <NavCircle1Container>
-          <img src={NavCircle1} alt="" />
-        </NavCircle1Container>
-        <NavCircle2Container>
-          <img src={NavCircle2} alt="" />
-        </NavCircle2Container>
+        <CircleImg src={Purple} bottom="-340px" right="10px" />
+        <CircleImg src={Pink} bottom="-320px" left="130px" />
       </Container>
       <LoginNavButton onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
     </>

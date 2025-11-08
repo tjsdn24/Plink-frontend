@@ -28,7 +28,7 @@ export default function Logout() {
   
   // localStorage에서 현재 닉네임 가져오기
   const getStoredNickname = () => {
-    return localStorage.getItem('userNickname') || '숨쉬는 고양이';
+    return localStorage.getItem('nickname') || '숨쉬는 고양이';
   };
   
   const initialNickname = getStoredNickname();

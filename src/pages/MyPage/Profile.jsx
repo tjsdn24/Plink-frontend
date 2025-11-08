@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, f, s, typography } from '../../styles/themeUtils';
@@ -351,31 +351,33 @@ const generateRandomNickname = () => {
 };
 
 export default function Profile({ 
-  currentNickname = '숨쉬는 고양이',
+  currentNickname = localStorage.getItem('nickname') || '숨쉬는 고양이',
   currentProfileImage
 }) {
   const navigate = useNavigate();
   
   // localStorage에서 현재 프로필 정보 가져오기
   const getStoredNickname = () => {
-    return localStorage.getItem('userNickname') || currentNickname || '숨쉬는 고양이';
+    return localStorage.getItem('nickname') || currentNickname || '숨쉬는 고양이';
   };
   
   const getStoredProfileImage = () => {
     return localStorage.getItem('userProfileImage') || currentProfileImage || defaultAvatar;
   };
   
+  const initialNicknameRef = useRef((getStoredNickname() || '').trim());
+  const initialProfileImageRef = useRef(getStoredProfileImage());
+  const initialNickname = initialNicknameRef.current;
+  const initialProfileImage = initialProfileImageRef.current;
+
   const [formData, setFormData] = useState({
-    nickname: getStoredNickname(),
+    nickname: initialNickname,
   });
   
-  const [profileImage, setProfileImage] = useState(getStoredProfileImage());
-  
+  const [profileImage, setProfileImage] = useState(initialProfileImage);
   const [nicknameStatus, setNicknameStatus] = useState(null); // null | 'success' | 'error'
   const [helperMessage, setHelperMessage] = useState('2~8자 이내로 작성해주세요.');
   
-  const initialNickname = getStoredNickname();
-
   // 프로필 이미지 업데이트 감지
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -447,17 +449,32 @@ export default function Profile({
   };
 
   const handleSave = () => {
-    if (nicknameStatus === 'success' && formData.nickname.trim() !== '') {
-      // localStorage에 저장
-      localStorage.setItem('userNickname', formData.nickname.trim());
-      localStorage.setItem('userProfileImage', profileImage);
-      
-      // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
-      window.dispatchEvent(new Event('profileUpdated'));
-      
-      // 마이페이지로 이동
-      navigate('/mypage');
+    const trimmedNickname = formData.nickname.trim();
+    const nicknameChanged = trimmedNickname !== initialNickname;
+    const profileImageChanged = profileImage !== initialProfileImage;
+    const canPersistNickname = nicknameChanged ? nicknameStatus === 'success' : true;
+
+    if (!canPersistNickname) {
+      setNicknameStatus('error');
+      setHelperMessage('사용 불가능한 닉네임이에요!');
+      return;
     }
+
+    if (!nicknameChanged && !profileImageChanged) {
+      navigate('/mypage');
+      return;
+    }
+
+    const nicknameToSave = nicknameChanged ? trimmedNickname : initialNickname;
+
+    localStorage.setItem('nickname', nicknameToSave);
+    localStorage.setItem('userProfileImage', profileImage);
+    
+    // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
+    window.dispatchEvent(new Event('profileUpdated'));
+    
+    // 마이페이지로 이동
+    navigate('/mypage');
   };
 
   const handleProfileImageClick = () => {
@@ -465,7 +482,6 @@ export default function Profile({
     navigate('/mypage/profile/changeimage');
   };
 
-  const isFormValid = nicknameStatus === 'success';
 
   // 배경 콘텐츠를 메모이제이션하여 불필요한 리렌더링 방지
   const backgroundContent = useMemo(
@@ -523,7 +539,7 @@ export default function Profile({
           </NicknameFieldsContainer>
         </Content>
         <ButtonContainer>
-          <LoginButton onClick={handleSave} disabled={!isFormValid}>
+          <LoginButton onClick={handleSave}>
             수정하기
           </LoginButton>
         </ButtonContainer>

@@ -8,8 +8,8 @@ import {
 export function useActivityData() {
   const posts = useMemo(() => loadPostsFromStorage(), []);
 
-  const userNickname = useMemo(() => {
-    const stored = localStorage.getItem('userNickname');
+  const nickname = useMemo(() => {
+    const stored = localStorage.getItem('nickname');
     if (!stored) return null;
     return sanitizeNickname(stored);
   }, []);
@@ -38,7 +38,7 @@ export function useActivityData() {
     const likedSet = new Set(likedPostIds.map(String));
     const commentedSet = new Set(commentedPostIds.map(String));
 
-    const normalizedNickname = userNickname;
+    const normalizedNickname = nickname;
     const fallbackNickname = '익명의 사용자';
 
     const postsByUser = normalizedNickname
@@ -85,11 +85,11 @@ export function useActivityData() {
       empathy: empathyPosts,
       comment: commentEntries,
     };
-  }, [posts, userNickname, likedPostIds, commentedPostIds]);
+  }, [posts, nickname, likedPostIds, commentedPostIds]);
 
   return {
     posts,
-    userNickname,
+    nickname,
     stories: activityMap.story,
     likes: activityMap.empathy,
     comments: activityMap.comment,

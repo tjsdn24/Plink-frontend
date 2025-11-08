@@ -39,6 +39,243 @@ const generateNicknamePool = (count = 20) => {
   return pool;
 };
 
+export default function Welcome() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(true);
+  const [finalNickname, setFinalNickname] = useState('');
+  const [showFirework, setShowFirework] = useState(false);
+  const [nicknameList, setNicknameList] = useState([]);
+  const [slotVariants, setSlotVariants] = useState({
+    initial: { opacity: 1, y: 60 },
+    animate: { opacity: 0.8, y: -60 },
+    exit: { opacity: 0, y: 60 },
+    transition: { duration: 0.08, times: [0, 1] },
+  });
+  const slotItemRef = useRef(null);
+  const stopTimeoutRef = useRef(null);
+
+  const festival = location.state?.festival || {
+    id: 1,
+    name: '4호선톤',
+    hashtags: '#해커톤 #멋사',
+    date: '2025.11.15',
+    location: '국민대학교',
+    image: FestivalImage,
+    dday: 'D-DAY'
+  };
+
+  // 더미 축제 데이터 (배경에 표시)
+  const festivals = [festival];
+  
+  // 로그인 상태 확인
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  // 회원가입 시 선택한 닉네임 가져오기 (로그인 상태일 때만)
+  const getRegisteredNickname = () => {
+    if (isLoggedIn) {
+      const storedNickname = localStorage.getItem('nickname');
+      if (storedNickname) {
+        // "님!" 제거
+        return storedNickname.replace(/님!?$/, '');
+      }
+    }
+    return null;
+  };
+  
+  const registeredNickname = getRegisteredNickname();
+
+  // 애니메이션이 완료되면 호출되는 함수
+  const onAnimationComplete = useCallback(() => {
+    if (isSpinning) {
+      // 다음 슬롯으로 이동
+      setCurrentIndex((prev) => (prev + 1) % nicknameList.length);
+    }
+  }, [isSpinning, nicknameList.length]);
+
+  // 닉네임 리스트 초기화 및 슬롯 시작 (비로그인 상태일 때만)
+  useEffect(() => {
+    // 로그인 상태면 슬롯 효과 없이 바로 표시
+    if (isLoggedIn && registeredNickname) {
+      setFinalNickname(registeredNickname);
+      setIsSpinning(false);
+      setShowFirework(true);
+      
+      // 환영 페이지를 본 것으로 기록
+      const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
+      if (!welcomedFestivals.includes(festival.id)) {
+        welcomedFestivals.push(festival.id);
+        localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
+      }
+      
+      // 2초 후 홈으로 이동
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      return;
+    }
+    
+    // 비로그인 상태: 슬롯 효과 있음
+    const pool = generateNicknamePool(50);
+    // 최종 닉네임을 리스트에 추가
+    const finalNickname = generateRandomNickname();
+    pool.push(finalNickname);
+    setNicknameList(pool);
+    setCurrentIndex(0);
+    
+    const speedTimers = [];
+    
+    // 슬롯 속도 변화 함수
+    const changeSlotSpeed = (delay, speed) => {
+      const timer = setTimeout(() => {
+        setSlotVariants((prev) => ({
+          ...prev,
+          transition: { duration: speed, times: [0, 1] },
+        }));
+      }, delay);
+      speedTimers.push(timer);
+    };
+
+    // 슬롯 멈추기 함수 (더 빠른 속도로 시작)
+    changeSlotSpeed(0, 0.08); // 초기 빠른 속도
+    changeSlotSpeed(200, 0.15); // 속도 줄이기 1
+    changeSlotSpeed(1200, 0.3); // 속도 줄이기 2
+    changeSlotSpeed(2200, 0.6); // 속도 줄이기 3
+    changeSlotSpeed(3200, 1.2); // 속도 줄이기 4
+    
+    stopTimeoutRef.current = setTimeout(() => {
+      // 최종 닉네임 인덱스로 이동
+      const finalIndex = pool.length - 1;
+      setCurrentIndex(finalIndex);
+      
+      // 슬롯 멈추기
+      setSlotVariants({
+        initial: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: 0 },
+        transition: { duration: 0.001, times: [0, 1] },
+      });
+      setIsSpinning(false);
+      
+      // 최종 닉네임 선택
+      setFinalNickname(finalNickname);
+      
+      // 닉네임을 localStorage에 저장
+      localStorage.setItem('nickname', finalNickname);
+      
+      // 환영 페이지를 본 것으로 기록
+      const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
+      if (!welcomedFestivals.includes(festival.id)) {
+        welcomedFestivals.push(festival.id);
+        localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
+      }
+      
+      // 폭죽 효과 시작
+      setShowFirework(true);
+      
+      // 4초 후 홈으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
+      setTimeout(() => {
+        navigate('/');
+      }, 4000);
+    }, 4700); // 5200ms -> 4700ms (0.5초 감소)
+    
+    return () => {
+      if (stopTimeoutRef.current) {
+        clearTimeout(stopTimeoutRef.current);
+      }
+      speedTimers.forEach(timer => clearTimeout(timer));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, registeredNickname, festival.id]);
+
+  return (
+    <PageWrapper>
+      <FixedHeader>
+        <Header />
+      </FixedHeader>
+      
+      <PageContainer>
+        <SearchBarContainer>
+          <SearchBar>
+            <SearchInput
+              type="text"
+              placeholder="원하는 축제를 검색해보세요."
+              readOnly
+            />
+            <SearchIconWrapper>
+              <SearchIconImg src={SearchIcon} alt="검색" />
+            </SearchIconWrapper>
+          </SearchBar>
+        </SearchBarContainer>
+
+        <TitleSection>
+          <Title>축제 명단</Title>
+          <SortContainer>
+            <SortText>최신순</SortText>
+            <SortArrow src={ChatArrowIcon} alt="정렬" />
+          </SortContainer>
+        </TitleSection>
+
+        <FestivalList>
+          {festivals.map((fest) => (
+            <FestivalCard key={fest.id} festival={fest} disabled={true} />
+          ))}
+        </FestivalList>
+      </PageContainer>
+
+      {/* 닉네임 회전 중 및 멈춘 후 오버레이 */}
+      {(nicknameList.length > 0 || finalNickname) && (
+        <WelcomeOverlay>
+          <WelcomeText>
+            <SlotContainer>
+              {isSpinning && nicknameList.length > 0 ? (
+                <AnimatePresence>
+                  <motion.div
+                    key={currentIndex}
+                    ref={slotItemRef}
+                    variants={slotVariants}
+                    initial={slotVariants.initial}
+                    animate={slotVariants.animate}
+                    transition={slotVariants.transition}
+                    onAnimationComplete={onAnimationComplete}
+                  >
+                    <SlotItemBox>
+                      {nicknameList[currentIndex]}님!
+                    </SlotItemBox>
+                  </motion.div>
+                </AnimatePresence>
+              ) : (
+                finalNickname && (
+                  <SlotItemBox>
+                    {finalNickname}님!
+                  </SlotItemBox>
+                )
+              )}
+            </SlotContainer>
+            {!isSpinning && finalNickname && (
+              <WelcomeLine>
+                <span className="festival-name">{festival.name}</span>에 오신 것을 환영합니다!
+              </WelcomeLine>
+            )}
+          </WelcomeText>
+        </WelcomeOverlay>
+      )}
+
+      {/* 폭죽 효과 */}
+      {showFirework && !isSpinning && (
+        <Firework
+          duration={isLoggedIn ? 1500 : 4000}
+          onComplete={() => {
+            setShowFirework(false);
+          }}
+        />
+      )}
+
+    </PageWrapper>
+  );
+}
+
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -210,241 +447,9 @@ const WelcomeLine = styled.div`
   text-align: center;
   line-height: 1.4;
   font-family: 'Gmarket Sans', sans-serif;
-  margin-top: 12px;
+  margin-top: 5px;
   
   .festival-name {
     color: ${c('brand.pink')};
   }
 `;
-
-
-export default function Welcome() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSpinning, setIsSpinning] = useState(true);
-  const [finalNickname, setFinalNickname] = useState('');
-  const [showFirework, setShowFirework] = useState(false);
-  const [nicknameList, setNicknameList] = useState([]);
-  const [slotVariants, setSlotVariants] = useState({
-    initial: { opacity: 1, y: 60 },
-    animate: { opacity: 0.8, y: -60 },
-    transition: { duration: 0.08, times: [0, 1] },
-  });
-  const slotItemRef = useRef(null);
-  const stopTimeoutRef = useRef(null);
-
-  const festival = location.state?.festival || {
-    id: 1,
-    name: '4호선톤',
-    hashtags: '#해커톤 #멋사',
-    date: '2025.11.15',
-    location: '국민대학교',
-    image: FestivalImage,
-    dday: 'D-DAY'
-  };
-
-  // 더미 축제 데이터 (배경에 표시)
-  const festivals = [festival];
-  
-  // 로그인 상태 확인
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  
-  // 회원가입 시 선택한 닉네임 가져오기 (로그인 상태일 때만)
-  const getRegisteredNickname = () => {
-    if (isLoggedIn) {
-      const storedNickname = localStorage.getItem('userNickname');
-      if (storedNickname) {
-        // "님!" 제거
-        return storedNickname.replace(/님!?$/, '');
-      }
-    }
-    return null;
-  };
-  
-  const registeredNickname = getRegisteredNickname();
-
-  // 애니메이션이 완료되면 호출되는 함수
-  const onAnimationComplete = useCallback(() => {
-    if (isSpinning) {
-      // 다음 슬롯으로 이동
-      setCurrentIndex((prev) => (prev + 1) % nicknameList.length);
-    }
-  }, [isSpinning, nicknameList.length]);
-
-  // 닉네임 리스트 초기화 및 슬롯 시작 (비로그인 상태일 때만)
-  useEffect(() => {
-    // 로그인 상태면 슬롯 효과 없이 바로 표시
-    if (isLoggedIn && registeredNickname) {
-      setFinalNickname(registeredNickname);
-      setIsSpinning(false);
-      setShowFirework(true);
-      
-      // 환영 페이지를 본 것으로 기록
-      const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
-      if (!welcomedFestivals.includes(festival.id)) {
-        welcomedFestivals.push(festival.id);
-        localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
-      }
-      
-      // 2초 후 홈으로 이동
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-      return;
-    }
-    
-    // 비로그인 상태: 슬롯 효과 있음
-    const pool = generateNicknamePool(50);
-    // 최종 닉네임을 리스트에 추가
-    const finalNickname = generateRandomNickname();
-    pool.push(finalNickname);
-    setNicknameList(pool);
-    setCurrentIndex(0);
-    
-    const speedTimers = [];
-    
-    // 슬롯 속도 변화 함수
-    const changeSlotSpeed = (delay, speed) => {
-      const timer = setTimeout(() => {
-        setSlotVariants((prev) => ({
-          ...prev,
-          transition: { duration: speed, times: [0, 1] },
-        }));
-      }, delay);
-      speedTimers.push(timer);
-    };
-
-    // 슬롯 멈추기 함수 (더 빠른 속도로 시작)
-    changeSlotSpeed(0, 0.08); // 초기 빠른 속도
-    changeSlotSpeed(200, 0.15); // 속도 줄이기 1
-    changeSlotSpeed(1200, 0.3); // 속도 줄이기 2
-    changeSlotSpeed(2200, 0.6); // 속도 줄이기 3
-    changeSlotSpeed(3200, 1.2); // 속도 줄이기 4
-    
-    stopTimeoutRef.current = setTimeout(() => {
-      // 최종 닉네임 인덱스로 이동
-      const finalIndex = pool.length - 1;
-      setCurrentIndex(finalIndex);
-      
-      // 슬롯 멈추기
-      setSlotVariants(() => ({}));
-      setIsSpinning(false);
-      
-      // 최종 닉네임 선택
-      setFinalNickname(finalNickname);
-      
-      // 닉네임을 localStorage에 저장
-      localStorage.setItem('userNickname', finalNickname);
-      
-      // 환영 페이지를 본 것으로 기록
-      const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
-      if (!welcomedFestivals.includes(festival.id)) {
-        welcomedFestivals.push(festival.id);
-        localStorage.setItem('welcomedFestivals', JSON.stringify(welcomedFestivals));
-      }
-      
-      // 폭죽 효과 시작
-      setShowFirework(true);
-      
-      // 4초 후 홈으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
-      setTimeout(() => {
-        navigate('/');
-      }, 4000);
-    }, 4700); // 5200ms -> 4700ms (0.5초 감소)
-    
-    return () => {
-      if (stopTimeoutRef.current) {
-        clearTimeout(stopTimeoutRef.current);
-      }
-      speedTimers.forEach(timer => clearTimeout(timer));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, registeredNickname, festival.id]);
-
-  return (
-    <PageWrapper>
-      <FixedHeader>
-        <Header />
-      </FixedHeader>
-      
-      <PageContainer>
-        <SearchBarContainer>
-          <SearchBar>
-            <SearchInput
-              type="text"
-              placeholder="원하는 축제를 검색해보세요."
-              readOnly
-            />
-            <SearchIconWrapper>
-              <SearchIconImg src={SearchIcon} alt="검색" />
-            </SearchIconWrapper>
-          </SearchBar>
-        </SearchBarContainer>
-
-        <TitleSection>
-          <Title>축제 명단</Title>
-          <SortContainer>
-            <SortText>최신순</SortText>
-            <SortArrow src={ChatArrowIcon} alt="정렬" />
-          </SortContainer>
-        </TitleSection>
-
-        <FestivalList>
-          {festivals.map((fest) => (
-            <FestivalCard key={fest.id} festival={fest} disabled={true} />
-          ))}
-        </FestivalList>
-      </PageContainer>
-
-      {/* 닉네임 회전 중 및 멈춘 후 오버레이 */}
-      {(nicknameList.length > 0 || finalNickname) && (
-        <WelcomeOverlay>
-          <WelcomeText>
-            <SlotContainer>
-              {isSpinning && nicknameList.length > 0 ? (
-                <AnimatePresence>
-                  <motion.div
-                    key={currentIndex}
-                    ref={slotItemRef}
-                    variants={slotVariants}
-                    initial={slotVariants.initial}
-                    animate={slotVariants.animate}
-                    transition={slotVariants.transition}
-                    onAnimationComplete={onAnimationComplete}
-                  >
-                    <SlotItemBox>
-                      {nicknameList[currentIndex]}님!
-                    </SlotItemBox>
-                  </motion.div>
-                </AnimatePresence>
-              ) : (
-                finalNickname && (
-                  <SlotItemBox>
-                    {finalNickname}님!
-                  </SlotItemBox>
-                )
-              )}
-            </SlotContainer>
-            {!isSpinning && finalNickname && (
-              <WelcomeLine>
-                <span className="festival-name">{festival.name}</span>에 오신 것을 환영합니다!
-              </WelcomeLine>
-            )}
-          </WelcomeText>
-        </WelcomeOverlay>
-      )}
-
-      {/* 폭죽 효과 */}
-      {showFirework && !isSpinning && (
-        <Firework
-          duration={isLoggedIn ? 2000 : 4000}
-          onComplete={() => {
-            setShowFirework(false);
-          }}
-        />
-      )}
-
-    </PageWrapper>
-  );
-}

@@ -40,7 +40,7 @@ export default function SignUpComplete() {
   // 회원가입 완료 시 닉네임을 localStorage에 저장
   useEffect(() => {
     if (nickname) {
-      localStorage.setItem('userNickname', nickname);
+      localStorage.setItem('nickname', nickname);
     }
   }, [nickname]);
 

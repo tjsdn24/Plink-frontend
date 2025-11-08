@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { c, f, s } from '../../styles/themeUtils';
 
@@ -27,10 +28,29 @@ const CircleImg = styled.img`
   bottom: ${({ bottom }) => bottom || 'auto'};
 `;
 export default function Home() {
+  const [nickname, setNickname] = useState(
+    () => localStorage.getItem('nickname') || '숨쉬는 고양이',
+  );
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const storedNickname = localStorage.getItem('nickname');
+      if (storedNickname) {
+        setNickname(storedNickname);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
+
   return (
     <>
       <HomeContainer>
-        <InfoBar />
+        <InfoBar nickname={nickname} />
         <ChatBox />
         <VoteBox />
         <EventBox />

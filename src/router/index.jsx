@@ -29,6 +29,7 @@ import Logout from '../pages/MyPage/Logout';
 import Festival from '../pages/Festival/Festival';
 import FestivalSort from '../pages/Festival/FestivalSort';
 import Welcome from '../pages/Welcome/Welcome';
+import Intro from '../pages/Intro/Intro';
 export default function Router() {
   return (
     <BrowserRouter>
@@ -124,6 +125,8 @@ export default function Router() {
         <Route path="/festival/sort" element={<FestivalSort />} />
         {/* Welcome 페이지 */}
         <Route path="/welcome" element={<Welcome />} />
+        {/* Intro 페이지 */}
+        <Route path="/intro" element={<Intro />} />
         {/* 로그인 페이지 (Header, Navbar 제외 예정)*/}
         <Route path="/login" element={<Login />} />
         {/* 회원가입 페이지 (Header, Navbar 제외 예정)*/}

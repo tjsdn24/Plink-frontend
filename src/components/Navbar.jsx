@@ -1,12 +1,11 @@
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { typography, c, s } from '../styles/themeUtils';
-
-import home from '../assets/icons/NavHome.svg';
-import photo from '../assets/icons/NavPhoto.svg';
-import chat from '../assets/icons/NavChat.svg';
-import game from '../assets/icons/NavGame.svg';
-import my from '../assets/icons/NavMy.svg';
+import Home from '../assets/icons/NavHome.svg?react';
+import Photo from '../assets/icons/NavPhoto.svg?react';
+import Chat from '../assets/icons/NavChat.svg?react';
+import Game from '../assets/icons/NavGame.svg?react';
+import My from '../assets/icons/NavMy.svg?react';
 
 const Nav = styled.nav`
   background: ${c('neutral.black2')};
@@ -20,6 +19,9 @@ const Nav = styled.nav`
 const NavItem = styled(Link)`
   ${typography('caption01')};
   color: ${({ $active, theme }) => ($active ? theme.colors.brand.pink : theme.colors.neutral.bg)};
+  stroke: ${({ $active, theme }) => ($active ? theme.colors.brand.pink : theme.colors.neutral.bg)};
+  fill: ${({ $active, theme }) => ($active ? theme.colors.brand.pink : theme.colors.neutral.bg)};
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -50,26 +52,26 @@ export default function Navbar() {
   return (
     <Nav>
       <NavItem to="/" $active={pathname === '/'}>
-        <img src={home} alt="HOME" />
+        <Home />
         HOME
       </NavItem>
-      <div className="width:6px"></div>
+      <div className="width:4px"></div>
       <NavItem to="/photo" $active={pathname === '/photo'}>
-        <img src={photo} alt="PHOTO" />
+        <Photo />
         PHOTO
       </NavItem>
       <ChatIcon to="/chat" $active={pathname === '/chat'}>
-        <img src={chat} alt="CHAT" />
+        <Chat />
       </ChatIcon>
 
       <NavItem to="/game" $active={pathname === '/game'}>
-        <img src={game} alt="GAME" />
+        <Game />
         GAME
       </NavItem>
-      <div className="width:6px"></div>
+      <div className="width:4px"></div>
 
       <NavItem to="/mypage" $active={pathname === '/mypage'}>
-        <img src={my} alt="MY" />
+        <My />
         MY
       </NavItem>
     </Nav>

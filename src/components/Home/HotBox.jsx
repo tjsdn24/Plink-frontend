@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { c, f, s } from '../../styles/themeUtils';
 import { BoxContainer } from './BoxContainer';
 import talkIcon from '../../assets/icons/HomeTalk.svg';
+import HotChat from '../Home/HotChat';
 
 export default function HotBox() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export default function HotBox() {
         description="현재 가장 주목받는 이야기들은?"
         onClick={() => navigate('/chat')}
       />
+      <HotChat nickname="행복한 눈멍이" content="ggg" />
+      <HotChat nickname="행복한 눈멍이" content="ggg" />
+      <HotChat nickname="행복한 눈멍이" content="ggg" />
     </BoxContainer>
   );
 }

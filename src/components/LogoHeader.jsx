@@ -1,27 +1,26 @@
 import styled from 'styled-components';
 import { c, f, s } from '../styles/themeUtils';
-
+import MainLogo from '../assets/icons/MainLogo.svg';
 
 const Bar = styled.header`
-  height: 60px;
+  height: 100px;
   background: ${c('neutral.bg')};
   padding: ${s('md')};
   font-family: ${f('family.display01')};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 `;
 
-const Logo = styled.h1`
-  font-size: 24px;
-  color: ${c('brand.black')};
+const LogoImage = styled.img`
+  height: 100%;
 `;
-
 
 export default function Header() {
   return (
     <Bar>
-      <Logo> PLINK</Logo>
+      <LogoImage src={MainLogo} alt="PLINK 로고" />
     </Bar>
   );
 }

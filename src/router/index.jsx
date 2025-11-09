@@ -80,14 +80,7 @@ export default function Router() {
             </MainLayout>
           }
         />
-        <Route
-          path="/chat/:postId"
-          element={
-            <MainLayout>
-              <Comments />
-            </MainLayout>
-          }
-        />
+        <Route path="/chat/:postId" element={<Comments />} />
         {/* 게임 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/game"

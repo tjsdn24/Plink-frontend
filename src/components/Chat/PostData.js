@@ -1,5 +1,3 @@
-import ChatSampleImg from '../../assets/icons/ChatSampleImg.svg';
-
 export const postData = [
   {
     id: 1,

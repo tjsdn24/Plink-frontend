@@ -22,13 +22,25 @@ export default function Chat() {
   //localStorage에서 불러오기
   useEffect(() => {
     const saved = localStorage.getItem('posts');
-    let loaded = saved ? JSON.parse(saved) : initialData;
+    let loaded = [];
 
-    //id가 없는 게시글에 자동으로 id 추가
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          loaded = parsed;
+        } else {
+          loaded = initialData;
+        }
+      } catch {
+        loaded = initialData;
+      }
+    } else {
+      loaded = initialData;
+    }
+
     const withIds = loaded.map(post => (post.id ? post : { ...post, id: generateId() }));
-
     setPosts(withIds);
-
     localStorage.setItem('posts', JSON.stringify(withIds));
   }, []);
 
@@ -162,4 +174,5 @@ const SearchIconWrapper = styled.div`
 const SearchIconImg = styled.img`
   width: 20px;
   height: 20px;
+  margin-right: 10px;
 `;

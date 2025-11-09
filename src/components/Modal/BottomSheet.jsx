@@ -124,9 +124,12 @@ const MainMessage = styled.h2`
 const SubMessage = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1px;
+  align-items: flex-start;
+  gap: 2px;
   margin-top: 0;
+  border: none;
+  padding: 0;
+  width: 100%;
 `;
 
 const SubText = styled.p`
@@ -134,8 +137,9 @@ const SubText = styled.p`
   font-size: ${({ theme }) => theme.font.typography.body01.size};
   font-weight: ${({ theme }) => theme.font.typography.body01.weight};
   color: ${c('neutral.black2')};
-  text-align: center;
-  line-height: 1.5;
+  text-align: left;
+  line-height: 1.28;
+  margin: 0;
 `;
 
 const ButtonContainer = styled.div`

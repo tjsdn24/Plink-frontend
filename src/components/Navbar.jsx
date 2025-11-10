@@ -5,6 +5,7 @@ import Home from '../assets/icons/NavHome.svg?react';
 import Photo from '../assets/icons/NavPhoto.svg?react';
 import Chat from '../assets/icons/NavChat.svg?react';
 import Game from '../assets/icons/NavGame.svg?react';
+import Event from '../assets/icons/NavEvent.svg?react';
 import My from '../assets/icons/NavMy.svg?react';
 
 const Nav = styled.nav`
@@ -65,8 +66,8 @@ export default function Navbar() {
       </ChatIcon>
 
       <NavItem to="/game" $active={pathname === '/game'}>
-        <Game />
-        GAME
+        <Event />
+        Event
       </NavItem>
       <div className="width:4px"></div>
 

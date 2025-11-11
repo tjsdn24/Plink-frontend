@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import LikeIcon from '../../assets/icons/ChatLike.svg';
 import ChatLikePink from '../../assets/icons/ChatLikePink.svg';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import ChatDots from '../../assets/icons/ChatDots.svg';
+import ChatPollChecked from '../../assets/icons/ChatPollChecked.svg';
 import {
   PostSection,
   Info,
@@ -21,19 +23,48 @@ import {
   Reaction,
   LikeButton,
   CommentCount,
+  PollLeft,
 } from './Comments.styles';
 
 export default function PostDetail({
   post,
-  likes,
-  liked,
+  likes: initialLikes,
+  liked: initialLiked,
   commentsCount,
   pollVotes,
   onLike,
   onPollVote,
 }) {
+  const [liked, setLiked] = useState(initialLiked || false);
+  const [likes, setLikes] = useState(initialLikes || 0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null); // ✅ 여기로 이동
+
+  const handleLike = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikes(prev => (newLiked ? prev + 1 : prev - 1));
+
+    try {
+      if (onLike) await onLike(post.id, newLiked);
+    } catch (error) {
+      console.error('좋아요 반영 실패:', error);
+      setLiked(!newLiked);
+      setLikes(prev => (newLiked ? prev - 1 : prev + 1));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleVote = (pollData, index) => {
+    setSelectedIndex(index);
+    if (onPollVote) onPollVote(pollData, index);
+  };
+
   const renderContent = (item, index) => {
-    console.log('renderContent 호출:', item);
     switch (item.type) {
       case 'text':
         return <ContentBox key={index}>{item.data}</ContentBox>;
@@ -50,21 +81,30 @@ export default function PostDetail({
       case 'poll': {
         const currentVotes = pollVotes || item.data.votes;
         const totalVotes = currentVotes.reduce((sum, v) => sum + v, 0);
+        const maxVotes = Math.max(...currentVotes);
 
         return (
           <PollBox key={index}>
             {item.data.options.map((option, i) => {
               const votes = currentVotes[i] || 0;
               const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
+              const isMax = votes === maxVotes && totalVotes > 0;
+              const isMine = selectedIndex === i;
 
               return (
-                <PollOption key={i} onClick={() => onPollVote(item.data, i)}>
-                  <PollBar $percentage={percentage} />
-                  <PollText>
-                    <span>{option}</span>
-                    <span>
-                      {votes}표 ({percentage.toFixed(0)}%)
-                    </span>
+                <PollOption
+                  key={i}
+                  $isMax={isMax}
+                  $isMine={isMine}
+                  onClick={() => handleVote(item.data, i)}
+                >
+                  <PollBar $percentage={percentage} $isMax={isMax} />
+                  <PollText $isMax={isMax} $isMine={isMine}>
+                    <PollLeft>
+                      <span>{option}</span>
+                      {isMine && <img src={ChatPollChecked} alt="checked" />}
+                    </PollLeft>
+                    <span>{percentage.toFixed(0)}%</span>
                   </PollText>
                 </PollOption>
               );
@@ -82,21 +122,24 @@ export default function PostDetail({
   return (
     <PostSection>
       <Info>
-        <ProfileImg src={BasicProfile} alt="profile" />
-        <Section>
-          <Nickname>{post.nickname}</Nickname>
-          <Time>{post.time}</Time>
-        </Section>
+        <div>
+          <ProfileImg src={BasicProfile} alt="profile" />
+          <Section>
+            <Nickname>{post.nickname}</Nickname>
+            <Time>{post.time}</Time>
+          </Section>
+        </div>
         <img src={ChatDots} alt="options" />
       </Info>
 
       {Array.isArray(post?.content) && post.content.map((item, i) => renderContent(item, i))}
 
       <Reaction>
-        <LikeButton onClick={onLike} $liked={liked}>
+        <LikeButton onClick={handleLike} $liked={liked} disabled={isProcessing}>
           <img src={liked ? ChatLikePink : LikeIcon} alt="like" />
           {likes}
         </LikeButton>
+
         <CommentCount>
           <img src={CommentIcon} alt="comment" />
           {commentsCount}

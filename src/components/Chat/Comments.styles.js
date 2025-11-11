@@ -1,3 +1,5 @@
+//Comments.styles.js
+
 import styled from 'styled-components';
 import { c, typography } from '../../styles/themeUtils';
 
@@ -5,7 +7,7 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: ${c('neutral.bg')};
+  background: ${c('neutral.white')};
   padding-bottom: 70px;
 `;
 
@@ -43,6 +45,7 @@ export const PostSection = styled.div`
 export const Info = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `;
 
 export const ProfileImg = styled.img`
@@ -90,19 +93,32 @@ export const PostImage = styled.img`
 export const PollBox = styled.div`
   margin: 12px 0;
   padding: 12px;
-  background: ${c('neutral.bg')};
+  background: ${c('neutral.white')};
+  // border: 1px solid ${c('neutral.gray')};
   border-radius: 8px;
+  box-shadow:
+    2px 2px 3px ${c('neutral.bg')},
+    -2px 2px 3px ${c('neutral.bg')},
+    2px -2px 3px ${c('neutral.bg')},
+    -2px -2px 3px ${c('neutral.bg')};
 `;
 
 export const PollOption = styled.div`
   position: relative;
   margin-bottom: 8px;
+  box-shadow: 2px 2px 5px ${c('neutral.gray')};
   padding: 12px;
-  background: ${c('neutral.white')};
-  border-radius: 8px;
+  background: ${c('neutral.bg')};
+  border-radius: 12px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.2s;
+  transition:
+    transform 0.2s,
+    border 0.2s,
+    background 0.2s;
+
+  border: ${({ $isMax }) =>
+    $isMax ? `2px solid ${c('brand.pink')}` : `1px solid ${c('neutral.gray')}`};
 
   &:hover {
     transform: translateX(2px);
@@ -115,7 +131,8 @@ export const PollBar = styled.div`
   top: 0;
   bottom: 0;
   width: ${({ $percentage }) => $percentage}%;
-  background: linear-gradient(90deg, #fde3fd 0%, #fbbbe5 100%);
+  background: ${({ $isMax }) => ($isMax ? c('brand.pink') : c('neutral.gray'))};
+  border-radius: 8px;
   transition: width 0.3s ease;
   z-index: 0;
 `;
@@ -125,23 +142,37 @@ export const PollText = styled.div`
   z-index: 1;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   ${typography('body02')};
 
-  span:first-child {
-    font-weight: 500;
-  }
-
   span:last-child {
-    color: ${c('neutral.gray2')};
+    color: ${c('neutral.black')};
     ${typography('caption01')};
   }
 `;
 
+export const PollLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  span {
+    color: ${({ $isMax }) => ($isMax ? c('neutral.white') : c('neutral.black'))};
+    font-weight: 400; /* ✅ 글씨 두꺼워지는 현상 제거 */
+    transition: color 0.2s ease;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 export const PollTotal = styled.div`
-  text-align: right;
+  text-align: left;
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
-  margin-top: 8px;
+  margin: 5px 5px 0px 5px;
 `;
 
 export const Reaction = styled.div`
@@ -210,9 +241,10 @@ export const ReportIconImg = styled.img`
 `;
 
 export const CommentBubble = styled.div`
-  background: ${({ $mine }) => ($mine ? '#e6f0ff' : c('neutral.white'))};
+  background: ${({ $mine }) => ($mine ? '#e6f0ff' : c('neutral.bg'))};
+  box-shadow: 2px 2px 5px ${c('neutral.gray')};
   padding: 10px 14px;
-  border-radius: 16px;
+  border-radius: 4px 12px 12px 12px;
   margin-top: 4px;
   color: ${c('neutral.black')};
   ${typography('body02')};

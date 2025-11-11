@@ -42,6 +42,7 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  cursor: pointer;
 `;
 
 export const ContentRow = styled.div`
@@ -53,6 +54,10 @@ export const ContentRow = styled.div`
 export const ContentBox = styled.div`
   ${typography('body02')};
   color: ${c('neutral.black')};
+  background-color: ${c('neutral.bg')};
+  box-shadow: 2px 2px 5px ${c('neutral.gray')};
+  padding: 10px;
+  border-radius: 4px 12px 12px 12px;
   line-height: 1.5;
   word-break: break-word;
 `;
@@ -82,13 +87,7 @@ export const PostImage = styled.img`
 
 export const Etc = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-export const Reaction = styled.div`
-  display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 `;
 
@@ -97,6 +96,7 @@ export const Like = styled.div`
   align-items: center;
   gap: 4px;
   cursor: default;
+  cursor: pointer;
 `;
 
 export const Comment = styled.div`
@@ -121,7 +121,7 @@ export const PollBox = styled.div`
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  background-color: ${c('neutral.bg')};
+  border: 1px solid ${c('neutral.gray')};
   border-radius: 8px;
 `;
 
@@ -146,7 +146,8 @@ export const PollBar = styled.div`
   top: 0;
   bottom: 0;
   width: ${({ $percentage }) => `${$percentage}%`};
-  background: linear-gradient(90deg, #fde3fd 0%, #fbbbe5 100%);
+  background: ${c('neutral.gray')};
+  border-radius: 8px;
   transition: width 0.3s ease;
   z-index: 0;
 `;
@@ -170,6 +171,6 @@ export const PollText = styled.div`
 export const PollTotal = styled.div`
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
-  text-align: right;
-  margin-top: 8px;
+  text-align: left;
+  margin: 5px 5px 0px 5px;
 `;

@@ -7,6 +7,18 @@ import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
 import EyeOpen from '../../assets/icons/EyeOpen.svg';
 import EyeClosed from '../../assets/icons/EyeClosed.svg';
+import avatar1 from '../../assets/icons/profile/avatar1.svg';
+import avatar2 from '../../assets/icons/profile/avatar2.svg';
+import avatar3 from '../../assets/icons/profile/avatar3.svg';
+import avatar4 from '../../assets/icons/profile/avatar4.svg';
+import avatar5 from '../../assets/icons/profile/avatar5.svg';
+
+const avatarPool = [avatar1, avatar2, avatar3, avatar4, avatar5];
+
+const getRandomAvatar = () => {
+  const randomIndex = Math.floor(Math.random() * avatarPool.length);
+  return avatarPool[randomIndex];
+};
 
 const FieldsContainer = styled.div`
   display: flex;
@@ -18,6 +30,16 @@ export default function SignUp() {
   const navigate = useNavigate();
   const location = useLocation();
   const nickname = location.state?.nickname || '숨쉬는 고양이';
+  const slugFromState = typeof location.state?.slug === 'string' ? location.state.slug : null;
+  const persistedSlug = (() => {
+    try {
+      return localStorage.getItem('userSlug');
+    } catch {
+      return null;
+    }
+  })();
+  const slug = slugFromState || persistedSlug || 'plink2025';
+
   
   const [formData, setFormData] = useState({
     email: '',
@@ -50,15 +72,22 @@ export default function SignUp() {
     navigate('/signup/nickname');
   };
 
-  const handleSubmit = () => {
-    if (isAllFieldsFilled) {
-      navigate('/signup/complete', {
-        state: {
-          nickname,
-          formData,
-        },
-      });
+  const handleSubmit = async () => {
+    if (!isAllFieldsFilled) {
+      return;
     }
+    navigate('/signup/complete', {
+      state: {
+        nickname,
+        formData: {
+          email: formData.email.trim(),
+          password: formData.password,
+          passwordConfirm: formData.passwordConfirm,
+        },
+        randomAvatar: getRandomAvatar(),
+        slug,
+      },
+    });
   };
 
   return (

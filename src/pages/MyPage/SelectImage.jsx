@@ -8,6 +8,7 @@ import avatar3 from '../../assets/icons/profile/avatar3.svg';
 import avatar4 from '../../assets/icons/profile/avatar4.svg';
 import avatar5 from '../../assets/icons/profile/avatar5.svg';
 import MyPageCheckIcon from '../../assets/icons/MyPageCheck.svg';
+import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -173,26 +174,23 @@ const ChangeButton = styled.button`
 
 export default function SelectImage() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const avatars = [avatar1, avatar2, avatar3, avatar4, avatar5];
   
-  // localStorage에서 현재 프로필 이미지 가져오기
   const getCurrentProfileImage = () => {
     return localStorage.getItem('userProfileImage') || avatar1;
   };
   
   const [selectedAvatar, setSelectedAvatar] = useState(() => {
     const currentImage = getCurrentProfileImage();
-    // 현재 이미지가 기본 아바타 중 하나인지 확인
     const avatarIndex = avatars.findIndex(avatar => {
-      // base64로 저장된 경우를 대비해 avatar 파일명으로 비교
       if (typeof currentImage === 'string' && currentImage.startsWith('data:')) {
-        return false; // base64 이미지는 기본 아바타가 아님
+        return false;
       }
       return currentImage === avatar || currentImage.includes('avatar1');
     });
     
-    // 기본 아바타가 아니면 avatar1을 기본 선택
     return avatarIndex >= 0 ? avatarIndex : 0;
   });
 
@@ -218,16 +216,59 @@ export default function SelectImage() {
     setSelectedAvatar(index);
   };
 
-  const handleChange = () => {
-    // 선택한 아바타를 localStorage에 저장
+  const handleChange = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     const selectedAvatarPath = avatars[selectedAvatar];
-    localStorage.setItem('userProfileImage', selectedAvatarPath);
-    
-    // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
-    window.dispatchEvent(new Event('profileUpdated'));
-    
-    // 마이페이지로 이동
-    navigate('/mypage');
+    const slug =
+      (() => {
+        try {
+          return localStorage.getItem('userSlug');
+        } catch {
+          return null;
+        }
+      })() || 'plink2025';
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await updateProfileApi({
+        slug,
+        defaultProfileUrl: selectedAvatarPath,
+      });
+
+      const profileImageUrl = response?.profileImageUrl || selectedAvatarPath;
+      const nickname = response?.nickname;
+      const role = response?.role;
+      const updatedSlug = response?.slug || slug;
+
+      if (profileImageUrl) {
+        localStorage.setItem('userProfileImage', profileImageUrl);
+      }
+      if (nickname) {
+        localStorage.setItem('nickname', nickname);
+      }
+      if (role) {
+        localStorage.setItem('userRole', role);
+      }
+      if (updatedSlug) {
+        localStorage.setItem('userSlug', updatedSlug);
+      }
+
+      window.dispatchEvent(new Event('profileUpdated'));
+      navigate('/mypage');
+    } catch (error) {
+      const message =
+        error?.data?.message ||
+        error?.message ||
+        '기본 프로필 변경 중 오류가 발생했습니다. 다시 시도해주세요.';
+      console.error(message, error);
+      window.alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -255,8 +296,8 @@ export default function SelectImage() {
           </AvatarList>
         </AvatarScrollContainer>
         <ButtonContainer>
-          <ChangeButton onClick={handleChange}>
-            변경하기
+          <ChangeButton onClick={handleChange} disabled={isSubmitting}>
+            {isSubmitting ? '변경 중...' : '변경하기'}
           </ChangeButton>
         </ButtonContainer>
       </BottomSheet>

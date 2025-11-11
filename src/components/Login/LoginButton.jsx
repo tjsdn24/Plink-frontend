@@ -6,8 +6,8 @@ const Button = styled.button`
   padding: 20px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   border: none;
-  background: ${c('brand.pink')};
-  color: ${c('neutral.white')};
+  background: ${({ isActive }) => (isActive ? c('brand.pink') : c('neutral.gray'))};
+  color: ${({ isActive }) => (isActive ? c('neutral.white') : 'rgba(44, 50, 73, 0.50)')};
   ${typography('label01')};
   text-align: center;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
@@ -15,17 +15,17 @@ const Button = styled.button`
   box-sizing: border-box;
 
   &:hover {
-    
+    background: ${({ isActive }) => (isActive ? c('brand.darkPink') : c('neutral.gray'))};
   }
 
   &:active {
-    background: ${c('brand.darkPink')};
+    background: ${({ isActive }) => (isActive ? c('brand.darkPink') : c('neutral.gray'))};
   }
 `;
 
-export default function LoginButton({ children = '입장하기', disabled = false, onClick, ...props }) {
+export default function LoginButton({ children = '입장하기', disabled = false, isActive = false, onClick, ...props }) {
   return (
-    <Button disabled={disabled} onClick={onClick} {...props}>
+    <Button disabled={disabled} isActive={isActive} onClick={onClick} {...props}>
       {children}
     </Button>
   );

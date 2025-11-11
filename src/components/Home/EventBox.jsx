@@ -6,11 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { c, f, s } from '../../styles/themeUtils';
 import { BoxContainer } from './BoxContainer';
+import Ad1 from './Advertise1';
+import Ad2 from './Advertise2';
+import Ad3 from './Advertise3';
+
 export default function EventBox() {
   const banners = [
-    { id: 1, color: 'pink', text: '게임' },
-    { id: 2, color: 'white', text: '사진찍기' },
-    { id: 3, color: 'gray', text: '다른 거' },
+    { id: 1, content: <Ad1 /> },
+    { id: 2, content: <Ad2 /> },
+    { id: 3, content: <Ad3 /> },
   ];
 
   const [index, setIndex] = useState(0);
@@ -57,7 +61,7 @@ export default function EventBox() {
             exit={{ x: direction > 0 ? -100 : 100, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {banners[index].text}
+            {banners[index].content}
           </SlideBanner>
         </AnimatePresence>
       </BannerWrapper>

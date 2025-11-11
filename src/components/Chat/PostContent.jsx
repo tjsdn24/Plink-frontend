@@ -1,14 +1,14 @@
-import ReportIcon from '../../assets/icons/ChatReport.svg';
+//import ReportIcon from '../../assets/icons/ChatReport.svg';
 import {
   ContentRow,
   ContentBox,
-  ReportButton,
+  //ReportButton,
   ImagesWrapper,
   PostImage,
   Highlight,
 } from './Post.styles';
 
-export default function PostContent({ contentItem, highlightKeyword, onReportClick }) {
+export default function PostContent({ contentItem, highlightKeyword /* onReportClick*/ }) {
   const normalizedKeyword = highlightKeyword.trim().toLowerCase();
   const hasKeyword = normalizedKeyword.length > 0;
 
@@ -32,7 +32,8 @@ export default function PostContent({ contentItem, highlightKeyword, onReportCli
     return (
       <ContentRow>
         <ContentBox>{highlight(contentItem.data)}</ContentBox>
-        <ReportButton src={ReportIcon} alt="report" onClick={onReportClick} />
+        {/*<ReportButton src={ReportIcon} alt="report" onClick={onReportClick} />
+         */}
       </ContentRow>
     );
 

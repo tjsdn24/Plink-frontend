@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { s } from '../../styles/themeUtils';
 import SadEmojiIcon from '../../assets/icons/SadEmoji.svg';
@@ -7,6 +7,7 @@ import SignUpTitle from '../../components/Signup/SignUpTitle';
 import TextField from '../../components/Signup/TextField';
 import BottomSheet from '../../components/Modal/BottomSheet';
 import styled from 'styled-components';
+import { logoutUser } from '../../api/authService';
 
 const StyledHeader = styled.div``;
 
@@ -25,6 +26,7 @@ const FieldsContainer = styled.div`
 
 export default function Logout() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // localStorage에서 현재 닉네임 가져오기
   const getStoredNickname = () => {
@@ -33,15 +35,41 @@ export default function Logout() {
   
   const initialNickname = getStoredNickname();
 
-  const handleLogout = () => {
-    // localStorage에서 로그인 상태 제거
-    localStorage.removeItem('isLoggedIn');
-    
-    // 로그아웃 이벤트 발생
-    window.dispatchEvent(new Event('storage'));
-    
-    // 마이페이지로 이동
-    navigate('/mypage');
+  const handleLogout = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    const email = localStorage.getItem('userId') || '';
+    const password = localStorage.getItem('userPassword') || '';
+
+    setIsSubmitting(true);
+
+    try {
+      if (email || password) {
+        await logoutUser({ email, password });
+      }
+    } catch (error) {
+      const message =
+        error?.data?.message || error?.message || '로그아웃 처리 중 오류가 발생했습니다.';
+      console.error(message, error);
+      window.alert(message);
+    } finally {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userPassword');
+      localStorage.removeItem('isGuest');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('nickname');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userSlug');
+      localStorage.removeItem('userProfileImage');
+
+      window.dispatchEvent(new Event('storage'));
+      setIsSubmitting(false);
+      navigate('/login');
+    }
   };
 
   // 배경 콘텐츠를 메모이제이션하여 불필요한 리렌더링 방지
@@ -81,7 +109,8 @@ export default function Logout() {
         '로그아웃 후 PLINK를',
         '사용하기 위해서는 재로그인이 필요합니다.',
       ]}
-      buttonText="로그아웃하기"
+      buttonText={isSubmitting ? '로그아웃 중...' : '로그아웃하기'}
+      buttonDisabled={isSubmitting}
       onButtonClick={handleLogout}
       backgroundContent={backgroundContent}
     />

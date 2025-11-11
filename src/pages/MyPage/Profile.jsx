@@ -10,6 +10,7 @@ import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
 import MyPageCameraIcon from '../../assets/icons/MyPageCamera.svg';
 import successIcon from '../../assets/icons/PasswordTrue.svg';
 import errorIcon from '../../assets/icons/PasswordFalse.svg';
+import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -377,6 +378,7 @@ export default function Profile({
   const [profileImage, setProfileImage] = useState(initialProfileImage);
   const [nicknameStatus, setNicknameStatus] = useState(null); // null | 'success' | 'error'
   const [helperMessage, setHelperMessage] = useState('2~8자 이내로 작성해주세요.');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // 프로필 이미지 업데이트 감지
   useEffect(() => {
@@ -448,10 +450,13 @@ export default function Profile({
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     const trimmedNickname = formData.nickname.trim();
     const nicknameChanged = trimmedNickname !== initialNickname;
-    const profileImageChanged = profileImage !== initialProfileImage;
     const canPersistNickname = nicknameChanged ? nicknameStatus === 'success' : true;
 
     if (!canPersistNickname) {
@@ -460,21 +465,61 @@ export default function Profile({
       return;
     }
 
-    if (!nicknameChanged && !profileImageChanged) {
+    if (!nicknameChanged) {
       navigate('/mypage');
       return;
     }
 
     const nicknameToSave = nicknameChanged ? trimmedNickname : initialNickname;
 
-    localStorage.setItem('nickname', nicknameToSave);
-    localStorage.setItem('userProfileImage', profileImage);
-    
-    // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
-    window.dispatchEvent(new Event('profileUpdated'));
-    
-    // 마이페이지로 이동
-    navigate('/mypage');
+    const slug =
+      (() => {
+        try {
+          return localStorage.getItem('userSlug');
+        } catch {
+          return null;
+        }
+      })() || 'plink2025';
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await updateProfileApi({
+        slug,
+        nickname: nicknameToSave,
+      });
+
+      const updatedNickname = response?.nickname || nicknameToSave;
+      const updatedProfileImage = response?.profileImageUrl || profileImage;
+      const updatedRole = response?.role;
+      const updatedSlug = response?.slug || slug;
+      const updatedEmail = response?.email;
+
+      if (updatedEmail) {
+        localStorage.setItem('userId', updatedEmail);
+      }
+      localStorage.setItem('nickname', updatedNickname);
+      if (updatedProfileImage) {
+        localStorage.setItem('userProfileImage', updatedProfileImage);
+        setProfileImage(updatedProfileImage);
+      }
+      if (updatedRole) {
+        localStorage.setItem('userRole', updatedRole);
+      }
+      if (updatedSlug) {
+        localStorage.setItem('userSlug', updatedSlug);
+      }
+
+      window.dispatchEvent(new Event('profileUpdated'));
+      navigate('/mypage');
+    } catch (error) {
+      const message =
+        error?.data?.message || error?.message || '프로필 수정에 실패했습니다. 다시 시도해주세요.';
+      console.error(message, error);
+      window.alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleProfileImageClick = () => {
@@ -539,8 +584,8 @@ export default function Profile({
           </NicknameFieldsContainer>
         </Content>
         <ButtonContainer>
-          <LoginButton onClick={handleSave}>
-            수정하기
+          <LoginButton onClick={handleSave} disabled={isSubmitting}>
+            {isSubmitting ? '수정 중...' : '수정하기'}
           </LoginButton>
         </ButtonContainer>
       </BottomSheet>

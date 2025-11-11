@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
+import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
 
 const PageContainer = styled.div`
@@ -80,7 +82,7 @@ const OptionItem = styled.button`
   text-align: left;
   ${typography('body01')};
   color: ${c('neutral.black')};
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   transition: background-color 0.2s ease;
 
   &:first-child {
@@ -93,51 +95,87 @@ const OptionItem = styled.button`
   }
 
   &:hover {
-    background-color: ${c('neutral.bg')};
+    background-color: ${({ disabled }) => (disabled ? 'transparent' : c('neutral.bg'))};
   }
 
   &:active {
-    background-color: ${c('neutral.bg')};
+    background-color: ${({ disabled }) => (disabled ? 'transparent' : c('neutral.bg'))};
   }
 `;
 
 export default function ChangeImage() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getSlug = () => {
+    try {
+      return localStorage.getItem('userSlug');
+    } catch {
+      return null;
+    }
+  };
 
   const handleSelectPhoto = () => {
-    // 파일 입력 요소 생성
+    if (isSubmitting) {
+      return;
+    }
+
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        // FileReader를 사용하여 이미지를 base64로 변환
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result;
-          if (result) {
-            // localStorage에 저장
-            localStorage.setItem('userProfileImage', result);
-            
-            // 커스텀 이벤트 발생시켜 MyPage에서 변경사항 감지
-            window.dispatchEvent(new Event('profileUpdated'));
-            
-            // 프로필 페이지로 돌아가기
-            navigate('/mypage/profile');
-          }
-        };
-        reader.readAsDataURL(file);
+    input.onchange = async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const slug = getSlug() || 'plink2025';
+      setIsSubmitting(true);
+
+      try {
+        const response = await updateProfileApi({
+          slug,
+          profileImageFile: file,
+        });
+
+        const profileImageUrl = response?.profileImageUrl;
+        const nickname = response?.nickname;
+        const role = response?.role;
+        const updatedSlug = response?.slug || slug;
+
+        if (profileImageUrl) {
+          localStorage.setItem('userProfileImage', profileImageUrl);
+        }
+        if (nickname) {
+          localStorage.setItem('nickname', nickname);
+        }
+        if (role) {
+          localStorage.setItem('userRole', role);
+        }
+        if (updatedSlug) {
+          localStorage.setItem('userSlug', updatedSlug);
+        }
+
+        window.dispatchEvent(new Event('profileUpdated'));
+        navigate('/mypage/profile');
+      } catch (error) {
+        const message =
+          error?.data?.message ||
+          error?.message ||
+          '프로필 사진 업로드 중 오류가 발생했습니다. 다시 시도해주세요.';
+        console.error(message, error);
+        window.alert(message);
+      } finally {
+        setIsSubmitting(false);
       }
     };
     input.click();
   };
 
   const handleSelectDefaultProfile = () => {
-    // 기본 프로필 선택 페이지로 이동
+    if (isSubmitting) {
+      return;
+    }
     navigate('/mypage/profile/selectimage');
   };
-
 
 
   return (
@@ -147,8 +185,8 @@ export default function ChangeImage() {
         <DragHandle />
         <Title>프로필 변경</Title>
         <OptionList>
-          <OptionItem onClick={handleSelectPhoto}>
-            사진 선택
+          <OptionItem onClick={handleSelectPhoto} disabled={isSubmitting}>
+            {isSubmitting ? '업로드 중...' : '사진 선택'}
           </OptionItem>
           <OptionItem onClick={handleSelectDefaultProfile}>
             기본프로필 선택

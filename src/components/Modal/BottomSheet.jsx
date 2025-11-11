@@ -124,7 +124,7 @@ const MainMessage = styled.h2`
 const SubMessage = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: ${({ $align }) => $align || 'flex-start'};
   gap: 2px;
   margin-top: 0;
   border: none;
@@ -137,7 +137,7 @@ const SubText = styled.p`
   font-size: ${({ theme }) => theme.font.typography.body01.size};
   font-weight: ${({ theme }) => theme.font.typography.body01.weight};
   color: ${c('neutral.black2')};
-  text-align: left;
+  text-align: ${({ $textAlign }) => $textAlign || 'left'};
   line-height: 1.28;
   margin: 0;
 `;
@@ -194,6 +194,8 @@ export default function BottomSheet({
   emojiAlt,
   mainMessage,
   subMessages = [],
+  subMessagesAlign = 'flex-start',
+  subMessagesTextAlign = 'left',
   buttonText,
   onButtonClick,
   buttonDisabled = false,
@@ -243,9 +245,11 @@ export default function BottomSheet({
           {emojiContent && <Emoji>{emojiContent}</Emoji>}
           {mainMessage && <MainMessage>{mainMessage}</MainMessage>}
           {subMessages.length > 0 && (
-            <SubMessage>
+            <SubMessage $align={subMessagesAlign}>
               {subMessages.map((text, index) => (
-                <SubText key={index}>{text}</SubText>
+                <SubText key={index} $textAlign={subMessagesTextAlign}>
+                  {text}
+                </SubText>
               ))}
             </SubMessage>
           )}

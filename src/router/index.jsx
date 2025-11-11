@@ -93,19 +93,12 @@ export default function Router() {
         <Route
           path="/game/play"
           element={
-            <PageLayout title={' '}>
+            <PageLayout title={'Event'}>
               <GamePlay />
             </PageLayout>
           }
         />
-        <Route
-          path="/game/rank"
-          element={
-            <PageLayout title={' '}>
-              <GameRank />
-            </PageLayout>
-          }
-        />
+
         {/*  마이페이지 (Header + Navbar 유지)*/}
         <Route
           path="/mypage"

@@ -29,7 +29,7 @@ const CircleImg = styled.img`
 `;
 export default function Home() {
   const [nickname, setNickname] = useState(
-    () => localStorage.getItem('nickname') || '숨쉬는 고양이',
+    () => localStorage.getItem('nickname') || '숨쉬는 고양이'
   );
 
   useEffect(() => {

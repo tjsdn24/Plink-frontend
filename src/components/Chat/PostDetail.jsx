@@ -40,6 +40,7 @@ export default function PostDetail({
   onPollVote,
   onEdit,
   onDelete,
+  onReport,
 }) {
   const [liked, setLiked] = useState(initialLiked || false);
   const [likes, setLikes] = useState(initialLikes || 0);
@@ -79,6 +80,11 @@ export default function PostDetail({
   const handleDelete = () => {
     setMenuOpen(false);
     if (onDelete) onDelete(post.id);
+  };
+  const handleReport = () => {
+    setMenuOpen(false);
+
+    if (onReport) onReport();
   };
 
   const renderContent = (item, index) => {
@@ -146,6 +152,7 @@ export default function PostDetail({
             <MenuBox>
               <MenuItem onClick={handleEdit}>수정</MenuItem>
               <MenuItem onClick={handleDelete}>삭제</MenuItem>
+              <MenuItem onClick={handleReport}>신고</MenuItem>
             </MenuBox>
           )}
         </DotMenuWrapper>

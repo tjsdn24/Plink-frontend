@@ -1,20 +1,7 @@
-//import ReportIcon from '../../assets/icons/ChatReport.svg';
-import { useNavigate /*useParams*/ } from 'react-router-dom';
-import {
-  ContentRow,
-  ContentBox,
-  //ReportButton,
-  ImagesWrapper,
-  PostImage,
-  Highlight,
-} from './Post.styles';
+import { useNavigate } from 'react-router-dom';
+import { ContentRow, ContentBox, ImagesWrapper, PostImage, Highlight } from './Post.styles';
 
-export default function PostContent({
-  contentItem,
-  highlightKeyword,
-  /* onReportClick*/
-  post,
-}) {
+export default function PostContent({ contentItem, highlightKeyword, post }) {
   const navigate = useNavigate();
   //const { slug } = useParams();
 

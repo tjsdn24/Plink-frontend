@@ -1,5 +1,3 @@
-//PostItem.jsx
-
 import { useState } from 'react';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import LikeIcon from '../../assets/icons/ChatLike.svg';
@@ -21,22 +19,10 @@ import {
   Time,
 } from './Post.styles';
 
-export default function PostItem({
-  post,
-  onCommentClick,
-  //  onReportOpen,
-  highlightKeyword,
-  onLike,
-  onPollVote,
-}) {
+export default function PostItem({ post, onCommentClick, highlightKeyword, onLike, onPollVote }) {
   const [liked, setLiked] = useState(post.liked || false);
-  const [likesCount, setLikesCount] = useState(post.like || 0);
+  const [likesCount, setLikesCount] = useState(post.likeCount || 0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [pollVotes, setPollVotes] = useState(
-    Array.isArray(post.content)
-      ? post.content.find(item => item.type === 'poll')?.data?.votes || []
-      : []
-  );
 
   const handleLike = async () => {
     if (isProcessing) return;
@@ -56,14 +42,19 @@ export default function PostItem({
     }
   };
 
-  // 투표 반영 핸들러
-  const handlePollVote = (pollData, index) => {
-    const newVotes = [...pollVotes];
-    newVotes[index] = (newVotes[index] || 0) + 1;
-    setPollVotes(newVotes);
-
-    if (onPollVote) onPollVote(pollData, index);
-  };
+  // poll 데이터를 PostPollDetail에 맞게 변환
+  const transformedPollData = post.poll
+    ? {
+        id: post.poll.pollId,
+        options: post.poll.result.map(item => ({
+          id: item.optionId,
+          text: item.content,
+          voteCount: item.voteCount,
+        })),
+        votes: post.poll.result.map(item => item.voteCount),
+        totalVotes: post.poll.totalVotes,
+      }
+    : null;
 
   return (
     <PostWrapper>
@@ -74,11 +65,11 @@ export default function PostItem({
         </div>
         <ContentAndEtcWrapper>
           <ContentWrapper>
-            {post.postType === 'POLL' && post.poll ? (
+            {post.postType === 'POLL' && transformedPollData ? (
               <PostPollDetail
-                pollData={post.poll}
-                pollVotes={pollVotes}
-                onPollVote={handlePollVote}
+                pollData={transformedPollData}
+                pollVotes={transformedPollData.votes}
+                onPollVote={onPollVote}
               />
             ) : (
               <PostContent

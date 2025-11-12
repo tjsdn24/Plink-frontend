@@ -5,7 +5,7 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
-import { getPostDetail } from '../../api/Chat/CommentsApi';
+import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
 import {
   Wrapper,
   Header,
@@ -35,6 +35,7 @@ export default function Comments() {
 
   // 추가 상태들
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // 신고 대상 정보
   const [liked, setLiked] = useState(false);
   const [newComment, setNewComment] = useState('');
 
@@ -63,7 +64,6 @@ export default function Comments() {
     setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
   }, [post]);
 
-  // post가 바뀔 때마다 댓글, 좋아요 등 상태 초기화
   useEffect(() => {
     setComments(post?.comments || []);
     setLikes(post?.like || 0);
@@ -80,8 +80,29 @@ export default function Comments() {
   if (loading) return <div>로딩 중...</div>;
   if (!post) return <div>게시글 정보를 불러올 수 없습니다.</div>;
 
-  const openReport = () => setIsReportOpen(true);
-  const closeReport = () => setIsReportOpen(false);
+  // 게시글 신고
+  const openPostReport = () => {
+    setReportTarget({
+      targetId: post.id,
+      targetType: 'post',
+    });
+    setIsReportOpen(true);
+  };
+
+  // 댓글 신고
+  const openCommentReport = commentId => {
+    setReportTarget({
+      targetId: commentId,
+      targetType: 'comment',
+      postId: post.id, // 댓글이 속한 게시글 ID
+    });
+    setIsReportOpen(true);
+  };
+
+  const closeReport = () => {
+    setIsReportOpen(false);
+    setReportTarget(null);
+  };
 
   const handleCommentLike = index => {
     setCommentLikes(prev => {
@@ -95,17 +116,38 @@ export default function Comments() {
     });
   };
 
-  const handleAddComment = () => {
+  // 댓글 추가 시 createPost 호출하여 서버에 저장하고 댓글 리스트 갱신
+  const handleAddComment = async () => {
     if (!newComment.trim()) return;
+
     const newEntry = {
       nickname: '나',
       text: newComment,
       time: '방금 전',
       isMine: true,
     };
-    setComments(prev => [...prev, newEntry]);
-    setCommentLikes(prev => [...prev, { liked: false, count: 0 }]);
-    setNewComment('');
+
+    try {
+      // API에 보낼 데이터 형태에 맞게 조정 필요
+      const postData = {
+        ...post,
+        comments: [...comments, newEntry], // 기존 댓글에 새 댓글 추가
+      };
+
+      // createPost 호출 (slug, postData 전달)
+      const response = await createPost(slug, postData);
+
+      // 응답에 새 댓글 포함되어 있다고 가정하고 상태 갱신
+      setComments(response.data.post.comments || []);
+      setCommentLikes(prev => [...prev, { liked: false, count: 0 }]);
+      setNewComment('');
+
+      // 필요 시 post 상태도 업데이트
+      setPost(response.data.post);
+    } catch (error) {
+      console.error('댓글 작성 실패:', error);
+      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleLike = () => {
@@ -133,10 +175,6 @@ export default function Comments() {
     }
   };
 
-  if (!post) {
-    return <div>게시글 정보를 불러올 수 없습니다. (id: {postId})</div>;
-  }
-
   return (
     <>
       <Wrapper>
@@ -157,13 +195,14 @@ export default function Comments() {
           onPollVote={handlePollVote}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
+          onReport={openPostReport}
         />
 
         <CommentList
           comments={comments}
           commentLikes={commentLikes}
           onCommentLike={handleCommentLike}
-          onReport={openReport}
+          onReport={openCommentReport}
           onPollVote={handlePollVote}
           pollVotes={pollVotes}
         />
@@ -179,7 +218,14 @@ export default function Comments() {
         </CommentInputBox>
       </Wrapper>
 
-      {isReportOpen && <Report onClose={closeReport} />}
+      {isReportOpen && reportTarget && (
+        <Report
+          onClose={closeReport}
+          targetId={reportTarget.targetId}
+          targetType={reportTarget.targetType}
+          postId={reportTarget.postId}
+        />
+      )}
     </>
   );
 }

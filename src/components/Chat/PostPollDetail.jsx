@@ -23,12 +23,26 @@ export default function PostPollDetail({ pollData, pollVotes = [], onPollVote })
     }
   }, [pollVotes]);
 
-  const handleVote = index => {
+  const handleVote = async index => {
+    // 낙관적 업데이트
     const updatedVotes = [...localVotes];
     updatedVotes[index] = (updatedVotes[index] || 0) + 1;
     setLocalVotes(updatedVotes);
     setSelectedIndex(index);
-    if (onPollVote) onPollVote(pollData, index);
+
+    // 부모 컴포넌트로 투표 정보 전달 (API 호출)
+    if (onPollVote) {
+      try {
+        await onPollVote(pollData, index);
+      } catch (error) {
+        console.log(error);
+        // 실패 시 롤백
+        const revertedVotes = [...localVotes];
+        revertedVotes[index] = Math.max(0, revertedVotes[index] || 0);
+        setLocalVotes(revertedVotes);
+        setSelectedIndex(null);
+      }
+    }
   };
 
   const totalVotes = localVotes.reduce((sum, v) => sum + v, 0);
@@ -42,12 +56,15 @@ export default function PostPollDetail({ pollData, pollVotes = [], onPollVote })
         const isMax = votes === maxVotes && totalVotes > 0;
         const isMine = selectedIndex === i;
 
+        // option이 문자열인지 객체인지 처리
+        const optionText = typeof option === 'string' ? option : option.text || option.name || '';
+
         return (
           <PollOption key={i} $isMax={isMax} onClick={() => handleVote(i)}>
             <PollBar $percentage={percentage} $isMax={isMax} />
             <PollText>
               <PollLeft $isMax={isMax}>
-                <span>{option}</span>
+                <span>{optionText}</span>
                 {isMine && <img src={ChatPollChecked} alt="checked" />}
               </PollLeft>
               <span>{percentage.toFixed(0)}%</span>

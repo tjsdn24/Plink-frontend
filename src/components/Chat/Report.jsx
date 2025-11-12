@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import BottomSheet from '../Modal/BottomSheet';
 import NavButton from '../Signup/NavButton';
 import ChatIcon from '../../assets/icons/HomeTalk.svg';
 import AlertIcon from '../../assets/icons/ChatAlert.svg';
 import { c, s, typography } from '../../styles/themeUtils';
+import { reportPostOrComment } from '../../api/Chat/CommentsApi';
 
 const REPORT_REASONS = [
   '스팸/홍보/도배 글이에요',
@@ -23,11 +24,18 @@ const REASON_SUMMARY_MAP = {
   '기타 문제가 있어요': '기타 문제 신고',
 };
 
-export default function Report({ onClose }) {
+export default function Report({
+  onClose,
+  targetId, // 신고할 게시글/댓글 ID
+  targetType = 'post', // 'post' 또는 'comment'
+  postId, // 댓글 신고 시 필요한 게시글 ID
+}) {
   const [selectedReason, setSelectedReason] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { slug } = useParams();
 
   const isStepOne = step === 1;
   const isStepTwo = step === 2;
@@ -42,21 +50,30 @@ export default function Report({ onClose }) {
   const subMessages = isStepOne
     ? ['허위 신고 시 이용이 제한될 수 있어요.']
     : isStepTwo
-      ? ['신고 내용 접수 후 가이드라인에 따라 검토를 합니다.', '추가적인 내용을 알려주시면 처리에 도움이 됩니다.']
+      ? [
+          '신고 내용 접수 후 가이드라인에 따라 검토를 합니다.',
+          '추가적인 내용을 알려주시면 처리에 도움이 됩니다.',
+        ]
       : ['즐거운 축제를 위해 도와주셔서 감사합니다.', '더 나은 서비스를 제공하겠습니다.'];
-  const emoji = isStepThree
-    ? <EmojiImage src={AlertIcon} alt="신고 완료" />
+  const emoji = isStepThree ? (
+    <EmojiImage src={AlertIcon} alt="신고 완료" />
+  ) : isStepTwo ? (
+    <EmojiImage src={ChatIcon} alt="신고 안내" />
+  ) : undefined;
+  const buttonLabel = isStepOne
+    ? '다음 단계로 (1/2)'
     : isStepTwo
-      ? <EmojiImage src={ChatIcon} alt="신고 안내" />
-      : undefined;
-  const buttonLabel = isStepOne ? '다음 단계로 (1/2)' : isStepTwo ? '신고하기' : '확인';
-  const isButtonActive = isStepOne ? Boolean(selectedReason) : true;
+      ? isSubmitting
+        ? '신고 중...'
+        : '신고하기'
+      : '확인';
+  const isButtonActive = isStepOne ? Boolean(selectedReason) : !isSubmitting;
 
   const handleReasonSelect = reason => {
     setSelectedReason(reason);
   };
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (isStepOne) {
       if (!selectedReason) {
         alert('신고 사유를 선택해주세요.');
@@ -67,11 +84,46 @@ export default function Report({ onClose }) {
     }
 
     if (isStepTwo) {
-      // TODO: 신고 API 연동
-      setStep(3);
+      try {
+        setIsSubmitting(true);
+
+        // API에 보낼 데이터 구성
+        const reportData = {
+          targetId, // 신고 대상 ID
+          targetType, // 'post' 또는 'comment'
+          reason: selectedReason,
+          details: additionalDetails,
+        };
+
+        // 댓글 신고인 경우 postId 추가
+        if (targetType === 'comment' && postId) {
+          reportData.postId = postId;
+        }
+
+        console.log('=== 신고 API 호출 시작 ===');
+        console.log('slug:', slug);
+        console.log('reportData:', reportData);
+
+        // API 호출
+        const response = await reportPostOrComment(slug, reportData);
+
+        console.log('=== 신고 API 응답 성공 ===');
+        console.log('response:', response);
+
+        setStep(3);
+      } catch (error) {
+        console.error('=== 신고 제출 실패 ===');
+        console.error('error:', error);
+        console.error('error.response:', error.response);
+        console.error('error.response.data:', error.response?.data);
+        alert('신고 제출에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
 
+    // Step 3: 완료 후 초기화 및 닫기
     setSelectedReason('');
     setAdditionalDetails('');
     setStep(1);
@@ -114,11 +166,7 @@ export default function Report({ onClose }) {
         </StepTwoContainer>
       )}
       {isStepThree && <SuccessSpacer />}
-      <NavButton
-        isActive={isButtonActive}
-        disabled={!isButtonActive}
-        onClick={handleAction}
-      >
+      <NavButton isActive={isButtonActive} disabled={!isButtonActive} onClick={handleAction}>
         {buttonLabel}
       </NavButton>
     </BottomSheet>
@@ -144,7 +192,9 @@ const ReasonButton = styled.button`
   ${typography('body01')};
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 
   &:hover {
     border-color: ${c('brand.pink')};
@@ -173,7 +223,6 @@ const SelectedReasonBadge = styled.span`
 const SuccessSpacer = styled.div`
   height: ${s('xl')};
 `;
-
 
 const EmojiImage = styled.img`
   width: 64px;

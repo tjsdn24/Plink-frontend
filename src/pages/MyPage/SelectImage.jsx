@@ -10,6 +10,21 @@ import avatar5 from '../../assets/icons/profile/avatar5.svg';
 import MyPageCheckIcon from '../../assets/icons/MyPageCheck.svg';
 import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
+const normalizeSlug = slug => {
+  if (typeof slug !== 'string') return null;
+  const trimmed = slug.trim();
+  if (!trimmed) return null;
+  if (trimmed === 'line4thon') {
+    try {
+      localStorage.setItem('userSlug', 'line4thon');
+    } catch {
+      // ignore storage errors
+    }
+    return 'line4thon';
+  }
+  return trimmed;
+};
+
 const PageContainer = styled.div`
   min-height: 100vh;
   background: ${c('neutral.black2')};
@@ -225,11 +240,13 @@ export default function SelectImage() {
     const slug =
       (() => {
         try {
-          return localStorage.getItem('userSlug');
+          const stored = localStorage.getItem('userSlug');
+          const normalized = normalizeSlug(stored);
+          return normalized || 'line4thon';
         } catch {
-          return null;
+          return 'line4thon';
         }
-      })() || 'plink2025';
+      })();
 
     setIsSubmitting(true);
 

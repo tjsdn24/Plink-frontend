@@ -38,7 +38,7 @@ export default function SignUp() {
       return null;
     }
   })();
-  const slug = slugFromState || persistedSlug || 'plink2025';
+  const slug = slugFromState || persistedSlug || 'line4thon';
 
   
   const [formData, setFormData] = useState({

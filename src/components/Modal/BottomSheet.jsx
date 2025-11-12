@@ -257,7 +257,14 @@ export default function BottomSheet({
         </Content>
         {buttonText && (
           <ButtonContainer>
-            <ActionButton onClick={onButtonClick} disabled={buttonDisabled}>
+            <ActionButton
+              type="button"
+              onClick={event => {
+                event.preventDefault();
+                onButtonClick?.(event);
+              }}
+              disabled={buttonDisabled}
+            >
               {buttonText}
             </ActionButton>
           </ButtonContainer>

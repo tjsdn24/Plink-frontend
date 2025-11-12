@@ -1,63 +1,70 @@
 import { useMemo } from 'react';
-import {
-  sanitizeNickname,
-  loadPostsFromStorage,
-  getPostPreview,
-} from './activityUtils';
+import { sanitizeNickname, loadPostsFromStorage, getPostPreview, ensurePostIds } from './activityUtils';
+
+const DEFAULT_SLUG = 'line4thon';
+
+const getStoredValue = key => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored;
+  } catch {
+    return null;
+  }
+};
+
+const getStoredArray = key => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
 
 export function useActivityData() {
-  const posts = useMemo(() => loadPostsFromStorage(), []);
+  const fallbackPosts = useMemo(() => ensurePostIds(loadPostsFromStorage()), []);
 
   const nickname = useMemo(() => {
-    const stored = localStorage.getItem('nickname');
+    const stored = getStoredValue('nickname');
     if (!stored) return null;
     return sanitizeNickname(stored);
   }, []);
 
   const likedPostIds = useMemo(() => {
-    const saved = localStorage.getItem('userLikedPostIds');
-    if (!saved) return [];
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
-    }
+    return getStoredArray('userLikedPostIds');
   }, []);
 
   const commentedPostIds = useMemo(() => {
-    const saved = localStorage.getItem('userCommentedPostIds');
-    if (!saved) return [];
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
-    }
+    return getStoredArray('userCommentedPostIds');
   }, []);
 
-  const activityMap = useMemo(() => {
+  const {
+    postsByUser,
+    fallbackStories,
+    empathyPosts,
+    fallbackComments,
+  } = useMemo(() => {
     const likedSet = new Set(likedPostIds.map(String));
     const commentedSet = new Set(commentedPostIds.map(String));
 
     const normalizedNickname = nickname;
     const fallbackNickname = '익명의 사용자';
 
-    const postsByUser = normalizedNickname
-      ? posts.filter(post => sanitizeNickname(post.nickname) === normalizedNickname)
+    const postsByUserResult = normalizedNickname
+      ? fallbackPosts.filter(post => sanitizeNickname(post.nickname) === normalizedNickname)
       : [];
 
-    const fallbackPosts = posts.filter(
+    const fallbackStoriesResult = fallbackPosts.filter(
       post => sanitizeNickname(post.nickname) === fallbackNickname
     );
 
-    const storyPosts = postsByUser.length > 0 ? postsByUser : fallbackPosts;
-
-    const empathyPosts = posts.filter(post => likedSet.has(String(post.id)));
+    const empathyPostsResult = fallbackPosts.filter(post => likedSet.has(String(post.id)));
 
     const candidateNicknames = new Set();
     if (normalizedNickname) candidateNicknames.add(normalizedNickname);
     candidateNicknames.add(fallbackNickname);
 
-    const allCommentEntries = posts.flatMap(post => {
+    const allCommentEntries = fallbackPosts.flatMap(post => {
       if (!Array.isArray(post.comments)) return [];
       return post.comments
         .map((comment, index) => {
@@ -76,23 +83,40 @@ export function useActivityData() {
         .filter(entry => candidateNicknames.has(entry.commentNickname));
     });
 
-    const commentEntries = commentedSet.size
+    const fallbackCommentEntries = commentedSet.size
       ? allCommentEntries.filter(entry => commentedSet.has(String(entry.postId)))
       : allCommentEntries;
 
     return {
-      story: storyPosts,
-      empathy: empathyPosts,
-      comment: commentEntries,
+      postsByUser: postsByUserResult,
+      fallbackStories: fallbackStoriesResult,
+      empathyPosts: empathyPostsResult,
+      fallbackComments: fallbackCommentEntries,
     };
-  }, [posts, nickname, likedPostIds, commentedPostIds]);
+  }, [fallbackPosts, nickname, likedPostIds, commentedPostIds]);
+
+  const stories =
+    postsByUser.length > 0
+      ? postsByUser
+      : fallbackStories;
+
+  const comments = fallbackComments;
+
+  const likes = empathyPosts;
+
+  const storyStatus = { loading: false, error: null };
+  const commentStatus = { loading: false, error: null };
+  const likeStatus = { loading: false, error: null };
 
   return {
-    posts,
+    posts: fallbackPosts,
     nickname,
-    stories: activityMap.story,
-    likes: activityMap.empathy,
-    comments: activityMap.comment,
+    stories,
+    likes,
+    comments,
+    storyStatus,
+    commentStatus,
+    likeStatus,
   };
 }
 

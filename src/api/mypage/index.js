@@ -1,0 +1,2 @@
+export { getMyLikedPosts } from './like';
+

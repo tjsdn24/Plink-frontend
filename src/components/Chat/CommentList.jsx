@@ -3,6 +3,7 @@ import LikeIcon from '../../assets/icons/ChatLike.svg';
 import ChatLikePink from '../../assets/icons/ChatLikePink.svg';
 import ReportIcon from '../../assets/icons/ChatReport.svg';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
+import PostPollDetail from './PostPollDetail';
 import {
   CommentSection,
   CommentBox,
@@ -13,9 +14,17 @@ import {
   CommentFooter,
   LikeButton,
   ReportIconImg,
+  Time,
 } from './Comments.styles';
 
-export default function CommentList({ comments = [], commentLikes = [], onCommentLike, onReport }) {
+export default function CommentList({
+  comments = [],
+  commentLikes = [],
+  onCommentLike,
+  onReport,
+  onPollVote,
+  pollVotes, // ← prop 추가
+}) {
   const commentsEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -37,13 +46,24 @@ export default function CommentList({ comments = [], commentLikes = [], onCommen
             <CommentHeader>
               <strong>{c.nickname}</strong>
             </CommentHeader>
-            <CommentBubble $mine={c.isMine}>{c.text}</CommentBubble>
+            {c.type !== 'poll' && <CommentBubble $mine={c.isMine}>{c.text}</CommentBubble>}
+            {c.type === 'poll' && (
+              <PostPollDetail
+                pollData={c.pollData}
+                pollVotes={pollVotes || c.pollVotes}
+                onPollVote={(pollData, index) => {
+                  if (onPollVote) onPollVote(pollData, index);
+                }}
+              />
+            )}
+
             <CommentFooter>
               <LikeButton onClick={() => onCommentLike(i)} $liked={commentLikes[i]?.liked}>
                 <img src={commentLikes[i]?.liked ? ChatLikePink : LikeIcon} alt="like" />
                 {commentLikes[i]?.count || 0}
               </LikeButton>
               <ReportIconImg src={ReportIcon} alt="report" onClick={onReport} />
+              <Time>{c.time2}</Time>
             </CommentFooter>
           </CommentContent>
           {c.isMine && <ProfileImg src={BasicProfile} alt="profile" />}

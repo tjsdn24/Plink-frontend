@@ -38,6 +38,8 @@ export default function ActivityLayout({
   tabs = DEFAULT_TABS,
   emptyTitle,
   emptyDescription,
+  isLoading = false,
+  errorMessage = null,
 }) {
   const [keyword, setKeyword] = useState('');
   const navigate = useNavigate();
@@ -48,6 +50,51 @@ export default function ActivityLayout({
   );
 
   const hasItems = filteredItems.length > 0;
+
+  const renderStatusCard = (title, description) => (
+    <EmptyState>
+      <EmptyTitle>{title}</EmptyTitle>
+      <EmptyDescription>{description}</EmptyDescription>
+    </EmptyState>
+  );
+
+  let content;
+
+  if (isLoading) {
+    content = renderStatusCard('불러오는 중이에요.', '잠시만 기다려 주세요.');
+  } else if (errorMessage) {
+    content = renderStatusCard('오류가 발생했어요.', errorMessage);
+  } else if (type === 'comment') {
+    content = hasItems
+      ? (
+        <CommentList>
+          {filteredItems.map(item => (
+            <CommentCard key={item.id}>
+              <CommentHeader>
+                <CommentBadge>내 댓글</CommentBadge>
+                <CommentMeta>{item.time}</CommentMeta>
+              </CommentHeader>
+              <CommentHighlight>{item.commentText}</CommentHighlight>
+              {(item.postPreview || item.postNickname) && (
+                <CommentSource>
+                  {item.postNickname ? `${item.postNickname} · ` : ''}
+                  {item.postPreview || '원문 텍스트 없음'}
+                </CommentSource>
+              )}
+            </CommentCard>
+          ))}
+        </CommentList>
+        )
+      : renderStatusCard(emptyTitle, emptyDescription);
+  } else {
+    content = hasItems
+      ? (
+        <PostListWrapper>
+          <Post postData={filteredItems} variant="card" />
+        </PostListWrapper>
+        )
+      : renderStatusCard(emptyTitle, emptyDescription);
+  }
 
   return (
     <Screen>
@@ -83,41 +130,7 @@ export default function ActivityLayout({
 
 
         <ContentArea>
-          {type === 'comment' ? (
-            hasItems ? (
-              <CommentList>
-                {filteredItems.map(item => (
-                  <CommentCard key={item.id}>
-                    <CommentHeader>
-                      <CommentBadge>내 댓글</CommentBadge>
-                      <CommentMeta>{item.time}</CommentMeta>
-                    </CommentHeader>
-                    <CommentHighlight>{item.commentText}</CommentHighlight>
-                    {(item.postPreview || item.postNickname) && (
-                      <CommentSource>
-                        {item.postNickname ? `${item.postNickname} · ` : ''}
-                        {item.postPreview || '원문 텍스트 없음'}
-                      </CommentSource>
-                    )}
-                  </CommentCard>
-                ))}
-              </CommentList>
-            ) : (
-              <EmptyState>
-                <EmptyTitle>{emptyTitle}</EmptyTitle>
-                <EmptyDescription>{emptyDescription}</EmptyDescription>
-              </EmptyState>
-            )
-          ) : hasItems ? (
-            <PostListWrapper>
-              <Post postData={filteredItems} variant="card" />
-            </PostListWrapper>
-          ) : (
-            <EmptyState>
-              <EmptyTitle>{emptyTitle}</EmptyTitle>
-              <EmptyDescription>{emptyDescription}</EmptyDescription>
-            </EmptyState>
-          )}
+          {content}
         </ContentArea>
       </PageContainer>
     </Screen>

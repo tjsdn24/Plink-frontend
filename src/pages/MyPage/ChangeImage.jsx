@@ -4,6 +4,21 @@ import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
+const normalizeSlug = slug => {
+  if (typeof slug !== 'string') return null;
+  const trimmed = slug.trim();
+  if (!trimmed) return null;
+  if (trimmed === 'line4thon') {
+    try {
+      localStorage.setItem('userSlug', 'line4thon');
+    } catch {
+      // ignore
+    }
+    return 'line4thon';
+  }
+  return trimmed;
+};
+
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -109,7 +124,8 @@ export default function ChangeImage() {
 
   const getSlug = () => {
     try {
-      return localStorage.getItem('userSlug');
+      const stored = localStorage.getItem('userSlug');
+      return normalizeSlug(stored);
     } catch {
       return null;
     }
@@ -127,7 +143,7 @@ export default function ChangeImage() {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const slug = getSlug() || 'plink2025';
+      const slug = getSlug() || 'line4thon';
       setIsSubmitting(true);
 
       try {

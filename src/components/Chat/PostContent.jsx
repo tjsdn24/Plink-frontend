@@ -1,4 +1,5 @@
 //import ReportIcon from '../../assets/icons/ChatReport.svg';
+import { useNavigate /*useParams*/ } from 'react-router-dom';
 import {
   ContentRow,
   ContentBox,
@@ -8,7 +9,15 @@ import {
   Highlight,
 } from './Post.styles';
 
-export default function PostContent({ contentItem, highlightKeyword /* onReportClick*/ }) {
+export default function PostContent({
+  contentItem,
+  highlightKeyword,
+  /* onReportClick*/
+  post,
+}) {
+  const navigate = useNavigate();
+  //const { slug } = useParams();
+
   const normalizedKeyword = highlightKeyword.trim().toLowerCase();
   const hasKeyword = normalizedKeyword.length > 0;
 
@@ -28,9 +37,16 @@ export default function PostContent({ contentItem, highlightKeyword /* onReportC
     );
   };
 
+  const handleCommentClick = () => {
+    if (contentItem.type === 'text') {
+      navigate(`${post.id}`, { state: { post } });
+      // navigate(`/${slug}/comments/${post.id}`, { state: { post } });
+    }
+  };
+
   if (contentItem.type === 'text')
     return (
-      <ContentRow>
+      <ContentRow onClick={handleCommentClick}>
         <ContentBox>{highlight(contentItem.data)}</ContentBox>
         {/*<ReportButton src={ReportIcon} alt="report" onClick={onReportClick} />
          */}

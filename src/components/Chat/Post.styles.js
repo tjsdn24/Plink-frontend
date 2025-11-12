@@ -55,7 +55,7 @@ export const ContentBox = styled.div`
   ${typography('body02')};
   color: ${c('neutral.black')};
   background-color: ${c('neutral.bg')};
-  box-shadow: 2px 2px 5px ${c('neutral.gray')};
+  box-shadow: 2px 2px 10px ${c('neutral.gray')};
   padding: 10px;
   border-radius: 4px 12px 12px 12px;
   line-height: 1.5;
@@ -114,63 +114,4 @@ export const ReactionIcon = styled.img`
 export const Time = styled.div`
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
-`;
-
-export const PollBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid ${c('neutral.gray')};
-  border-radius: 8px;
-`;
-
-export const PollOption = styled.div`
-  position: relative;
-  padding: 12px;
-  background-color: ${c('neutral.white')};
-  border-radius: 8px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: transform 0.2s;
-  box-shadow: ${({ theme }) => theme.shadow.vote};
-
-  &:hover {
-    transform: translateX(2px);
-  }
-`;
-
-export const PollBar = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: ${({ $percentage }) => `${$percentage}%`};
-  background: ${c('neutral.gray')};
-  border-radius: 8px;
-  transition: width 0.3s ease;
-  z-index: 0;
-`;
-export const PollText = styled.div`
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  ${typography('body02')};
-
-  span:first-child {
-    font-weight: 500;
-  }
-
-  span:last-child {
-    color: ${c('neutral.gray2')};
-    ${typography('caption01')};
-  }
-`;
-
-export const PollTotal = styled.div`
-  ${typography('caption01')};
-  color: ${c('neutral.gray2')};
-  text-align: left;
-  margin: 5px 5px 0px 5px;
 `;

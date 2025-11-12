@@ -1,24 +1,8 @@
-import axios from 'axios';
-
-const API_BASE_URL =
-  (import.meta.env?.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) ||
-  'http://localhost:8080';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-});
+import apiClient from './axios';
 
 export async function updateNickname({ slug, nickname }) {
-  const response = await api.patch(
-    `/${slug}/mypage/nickname`,
-    { nickname },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+  const encodedSlug = encodeURIComponent(slug.trim());
+  const response = await apiClient.patch(`/${encodedSlug}/mypage/nickname`, { nickname });
 
   return response?.data;
 }
@@ -38,7 +22,12 @@ export async function updateProfile({ slug, nickname, profileImageFile, defaultP
     formData.append('defaultProfileUrl', defaultProfileUrl.trim());
   }
 
-  const response = await api.patch(`/${slug}/mypage/profile`, formData);
+  const encodedSlug = encodeURIComponent(slug.trim());
+  const response = await apiClient.patch(`/${encodedSlug}/mypage/profile`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response?.data;
 }
 
@@ -46,6 +35,3 @@ export const mypageService = {
   updateNickname,
   updateProfile,
 };
-
-
-

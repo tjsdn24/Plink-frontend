@@ -8,6 +8,11 @@ import TextField from '../../components/Signup/TextField';
 import BottomSheet from '../../components/Modal/BottomSheet';
 import styled from 'styled-components';
 import { signupUser } from '../../api/authService';
+import avatar1 from '../../assets/icons/profile/avatar1.svg';
+import avatar2 from '../../assets/icons/profile/avatar2.svg';
+import avatar3 from '../../assets/icons/profile/avatar3.svg';
+import avatar4 from '../../assets/icons/profile/avatar4.svg';
+import avatar5 from '../../assets/icons/profile/avatar5.svg';
 
 const StyledHeader = styled.div``;
 
@@ -24,6 +29,28 @@ const FieldsContainer = styled.div`
   margin-top: ${s('lg')};
 `;
 
+const avatarPool = [avatar1, avatar2, avatar3, avatar4, avatar5];
+
+const getRandomAvatar = () => {
+  const randomIndex = Math.floor(Math.random() * avatarPool.length);
+  return avatarPool[randomIndex];
+};
+
+const createFileFromAsset = async assetUrl => {
+  if (!assetUrl) return null;
+  try {
+    const response = await fetch(assetUrl);
+    const blob = await response.blob();
+    const extension = assetUrl.split('.').pop()?.split('?')[0] || 'svg';
+    const fileName = `signup-avatar-${Date.now()}.${extension}`;
+    const type = blob.type || `image/${extension}`;
+    return new File([blob], fileName, { type });
+  } catch (error) {
+    console.error('랜덤 아바타 파일 생성 실패', error);
+    return null;
+  }
+};
+
 export default function SignUpComplete() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,7 +58,7 @@ export default function SignUpComplete() {
 
   const nickname = routeState.nickname || '숨쉬는 고양이';
   const randomAvatar = routeState.randomAvatar || '';
-  const slug = routeState.slug || 'plink2025';
+  const slug = routeState.slug || 'line4thon';
   const formData = useMemo(
     () =>
       routeState.formData || {
@@ -59,7 +86,10 @@ export default function SignUpComplete() {
     navigate('/login');
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async event => {
+    if (event?.preventDefault) {
+      event.preventDefault();
+    }
     if (isSubmitting) {
       return;
     }
@@ -67,11 +97,18 @@ export default function SignUpComplete() {
     setIsSubmitting(true);
 
     try {
+      const selectedAvatar = randomAvatar || getRandomAvatar();
+      const profileImageFile = await createFileFromAsset(selectedAvatar);
+      const fallbackAvatarFile = !profileImageFile
+        ? await createFileFromAsset(getRandomAvatar())
+        : null;
+
       const signupResponse = await signupUser({
         email: formData.email.trim(),
         password: formData.password,
         nickname,
         slug,
+        profileImageFile: profileImageFile || fallbackAvatarFile,
       });
 
       setSignupResult(signupResponse);
@@ -80,7 +117,7 @@ export default function SignUpComplete() {
       localStorage.setItem('userId', formData.email.trim());
       localStorage.setItem('userPassword', formData.password);
 
-      const profileImageUrl = signupResponse?.profileImageUrl || randomAvatar || '';
+      const profileImageUrl = signupResponse?.profileImageUrl || selectedAvatar || '';
       if (profileImageUrl) {
         localStorage.setItem('userProfileImage', profileImageUrl);
       }

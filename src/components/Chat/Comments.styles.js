@@ -31,7 +31,8 @@ export const BackButton = styled.button`
 `;
 
 export const HeaderTitle = styled.div`
-  ${typography('headline02')};
+  ${typography('headline01')};
+  color: ${c('brand.pink')};
 `;
 
 export const PostSection = styled.div`
@@ -68,6 +69,8 @@ export const Nickname = styled.div`
 export const Time = styled.div`
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
+  display: block;
+  font-size: 12px;
 `;
 
 export const ContentBox = styled.div`
@@ -97,10 +100,10 @@ export const PollBox = styled.div`
   // border: 1px solid ${c('neutral.gray')};
   border-radius: 8px;
   box-shadow:
-    2px 2px 3px ${c('neutral.bg')},
-    -2px 2px 3px ${c('neutral.bg')},
-    2px -2px 3px ${c('neutral.bg')},
-    -2px -2px 3px ${c('neutral.bg')};
+    2px 2px 5px ${c('neutral.bg')},
+    -2px 2px 5px ${c('neutral.bg')},
+    2px -2px 5px ${c('neutral.bg')},
+    -2px -2px 5px ${c('neutral.bg')};
 `;
 
 export const PollOption = styled.div`
@@ -158,13 +161,14 @@ export const PollLeft = styled.div`
 
   span {
     color: ${({ $isMax }) => ($isMax ? c('neutral.white') : c('neutral.black'))};
-    font-weight: 400; /* ✅ 글씨 두꺼워지는 현상 제거 */
+    font-weight: 500;
     transition: color 0.2s ease;
   }
 
   img {
     width: 16px;
     height: 16px;
+    filter: ${({ $isMax }) => ($isMax ? 'brightness(0) invert(1)' : 'none')};
   }
 `;
 
@@ -242,7 +246,7 @@ export const ReportIconImg = styled.img`
 
 export const CommentBubble = styled.div`
   background: ${({ $mine }) => ($mine ? '#e6f0ff' : c('neutral.bg'))};
-  box-shadow: 2px 2px 5px ${c('neutral.gray')};
+  box-shadow: 2px 2px 10px ${c('neutral.gray')};
   padding: 10px 14px;
   border-radius: 4px 12px 12px 12px;
   margin-top: 4px;
@@ -287,4 +291,41 @@ export const Arrow = styled.img`
   margin-left: 8px;
   cursor: pointer;
   color: ${c('sub.blue')};
+`;
+
+export const DotButton = styled.img`
+  width: 20px;
+  height: 20px;
+  background: none;
+  cursor: pointer;
+`;
+
+export const DotMenuWrapper = styled.div`
+  position: relative;
+`;
+
+export const MenuBox = styled.div`
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+`;
+
+export const MenuItem = styled.div`
+  padding: 10px 14px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  width: 60px;
+
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #f8f8f8;
+  }
 `;

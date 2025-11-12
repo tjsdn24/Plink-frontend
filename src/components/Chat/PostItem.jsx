@@ -1,3 +1,5 @@
+//PostItem.jsx
+
 import { useState } from 'react';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import LikeIcon from '../../assets/icons/ChatLike.svg';
@@ -22,37 +24,43 @@ import {
 export default function PostItem({
   post,
   onCommentClick,
-  onReportOpen,
+  //  onReportOpen,
   highlightKeyword,
   onLike,
   onPollVote,
 }) {
   const [liked, setLiked] = useState(post.liked || false);
   const [likesCount, setLikesCount] = useState(post.like || 0);
-  const [isProcessing, setIsProcessing] = useState(false); // 중복 클릭 방지용
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [pollVotes, setPollVotes] = useState(
+    post.content?.find(item => item.type === 'poll')?.data?.votes || []
+  );
 
   const handleLike = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
-
     const newLiked = !liked;
-
     setLiked(newLiked);
     setLikesCount(prev => (newLiked ? prev + 1 : prev - 1));
 
     try {
-      //백엔드 연동 시 교체
-      // 예: await api.post(`/posts/${post.id}/like`, { liked: newLiked });
       if (onLike) await onLike(post.id, newLiked);
     } catch (error) {
       console.error('좋아요 반영 실패:', error);
-
-      // 실패 시 UI 롤백
       setLiked(!newLiked);
       setLikesCount(prev => (newLiked ? prev - 1 : prev + 1));
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // 투표 반영 핸들러
+  const handlePollVote = (pollData, index) => {
+    const newVotes = [...pollVotes];
+    newVotes[index] = (newVotes[index] || 0) + 1;
+    setPollVotes(newVotes);
+
+    if (onPollVote) onPollVote(pollData, index);
   };
 
   return (
@@ -70,9 +78,8 @@ export default function PostItem({
                   <PostPollDetail
                     key={i}
                     pollData={item.data}
-                    onPollVote={(pollData, index) => {
-                      if (onPollVote) onPollVote(pollData, index);
-                    }}
+                    pollVotes={pollVotes}
+                    onPollVote={handlePollVote}
                   />
                 );
               }
@@ -81,7 +88,8 @@ export default function PostItem({
                   key={i}
                   contentItem={item}
                   highlightKeyword={highlightKeyword}
-                  onReportClick={onReportOpen}
+                  post={post}
+                  // onReportClick={onReportOpen}
                 />
               );
             })}

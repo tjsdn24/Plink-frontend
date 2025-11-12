@@ -9,31 +9,32 @@ import Menu1 from '../../assets/icons/HomeInfoMenu.svg';
 import Menu2 from '../../assets/icons/HomePresentMenu.svg';
 import Menu3 from '../../assets/icons/HomeHeartMenu.svg';
 import Menu4 from '../../assets/icons/HomeFoodMenu.svg';
+
 export default function ChatBox() {
+  const navigate = useNavigate();
+
   const buttons = [
     {
       icon: Menu1,
       label: '정보/공유',
-      onClick: () => console.log('채팅방 이동'),
+      onClick: () => navigate('/chat', { state: { category: '정보/공유' } }),
     },
     {
       icon: Menu2,
       label: '굿즈/이벤트',
-      onClick: () => console.log('글쓰기 열기'),
+      onClick: () => navigate('/chat', { state: { category: '굿즈/이벤트' } }),
     },
     {
       icon: Menu3,
       label: '만남/동행',
-      onClick: () => console.log('토픽 보기'),
+      onClick: () => navigate('/chat', { state: { category: '만남/동행' } }),
     },
     {
       icon: Menu4,
       label: '푸드/맛집',
-      onClick: () => console.log('커뮤니티 이동'),
+      onClick: () => navigate('/chat', { state: { category: '푸드/맛집' } }),
     },
   ];
-
-  const navigate = useNavigate();
 
   return (
     <BoxContainer>

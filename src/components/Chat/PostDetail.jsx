@@ -24,6 +24,10 @@ import {
   LikeButton,
   CommentCount,
   PollLeft,
+  DotButton,
+  DotMenuWrapper,
+  MenuBox,
+  MenuItem,
 } from './Comments.styles';
 
 export default function PostDetail({
@@ -34,11 +38,14 @@ export default function PostDetail({
   pollVotes,
   onLike,
   onPollVote,
+  onEdit,
+  onDelete,
 }) {
   const [liked, setLiked] = useState(initialLiked || false);
   const [likes, setLikes] = useState(initialLikes || 0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null); // ✅ 여기로 이동
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLike = async () => {
     if (isProcessing) return;
@@ -62,6 +69,16 @@ export default function PostDetail({
   const handleVote = (pollData, index) => {
     setSelectedIndex(index);
     if (onPollVote) onPollVote(pollData, index);
+  };
+
+  const handleEdit = () => {
+    setMenuOpen(false);
+    if (onEdit) onEdit(post.id);
+  };
+
+  const handleDelete = () => {
+    setMenuOpen(false);
+    if (onDelete) onDelete(post.id);
   };
 
   const renderContent = (item, index) => {
@@ -92,15 +109,10 @@ export default function PostDetail({
               const isMine = selectedIndex === i;
 
               return (
-                <PollOption
-                  key={i}
-                  $isMax={isMax}
-                  $isMine={isMine}
-                  onClick={() => handleVote(item.data, i)}
-                >
+                <PollOption key={i} $isMax={isMax} onClick={() => handleVote(item.data, i)}>
                   <PollBar $percentage={percentage} $isMax={isMax} />
-                  <PollText $isMax={isMax} $isMine={isMine}>
-                    <PollLeft>
+                  <PollText>
+                    <PollLeft $isMax={isMax}>
                       <span>{option}</span>
                       {isMine && <img src={ChatPollChecked} alt="checked" />}
                     </PollLeft>
@@ -113,7 +125,6 @@ export default function PostDetail({
           </PollBox>
         );
       }
-
       default:
         return null;
     }
@@ -129,7 +140,15 @@ export default function PostDetail({
             <Time>{post.time}</Time>
           </Section>
         </div>
-        <img src={ChatDots} alt="options" />
+        <DotMenuWrapper>
+          <DotButton src={ChatDots} alt="options" onClick={() => setMenuOpen(prev => !prev)} />
+          {menuOpen && (
+            <MenuBox>
+              <MenuItem onClick={handleEdit}>수정</MenuItem>
+              <MenuItem onClick={handleDelete}>삭제</MenuItem>
+            </MenuBox>
+          )}
+        </DotMenuWrapper>
       </Info>
 
       {Array.isArray(post?.content) && post.content.map((item, i) => renderContent(item, i))}

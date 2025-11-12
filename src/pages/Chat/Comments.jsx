@@ -13,16 +13,13 @@ import {
   CommentInputBox,
   Input,
   Arrow,
-} from '../../components/Chat//Comments.styles';
+} from '../../components/Chat/Comments.styles';
 
 export default function Comments() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { post } = state || {};
-  const { postId } = useParams();
-
-  console.log('post 데이터:', post);
-  console.log('post.content:', post?.content);
+  const { slug, postId } = useParams();
 
   const [comments, setComments] = useState(post?.comments || []);
   const [newComment, setNewComment] = useState('');
@@ -84,6 +81,19 @@ export default function Comments() {
     });
   };
 
+  // ✅ 이동 함수는 반드시 컴포넌트 내부에 있어야 함
+  const handleEditPost = postId => {
+    navigate(`/${slug}/comments/${postId}/edit`, { state: { post } });
+  };
+
+  const handleDeletePost = postId => {
+    if (window.confirm('정말로 삭제하시겠습니까?')) {
+      console.log('삭제된 게시글 ID:', postId);
+      alert('게시글이 삭제되었습니다.');
+      navigate(-1);
+    }
+  };
+
   if (!post) {
     return <div>게시글 정보를 불러올 수 없습니다. (id: {postId})</div>;
   }
@@ -106,6 +116,8 @@ export default function Comments() {
           pollVotes={pollVotes}
           onLike={handleLike}
           onPollVote={handlePollVote}
+          onEdit={handleEditPost}
+          onDelete={handleDeletePost}
         />
 
         <CommentList
@@ -113,6 +125,8 @@ export default function Comments() {
           commentLikes={commentLikes}
           onCommentLike={handleCommentLike}
           onReport={openReport}
+          onPollVote={handlePollVote}
+          pollVotes={pollVotes}
         />
 
         <CommentInputBox>

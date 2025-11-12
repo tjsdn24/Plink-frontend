@@ -7,7 +7,19 @@ import { BoxContainer } from './BoxContainer';
 import talkIcon from '../../assets/icons/HomeTalk.svg';
 import HotChat from '../Home/HotChat';
 
+import axios from 'axios';
+
 export default function HotBox() {
+  async function fetchData() {
+    try {
+      const response = await axios.get('http://15.165.177.229:8080/line4thon/main/popular');
+      console.log(response.data); // 서버에서 받은 데이터
+    } catch (error) {
+      console.error('데이터 불러오기 실패:', error);
+    }
+  }
+
+  fetchData();
   const navigate = useNavigate();
 
   return (

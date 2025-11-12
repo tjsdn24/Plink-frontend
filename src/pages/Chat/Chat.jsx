@@ -8,6 +8,7 @@ import WritePost from '../../components/Chat/WritePost';
 import { postData as initialData } from '../../components/Chat/PostData.js';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, s, typography } from '../../styles/themeUtils';
+import { useLocation } from 'react-router-dom';
 
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
@@ -15,7 +16,14 @@ export default function Chat() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
   const isFirstLoad = useRef(true);
+  const location = useLocation();
 
+  useEffect(() => {
+    // ChatBox에서 전달된 state가 있으면 카테고리 설정
+    if (location.state?.category) {
+      setSelectedCategory(location.state.category);
+    }
+  }, [location.state]);
   //고유 ID 생성 함수
   const generateId = () => Date.now() + Math.random().toString(36).substr(2, 9);
 

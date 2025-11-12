@@ -10,7 +10,22 @@ import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
 import MyPageCameraIcon from '../../assets/icons/MyPageCamera.svg';
 import successIcon from '../../assets/icons/PasswordTrue.svg';
 import errorIcon from '../../assets/icons/PasswordFalse.svg';
-import { updateProfile as updateProfileApi } from '../../api/mypageService';
+import { updateNickname as updateNicknameApi } from '../../api/mypageService';
+
+const normalizeSlug = slug => {
+  if (typeof slug !== 'string') return null;
+  const trimmed = slug.trim();
+  if (!trimmed) return null;
+  if (trimmed === 'line4thon') {
+    try {
+      localStorage.setItem('userSlug', 'line4thon');
+    } catch {
+      // ignore storage errors
+    }
+    return 'line4thon';
+  }
+  return trimmed;
+};
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -475,16 +490,18 @@ export default function Profile({
     const slug =
       (() => {
         try {
-          return localStorage.getItem('userSlug');
+          const stored = localStorage.getItem('userSlug');
+          const normalized = normalizeSlug(stored);
+          return normalized || 'line4thon';
         } catch {
-          return null;
+          return 'line4thon';
         }
-      })() || 'plink2025';
+      })();
 
     setIsSubmitting(true);
 
     try {
-      const response = await updateProfileApi({
+      const response = await updateNicknameApi({
         slug,
         nickname: nicknameToSave,
       });

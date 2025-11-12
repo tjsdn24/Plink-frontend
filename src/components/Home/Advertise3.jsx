@@ -28,7 +28,7 @@ export default function Advertise3() {
 const WhiteBox = styled.div`
   width: 100%;
   height: 120px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #0a1a44;
   z-index: 0;
   padding: 14px;

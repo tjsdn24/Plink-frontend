@@ -8,6 +8,7 @@ import PhotoBooth from '../pages/Photo/PhotoBooth';
 import PhotoEdit from '../pages/Photo/PhotoEdit';
 import Chat from '../pages/Chat/Chat';
 import Comments from '../pages/Chat/Comments';
+//import PostEdit from './pages/Chat/PostEdit';
 import Game from '../pages/Game/Game';
 import GamePlay from '../pages/Game/GamePlay';
 import GameRank from '../pages/Game/GameRank';
@@ -80,7 +81,9 @@ export default function Router() {
             </MainLayout>
           }
         />
+        {/*채팅 상세 페이지 */}
         <Route path="/chat/:postId" element={<Comments />} />
+
         {/* 게임 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/game"

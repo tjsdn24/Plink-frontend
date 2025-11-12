@@ -46,6 +46,3 @@ export const mypageService = {
   updateNickname,
   updateProfile,
 };
-
-
-

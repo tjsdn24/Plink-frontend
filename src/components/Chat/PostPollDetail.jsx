@@ -1,30 +1,36 @@
-// PostPollDetail.jsx
-import { useState } from 'react';
-import ChatPollChecked from '../../assets/icons/ChatPollChecked.svg'; // ✅ 추가
+import { useState, useEffect } from 'react';
+import ChatPollChecked from '../../assets/icons/ChatPollChecked.svg';
 import { PollBox, PollOption, PollBar, PollText, PollTotal, PollLeft } from './Comments.styles';
 
-export default function PostPollDetail({ pollData, pollVotes, onPollVote }) {
+export default function PostPollDetail({ pollData, pollVotes = [], onPollVote }) {
+  const [localVotes, setLocalVotes] = useState(pollVotes.length ? pollVotes : pollData.votes || []);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  useEffect(() => {
+    if (pollVotes.length) setLocalVotes(pollVotes);
+  }, [pollVotes]);
+
   const handleVote = index => {
+    const updatedVotes = [...localVotes];
+    updatedVotes[index] = (updatedVotes[index] || 0) + 1;
+    setLocalVotes(updatedVotes);
     setSelectedIndex(index);
     if (onPollVote) onPollVote(pollData, index);
   };
 
-  const currentVotes = pollVotes || pollData.votes || [];
-  const totalVotes = currentVotes.reduce((sum, v) => sum + v, 0);
-  const maxVotes = Math.max(...currentVotes, 0);
+  const totalVotes = localVotes.reduce((sum, v) => sum + v, 0);
+  const maxVotes = Math.max(...localVotes, 0);
 
   return (
     <PollBox>
       {pollData.options.map((option, i) => {
-        const votes = currentVotes[i] || 0;
+        const votes = localVotes[i] || 0;
         const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
         const isMax = votes === maxVotes && totalVotes > 0;
         const isMine = selectedIndex === i;
 
         return (
-          <PollOption key={i} $isMax={isMax} $isMine={isMine} onClick={() => handleVote(i)}>
+          <PollOption key={i} $isMax={isMax} onClick={() => handleVote(i)}>
             <PollBar $percentage={percentage} $isMax={isMax} />
             <PollText>
               <PollLeft $isMax={isMax}>

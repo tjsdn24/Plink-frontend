@@ -28,11 +28,19 @@ export default function ChatCatagory({ selectedCategory, onSelectCategory }) {
 }
 
 const ChatCatagoryWrapper = styled.div`
-  margin: 0px 10px;
+  margin: 0 10px;
   display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const CategoryItem = styled.div`
+  flex: 0 0 auto; /* 줄바꿈 방지 */
   padding: 12px;
   border-radius: 8px;
   cursor: pointer;

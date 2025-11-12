@@ -1,57 +1,52 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, /*useRef,*/ useCallback } from 'react';
 import styled from 'styled-components';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
 import Post from '../../components/Chat/Post';
 import NonSearch from '../../components/Chat/NonSearch';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
-import { postData as initialData } from '../../components/Chat/PostData.js';
+//import { postData as initialData } from '../../components/Chat/PostData.js';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, s, typography } from '../../styles/themeUtils';
+import { getPostsByTag } from '../../api/Chat/CommentsApi';
 
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
-  const isFirstLoad = useRef(true);
+  //const isFirstLoad = useRef(true);
 
   //고유 ID 생성 함수
   const generateId = () => Date.now() + Math.random().toString(36).substr(2, 9);
 
-  //localStorage에서 불러오기
   useEffect(() => {
-    const saved = localStorage.getItem('posts');
-    let loaded = [];
-
-    if (saved) {
+    const fetchPosts = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          loaded = parsed;
-        } else {
-          loaded = initialData;
-        }
-      } catch {
-        loaded = initialData;
+        const slug = 'line4thon';
+        const tag = selectedCategory === '전체' ? '' : selectedCategory;
+
+        const res = await getPostsByTag(slug, tag);
+        console.log('API 응답 posts:', res.data.posts); // 데이터 확인
+        setPosts(res.data.posts);
+      } catch (err) {
+        console.error('게시글 불러오기 실패:', err);
       }
-    } else {
-      loaded = initialData;
-    }
+    };
 
-    const withIds = loaded.map(post => (post.id ? post : { ...post, id: generateId() }));
-    setPosts(withIds);
-    localStorage.setItem('posts', JSON.stringify(withIds));
-  }, []);
+    fetchPosts();
+  }, [selectedCategory]);
 
-  //posts 변경 시 localStorage에 자동 저장
+  {
+    /*//posts 변경 시 localStorage에 자동 저장
   useEffect(() => {
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
       return;
     }
     localStorage.setItem('posts', JSON.stringify(posts));
-  }, [posts]);
+  }, [posts]);*/
+  }
 
   //새로운 글 추가
   const handleAddPost = newPost => {
@@ -76,11 +71,14 @@ export default function Chat() {
 
     const keyword = searchKeyword.trim().toLowerCase();
 
-    return categoryFiltered.filter(post =>
-      post.content.some(item => {
-        if (item.type !== 'text' || typeof item.data !== 'string') return false;
-        return item.data.toLowerCase().includes(keyword);
-      })
+    return categoryFiltered.filter(
+      post =>
+        post.content &&
+        Array.isArray(post.content) &&
+        post.content.some(item => {
+          if (item.type !== 'text' || typeof item.data !== 'string') return false;
+          return item.data.toLowerCase().includes(keyword);
+        })
     );
   }, [posts, selectedCategory, searchKeyword]);
 

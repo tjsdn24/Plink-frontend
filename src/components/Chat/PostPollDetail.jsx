@@ -3,11 +3,24 @@ import ChatPollChecked from '../../assets/icons/ChatPollChecked.svg';
 import { PollBox, PollOption, PollBar, PollText, PollTotal, PollLeft } from './Comments.styles';
 
 export default function PostPollDetail({ pollData, pollVotes = [], onPollVote }) {
-  const [localVotes, setLocalVotes] = useState(pollVotes.length ? pollVotes : pollData.votes || []);
+  // pollData와 options 존재 여부 체크
+  if (!pollData || !Array.isArray(pollData.options)) {
+    return <div>투표 데이터가 없습니다.</div>;
+  }
+
+  // 초기 votes 상태 안전하게 설정
+  const [localVotes, setLocalVotes] = useState(() => {
+    if (Array.isArray(pollVotes) && pollVotes.length > 0) return pollVotes;
+    if (Array.isArray(pollData.votes)) return pollData.votes;
+    return new Array(pollData.options.length).fill(0);
+  });
+
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
-    if (pollVotes.length) setLocalVotes(pollVotes);
+    if (Array.isArray(pollVotes) && pollVotes.length > 0) {
+      setLocalVotes(pollVotes);
+    }
   }, [pollVotes]);
 
   const handleVote = index => {

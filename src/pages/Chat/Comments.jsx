@@ -5,6 +5,7 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
+import { getPostDetail } from '../../api/Chat/CommentsApi';
 import {
   Wrapper,
   Header,
@@ -18,27 +19,66 @@ import {
 export default function Comments() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { post } = state || {};
+  const initialPost = state?.post || null;
   const { slug, postId } = useParams();
 
-  const [comments, setComments] = useState(post?.comments || []);
-  const [newComment, setNewComment] = useState('');
-  const [likes, setLikes] = useState(post?.like || 0);
-  const [liked, setLiked] = useState(false);
-  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [post, setPost] = useState(initialPost);
+  const [loading, setLoading] = useState(!initialPost);
+
+  // 댓글, 좋아요, 투표 상태
+  const [comments, setComments] = useState(initialPost?.comments || []);
+  const [likes, setLikes] = useState(initialPost?.like || 0);
   const [pollVotes, setPollVotes] = useState(null);
   const [commentLikes, setCommentLikes] = useState(
-    comments.map(() => ({ liked: false, count: 0 }))
+    initialPost?.comments?.map(() => ({ liked: false, count: 0 })) || []
   );
 
+  // 추가 상태들
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [newComment, setNewComment] = useState('');
+
   useEffect(() => {
-    if (post?.content) {
+    if (!initialPost) {
+      const fetchPostDetail = async () => {
+        try {
+          setLoading(true);
+          const res = await getPostDetail(slug, postId);
+          console.log('받아온 데이터:', res.data.post);
+          setPost(res.data.post);
+        } catch (error) {
+          console.error('게시글 상세 조회 실패:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchPostDetail();
+    }
+  }, [slug, postId, initialPost]);
+
+  useEffect(() => {
+    console.log('post 상태 변경:', post);
+    setComments(post?.comments || []);
+    setLikes(post?.like || 0);
+    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
+  }, [post]);
+
+  // post가 바뀔 때마다 댓글, 좋아요 등 상태 초기화
+  useEffect(() => {
+    setComments(post?.comments || []);
+    setLikes(post?.like || 0);
+    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
+
+    if (Array.isArray(post?.content)) {
       const pollItem = post.content.find(item => item.type === 'poll');
-      if (pollItem?.data) {
-        setPollVotes(pollItem.data.votes || []);
-      }
+      setPollVotes(pollItem?.data?.votes || []);
+    } else {
+      setPollVotes(null);
     }
   }, [post]);
+
+  if (loading) return <div>로딩 중...</div>;
+  if (!post) return <div>게시글 정보를 불러올 수 없습니다.</div>;
 
   const openReport = () => setIsReportOpen(true);
   const closeReport = () => setIsReportOpen(false);
@@ -81,7 +121,6 @@ export default function Comments() {
     });
   };
 
-  // ✅ 이동 함수는 반드시 컴포넌트 내부에 있어야 함
   const handleEditPost = postId => {
     navigate(`/${slug}/comments/${postId}/edit`, { state: { post } });
   };

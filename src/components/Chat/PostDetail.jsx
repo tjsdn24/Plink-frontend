@@ -134,10 +134,10 @@ export default function PostDetail({
     <PostSection>
       <Info>
         <div>
-          <ProfileImg src={BasicProfile} alt="profile" />
+          <ProfileImg src={post.profileImageUrl || BasicProfile} alt="profile" />
           <Section>
-            <Nickname>{post.nickname}</Nickname>
-            <Time>{post.time}</Time>
+            <Nickname>{post.author}</Nickname>
+            <Time>{post.createdAt || post.time || '시간 정보 없음'}</Time>
           </Section>
         </div>
         <DotMenuWrapper>
@@ -151,7 +151,11 @@ export default function PostDetail({
         </DotMenuWrapper>
       </Info>
 
-      {Array.isArray(post?.content) && post.content.map((item, i) => renderContent(item, i))}
+      {Array.isArray(post?.content) ? (
+        post.content.map((item, i) => renderContent(item, i))
+      ) : (
+        <ContentBox>{post.content}</ContentBox>
+      )}
 
       <Reaction>
         <LikeButton onClick={handleLike} $liked={liked} disabled={isProcessing}>

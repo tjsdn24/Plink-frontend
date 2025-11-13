@@ -11,6 +11,12 @@ import Purple from '../../assets/icons/LoginPurple.svg';
 import EyeOpen from '../../assets/icons/EyeOpen.svg';
 import EyeClosed from '../../assets/icons/EyeClosed.svg';
 import { loginUser } from '../../api/authService';
+import {
+  isGuestSession,
+  getStoredNickname,
+  getStoredSlug,
+  getStoredEmail,
+} from '../../utils/guestSession';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -79,12 +85,32 @@ export default function Login() {
   };
 
   const handleGuestLogin = () => {
-    navigate('/festival');
+    navigate('/festival', {
+      state: {
+        guest: true,
+        slug: 'line4thon',
+      },
+    });
   };
 
   const handleSignUp = e => {
     e.preventDefault();
     e.stopPropagation();
+    if (isGuestSession()) {
+      const nickname = getStoredNickname();
+      const slug = getStoredSlug();
+    const email = getStoredEmail();
+
+      navigate('/signup/email', {
+        state: {
+          nickname: nickname || '숨쉬는 고양이',
+          slug,
+          fromGuest: true,
+        email,
+        },
+      });
+      return;
+    }
     navigate('/signup/nickname');
   };
 

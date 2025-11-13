@@ -7,7 +7,9 @@ import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, s, typography } from '../../styles/themeUtils';
+
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
+
 
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
@@ -17,6 +19,7 @@ export default function Chat() {
 
   const slug = 'line4thon';
   const tag = selectedCategory === '전체' ? '' : selectedCategory;
+
 
   useEffect(() => {
     const fetchPosts = async () => {

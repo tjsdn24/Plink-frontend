@@ -12,6 +12,7 @@ import avatar2 from '../../assets/icons/profile/avatar2.svg';
 import avatar3 from '../../assets/icons/profile/avatar3.svg';
 import avatar4 from '../../assets/icons/profile/avatar4.svg';
 import avatar5 from '../../assets/icons/profile/avatar5.svg';
+import { getStoredNickname, getStoredSlug, getStoredEmail } from '../../utils/guestSession';
 
 const avatarPool = [avatar1, avatar2, avatar3, avatar4, avatar5];
 
@@ -29,23 +30,21 @@ const FieldsContainer = styled.div`
 export default function SignUp() {
   const navigate = useNavigate();
   const location = useLocation();
-  const nickname = location.state?.nickname || '숨쉬는 고양이';
+  const fromGuest = location.state?.fromGuest === true;
+  const nicknameFromState = typeof location.state?.nickname === 'string' ? location.state.nickname : '';
+  const nicknameCandidate = nicknameFromState || (fromGuest ? getStoredNickname() : '');
+  const nickname = nicknameCandidate || '숨쉬는 고양이';
   const slugFromState = typeof location.state?.slug === 'string' ? location.state.slug : null;
-  const persistedSlug = (() => {
-    try {
-      return localStorage.getItem('userSlug');
-    } catch {
-      return null;
-    }
-  })();
-  const slug = slugFromState || persistedSlug || 'line4thon';
+  const slug = slugFromState || getStoredSlug('line4thon');
+  const emailFromState = typeof location.state?.email === 'string' ? location.state.email : '';
+  const initialEmail = emailFromState || (fromGuest ? getStoredEmail() : '');
 
   
-  const [formData, setFormData] = useState({
-    email: '',
+  const [formData, setFormData] = useState(() => ({
+    email: initialEmail,
     password: '',
     passwordConfirm: '',
-  });
+  }));
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
@@ -69,6 +68,10 @@ export default function SignUp() {
     formData.password === formData.passwordConfirm;
 
   const handleBack = () => {
+    if (fromGuest) {
+      navigate('/login');
+      return;
+    }
     navigate('/signup/nickname');
   };
 
@@ -86,6 +89,7 @@ export default function SignUp() {
         },
         randomAvatar: getRandomAvatar(),
         slug,
+        fromGuest,
       },
     });
   };

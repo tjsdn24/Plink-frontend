@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import { sanitizeNickname, loadPostsFromStorage, getPostPreview, ensurePostIds } from './activityUtils';
 
-const DEFAULT_SLUG = 'line4thon';
-
 const getStoredValue = key => {
   try {
     const stored = localStorage.getItem(key);

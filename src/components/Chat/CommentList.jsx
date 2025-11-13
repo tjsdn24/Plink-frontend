@@ -23,7 +23,7 @@ export default function CommentList({
   onCommentLike,
   onReport,
   onPollVote,
-  pollVotes, // ← prop 추가
+  pollVotes,
 }) {
   const commentsEndRef = useRef(null);
 
@@ -36,6 +36,12 @@ export default function CommentList({
       scrollToBottom();
     }
   }, [comments]);
+
+  const handleReport = commentId => {
+    if (onReport) {
+      onReport(commentId);
+    }
+  };
 
   return (
     <CommentSection>
@@ -62,7 +68,7 @@ export default function CommentList({
                 <img src={commentLikes[i]?.liked ? ChatLikePink : LikeIcon} alt="like" />
                 {commentLikes[i]?.count || 0}
               </LikeButton>
-              <ReportIconImg src={ReportIcon} alt="report" onClick={onReport} />
+              <ReportIconImg src={ReportIcon} alt="report" onClick={() => handleReport(c.id)} />
               <Time>{c.time2}</Time>
             </CommentFooter>
           </CommentContent>

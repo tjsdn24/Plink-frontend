@@ -8,6 +8,7 @@ import ChatPhoto from '../../assets/icons/ChatPhoto.svg';
 import ChatSend from '../../assets/icons/ChatSend.svg';
 import ChatXButtonGray from '../../assets/icons/ChatXButtonGray.svg';
 import ChatXButtonBlack from '../../assets/icons/ChatXButtonBlack.svg';
+import { createPost } from '../../api/Chat/CommentsApi';
 
 export default function WritePost({ onClose, onAddPost }) {
   const [openCategory, setOpenCategory] = useState(false);
@@ -39,14 +40,14 @@ export default function WritePost({ onClose, onAddPost }) {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!selectedCategory) {
       alert('카테고리를 선택해주세요!');
       return;
     }
 
-    // 입력값이 모두 비었는지 검사
     if (!text.trim() && images.length === 0 && pollOptions.every(opt => !opt.trim())) {
+      alert('내용을 입력해주세요!');
       return;
     }
 
@@ -74,10 +75,20 @@ export default function WritePost({ onClose, onAddPost }) {
       time: '방금 전',
       category: selectedCategory,
     };
-    onAddPost(newPost);
-    onClose();
-  };
 
+    try {
+      // 예: slug가 'community'라면 '/community/posts'로 전송됩니다
+      const response = await createPost('community', newPost);
+      console.log('게시글 등록 성공:', response.data);
+
+      // UI 갱신
+      onAddPost(response.data);
+      onClose();
+    } catch (error) {
+      console.error('게시글 등록 실패:', error);
+      alert('게시글 등록 중 오류가 발생했습니다.');
+    }
+  };
   return (
     <>
       <Overlay onClick={onClose}>

@@ -5,6 +5,7 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
+import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
 import {
   Wrapper,
   Header,
@@ -18,30 +19,90 @@ import {
 export default function Comments() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { post } = state || {};
+  const initialPost = state?.post || null;
   const { slug, postId } = useParams();
 
-  const [comments, setComments] = useState(post?.comments || []);
-  const [newComment, setNewComment] = useState('');
-  const [likes, setLikes] = useState(post?.like || 0);
-  const [liked, setLiked] = useState(false);
-  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [post, setPost] = useState(initialPost);
+  const [loading, setLoading] = useState(!initialPost);
+
+  // 댓글, 좋아요, 투표 상태
+  const [comments, setComments] = useState(initialPost?.comments || []);
+  const [likes, setLikes] = useState(initialPost?.like || 0);
   const [pollVotes, setPollVotes] = useState(null);
   const [commentLikes, setCommentLikes] = useState(
-    comments.map(() => ({ liked: false, count: 0 }))
+    initialPost?.comments?.map(() => ({ liked: false, count: 0 })) || []
   );
 
+  // 추가 상태들
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // 신고 대상 정보
+  const [liked, setLiked] = useState(false);
+  const [newComment, setNewComment] = useState('');
+
   useEffect(() => {
-    if (post?.content) {
+    if (!initialPost) {
+      const fetchPostDetail = async () => {
+        try {
+          setLoading(true);
+          const res = await getPostDetail(slug, postId);
+          console.log('받아온 데이터:', res.data.post);
+          setPost(res.data.post);
+        } catch (error) {
+          console.error('게시글 상세 조회 실패:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchPostDetail();
+    }
+  }, [slug, postId, initialPost]);
+
+  useEffect(() => {
+    console.log('post 상태 변경:', post);
+    setComments(post?.comments || []);
+    setLikes(post?.like || 0);
+    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
+  }, [post]);
+
+  useEffect(() => {
+    setComments(post?.comments || []);
+    setLikes(post?.like || 0);
+    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
+
+    if (Array.isArray(post?.content)) {
       const pollItem = post.content.find(item => item.type === 'poll');
-      if (pollItem?.data) {
-        setPollVotes(pollItem.data.votes || []);
-      }
+      setPollVotes(pollItem?.data?.votes || []);
+    } else {
+      setPollVotes(null);
     }
   }, [post]);
 
-  const openReport = () => setIsReportOpen(true);
-  const closeReport = () => setIsReportOpen(false);
+  if (loading) return <div>로딩 중...</div>;
+  if (!post) return <div>게시글 정보를 불러올 수 없습니다.</div>;
+
+  // 게시글 신고
+  const openPostReport = () => {
+    setReportTarget({
+      targetId: post.id,
+      targetType: 'post',
+    });
+    setIsReportOpen(true);
+  };
+
+  // 댓글 신고
+  const openCommentReport = commentId => {
+    setReportTarget({
+      targetId: commentId,
+      targetType: 'comment',
+      postId: post.id, // 댓글이 속한 게시글 ID
+    });
+    setIsReportOpen(true);
+  };
+
+  const closeReport = () => {
+    setIsReportOpen(false);
+    setReportTarget(null);
+  };
 
   const handleCommentLike = index => {
     setCommentLikes(prev => {
@@ -55,17 +116,38 @@ export default function Comments() {
     });
   };
 
-  const handleAddComment = () => {
+  // 댓글 추가 시 createPost 호출하여 서버에 저장하고 댓글 리스트 갱신
+  const handleAddComment = async () => {
     if (!newComment.trim()) return;
+
     const newEntry = {
       nickname: '나',
       text: newComment,
       time: '방금 전',
       isMine: true,
     };
-    setComments(prev => [...prev, newEntry]);
-    setCommentLikes(prev => [...prev, { liked: false, count: 0 }]);
-    setNewComment('');
+
+    try {
+      // API에 보낼 데이터 형태에 맞게 조정 필요
+      const postData = {
+        ...post,
+        comments: [...comments, newEntry], // 기존 댓글에 새 댓글 추가
+      };
+
+      // createPost 호출 (slug, postData 전달)
+      const response = await createPost(slug, postData);
+
+      // 응답에 새 댓글 포함되어 있다고 가정하고 상태 갱신
+      setComments(response.data.post.comments || []);
+      setCommentLikes(prev => [...prev, { liked: false, count: 0 }]);
+      setNewComment('');
+
+      // 필요 시 post 상태도 업데이트
+      setPost(response.data.post);
+    } catch (error) {
+      console.error('댓글 작성 실패:', error);
+      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleLike = () => {
@@ -81,7 +163,6 @@ export default function Comments() {
     });
   };
 
-  // ✅ 이동 함수는 반드시 컴포넌트 내부에 있어야 함
   const handleEditPost = postId => {
     navigate(`/${slug}/comments/${postId}/edit`, { state: { post } });
   };
@@ -93,10 +174,6 @@ export default function Comments() {
       navigate(-1);
     }
   };
-
-  if (!post) {
-    return <div>게시글 정보를 불러올 수 없습니다. (id: {postId})</div>;
-  }
 
   return (
     <>
@@ -118,13 +195,14 @@ export default function Comments() {
           onPollVote={handlePollVote}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
+          onReport={openPostReport}
         />
 
         <CommentList
           comments={comments}
           commentLikes={commentLikes}
           onCommentLike={handleCommentLike}
-          onReport={openReport}
+          onReport={openCommentReport}
           onPollVote={handlePollVote}
           pollVotes={pollVotes}
         />
@@ -140,7 +218,14 @@ export default function Comments() {
         </CommentInputBox>
       </Wrapper>
 
-      {isReportOpen && <Report onClose={closeReport} />}
+      {isReportOpen && reportTarget && (
+        <Report
+          onClose={closeReport}
+          targetId={reportTarget.targetId}
+          targetType={reportTarget.targetType}
+          postId={reportTarget.postId}
+        />
+      )}
     </>
   );
 }

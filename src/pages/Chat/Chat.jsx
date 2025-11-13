@@ -10,7 +10,6 @@ import { c, s, typography } from '../../styles/themeUtils';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 
-
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
@@ -18,24 +17,39 @@ export default function Chat() {
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const slug = 'line4thon';
-  const tag = selectedCategory === '전체' ? '' : selectedCategory;
-
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         if (searchKeyword.trim()) {
-          const res = await searchPosts(slug, searchKeyword, '');
-          console.log('검색 API 응답:', res.data);
+          // 검색 시 - 카테고리 필터링도 함께 적용
+          const tag = selectedCategory === '전체' ? '' : selectedCategory;
+          console.log('검색 요청:', { slug, keyword: searchKeyword, tag });
+
+          const res = await searchPosts(slug, searchKeyword, tag);
+
+          console.log('검색 API 응답:', res);
+          console.log('검색 API 응답 데이터:', res.data);
+          console.log('검색된 게시글 수:', res.data.posts.length);
+
           setPosts(res.data.posts);
         } else {
-          // 기본 목록
+          // 검색어 없을 때 - 카테고리별 목록
+          const tag = selectedCategory === '전체' ? '' : selectedCategory;
+          console.log('목록 요청:', { slug, tag });
+
           const res = await getPostsByTag(slug, tag);
+
           console.log('목록 API 응답:', res.data);
+          console.log('불러온 게시글 수:', res.data.posts.length);
+
           setPosts(res.data.posts);
         }
       } catch (err) {
-        console.error('게시글 불러오기 실패:', err);
+        console.error('=== 게시글 불러오기 실패 ===');
+        console.error('에러:', err);
+        console.error('에러 응답:', err.response);
+        console.error('에러 데이터:', err.response?.data);
       }
     };
 
@@ -56,6 +70,8 @@ export default function Chat() {
         <SearchBarContainer>
           <SearchBar>
             <SearchInput
+              id="chat-search"
+              name="search"
               type="text"
               value={searchKeyword}
               onChange={handleSearchChange}

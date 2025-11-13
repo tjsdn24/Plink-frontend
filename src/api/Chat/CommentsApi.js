@@ -22,9 +22,13 @@ export const getPostsByTag = (slug, tag) => apiClient.get(`/${slug}/posts?tagId=
 //게시물에 좋아요 누르기
 export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postId}/like`);
 
-//게시글 검색 XX결과값이 없어서 실제 검색이 안됨
-export const searchPosts = (slug, keyword, tag) =>
-  apiClient.get(`/${slug}/posts?keyword=${keyword}&tag=${tag}`);
+//게시글 검색 @완료지만 slug 하드코딩
+export const searchPosts = (slug, keyword, tag) => {
+  const params = { keyword };
+  if (tag) params.tag = tag; // tag가 있을 때만 추가
+
+  return apiClient.get(`/${slug}/posts`, { params });
+};
 
 //---게시글 이미지 관련---
 //게시물 수정하기 - 이미지 삭제

@@ -31,8 +31,8 @@ export default function ChatBox() {
     },
     {
       icon: Menu4,
-      label: '푸드/맛집',
-      onClick: () => navigate('/chat', { state: { category: '푸드/맛집' } }),
+      label: '질문/요청',
+      onClick: () => navigate('/chat', { state: { category: '질문/요청' } }),
     },
   ];
 

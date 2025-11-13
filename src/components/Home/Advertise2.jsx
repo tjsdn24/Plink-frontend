@@ -7,36 +7,39 @@ import { c, s, typography } from '../../styles/themeUtils';
 import Camera from '../../assets/icons/PhotoStart.svg';
 import Purple from '../../assets/icons/HomePurpleEllipse.svg';
 import Pink from '../../assets/icons/HomePinkEllipse.svg';
+import Arrow from '../../assets/icons/HomeVectorPink.svg';
 
 export default function Advertise2() {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/game/play');
+    navigate('/photo');
   };
 
   return (
-    <>
-      <WhiteBox>
-        <Ellipse src={Purple} top="0px" right="0px" />
-        <Ellipse src={Pink} top="0px" left="0px" />
+    <WhiteBox onClick={handleClick}>
+      <Ellipse src={Purple} top="0px" right="0px" />
+      <Ellipse src={Pink} top="0px" left="0px" />
 
-        <Wrapper>
-          <TitleText>
-            추억의 순간을 남기는
-            <br />
-            가장 현명한 방법
-          </TitleText>
+      <Wrapper>
+        <TitleText>
+          추억의 순간을 남기는
+          <br />
+          가장 현명한 방법
+        </TitleText>
+        <GaroWrapper>
           <DescriptText>PLINK 네컷 찍기</DescriptText>
-        </Wrapper>
+          <img src={Arrow} />
+        </GaroWrapper>
+      </Wrapper>
 
-        <MysteryCard src={Camera} />
-      </WhiteBox>
-    </>
+      <MysteryCard src={Camera} />
+    </WhiteBox>
   );
 }
 //광고영역
 const WhiteBox = styled.div`
+  cursor: pointer;
   position: absolute;
   width: 100%;
   height: 120px;
@@ -74,4 +77,10 @@ const Ellipse = styled.img`
   left: ${({ left }) => left || 'auto'};
   right: ${({ right }) => right || 'auto'};
   bottom: ${({ bottom }) => bottom || 'auto'};
+`;
+const GaroWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8.5px;
 `;

@@ -9,9 +9,8 @@ import HotChat from '../Home/HotChat';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-export default function HotBox() {
+export default function HotBox({ popularPosts = [] }) {
   const navigate = useNavigate();
-  const [popularPosts, setPopularPosts] = useState([]);
 
   function timeAgo(dateString) {
     const now = new Date();
@@ -27,20 +26,6 @@ export default function HotBox() {
     if (hour < 24) return `${Math.floor(hour)}시간 전`;
     return `${Math.floor(day)}일 전`;
   }
-
-  async function fetchData() {
-    try {
-      const response = await axios.get('http://15.165.177.229:8080/line4thon/main/popular');
-
-      setPopularPosts(response.data.popularPosts);
-    } catch (error) {
-      console.error('데이터 불러오기 실패:', error);
-    }
-  }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <BoxContainer>

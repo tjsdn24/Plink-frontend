@@ -5,11 +5,12 @@ import styled from 'styled-components';
 import { c, s, typography } from '../../styles/themeUtils';
 
 import Mystery from '../../assets/icons/GameMystery.svg';
+import Arrow from '../../assets/icons/HomeVectorYellow.svg';
 export default function Advertise1() {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/photo');
+    navigate('/game');
   };
   return (
     <>
@@ -17,12 +18,15 @@ export default function Advertise1() {
         <Wrapper>
           <TitleText>행운의 7.77초를 잡아라!</TitleText>
           <DescriptText>이벤트 참여하고 시크릿프레임 받자</DescriptText>
-          <GoText>게임하러 가기</GoText>
+          <GaroWrapper>
+            <GoText>게임하러 가기</GoText>
+            <img src={Arrow} />
+          </GaroWrapper>
         </Wrapper>
 
         <MysteryCard src={Mystery} />
       </WhiteBox>
-      <BackText>
+      <BackText onClick={handleClick}>
         <BackText>
           {'7 7 7 '.repeat(100)} {/* ← 7을 100번 반복 */}
         </BackText>
@@ -65,6 +69,8 @@ const GoText = styled.div`
 `;
 const MysteryCard = styled.img``;
 const BackText = styled.div`
+  cursor: pointer;
+
   position: absolute;
   width: 100%;
   height: 210px;
@@ -73,4 +79,10 @@ const BackText = styled.div`
   color: ${c('neutral.white')};
   opacity: 0.4;
   overflow: hidden;
+`;
+const GaroWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8.5px;
 `;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { c, f, s } from '../../styles/themeUtils';
+import axios from 'axios';
 
 import InfoBar from '../../components/Home/InfoBar';
 import ChatBox from '../../components/Home/ChatBox';
@@ -31,7 +32,10 @@ export default function Home() {
   const [nickname, setNickname] = useState(
     () => localStorage.getItem('nickname') || '숨쉬는 고양이'
   );
+  const [popularPoll, setPopularPoll] = useState([]);
+  const [popularPosts, setPopularPosts] = useState([]);
 
+  //닉네임 갱신
   useEffect(() => {
     const handleProfileUpdate = () => {
       const storedNickname = localStorage.getItem('nickname');
@@ -46,15 +50,46 @@ export default function Home() {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
     };
   }, []);
+  //인기글 api
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  async function fetchData() {
+    try {
+      const response = await axios.get(`${BASE_URL}/line4thon/main/popular`);
+      setPopularPosts(response.data.popularPosts);
+      setPopularPoll(response.data.popularPoll);
+    } catch (error) {
+      console.error('데이터 불러오기 실패:', error);
+    }
+  }
+  useEffect(() => {
+    fetchData();
+  }, []);
+  async function getActiveUsers(slug) {
+    try {
+      const res = await axios.get(`${BASE_URL}/plink/festivals/${slug}/active-users`);
+      return res.data;
+    } catch (err) {
+      console.error('active-users 불러오기 실패:', err);
+      return null;
+    }
+  }
+  useEffect(() => {
+    async function load() {
+      const users = await getActiveUsers('line4thon');
+      console.log(users);
+    }
+    load();
+  }, []);
 
   return (
     <>
       <HomeContainer>
         <InfoBar nickname={nickname} />
         <ChatBox />
-        <VoteBox />
+        <VoteBox popularPoll={popularPoll} />
         <EventBox />
-        <HotBox />
+        <HotBox popularPosts={popularPosts} />
         <CircleImg src={Pink} top="-20px" right="-577px" />
         <CircleImg src={Purple} top="666px" left="-499px" />
         <CircleImg src={Purple} top="800px" right="-577px" />

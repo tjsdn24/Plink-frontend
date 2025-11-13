@@ -16,7 +16,7 @@ export default function HotChat({
     <Container>
       <Profile>
         <img
-          src={defaultProfile}
+          src={image || defaultProfile}
           alt="프로필 이미지"
           onClick={() => navigate('/chat')}
           style={{ cursor: 'pointer' }}

@@ -1,10 +1,21 @@
 import TitleBar from './TitleBar';
 import { BoxContainer } from './BoxContainer';
 import voteIcon from '../../assets/icons/HomeVote.svg';
-import styled from 'styled-components';
-import { c, f, s } from '../../styles/themeUtils';
-import Vote from './VoteChart';
-export default function VoteBox() {
+import VoteChart from './VoteChart';
+
+export default function VoteBox({ popularPoll }) {
+  if (!popularPoll || !popularPoll.poll) return null;
+
+  const poll = popularPoll.poll;
+
+  // VoteChart에 맞게 변환
+  const answers = poll.result.map(opt => ({
+    id: opt.optionId,
+    label: opt.content,
+    percent: opt.voteRate, // ➜ 0~100
+    count: opt.voteCount, // (필요하면 표시 가능)
+  }));
+
   return (
     <BoxContainer>
       <TitleBar
@@ -12,7 +23,14 @@ export default function VoteBox() {
         title="앙케이트"
         description="다른 사람들의 생각이 궁금하다면?"
       />
-      <Vote />
+
+      <VoteChart
+        question={popularPoll.title}
+        answers={answers}
+        hasVoted={popularPoll.hasVoted ?? false}
+        myVote={popularPoll.myVote ?? null}
+        totalVotes={poll.totalVotes}
+      />
     </BoxContainer>
   );
 }

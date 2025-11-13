@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { typography } from '../../styles/themeUtils';
+import { useParams } from 'react-router-dom';
 
 // Confetti 애니메이션
 const fall = keyframes`

@@ -10,16 +10,8 @@ import StickerSelector from '../../components/Photo/StickerSelector';
 export default function PhotoEdit() {
   const location = useLocation();
   const photos = location.state?.photos || [];
-  const {
-    canvasRef,
-    filter,
-    setFilter,
-    frameSrc,
-    setFrameSrc,
-    addSticker,
-    saveMerged,
-    getCanvasFilter,
-  } = usePhotoEdit(photos);
+  const { canvasRef, filter, setFilter, frameSrc, setFrameSrc, saveMerged, getCanvasFilter } =
+    usePhotoEdit(photos);
 
   const [activeTab, setActiveTab] = useState('frame');
 
@@ -29,10 +21,10 @@ export default function PhotoEdit() {
       <PreviewCanvas
         ref={canvasRef}
         width={375}
-        height={420}
+        height={477}
         style={{
           width: '375px',
-          height: '420px',
+          height: '477px',
           filter: filter === 'none' ? 'none' : getCanvasFilter(filter),
         }}
       />
@@ -41,13 +33,9 @@ export default function PhotoEdit() {
       <TabContent>
         {activeTab === 'frame' && <FrameSelector frame={frameSrc} setFrame={setFrameSrc} />}
         {activeTab === 'filter' && <FilterSelector filter={filter} setFilter={setFilter} />}
-        {activeTab === 'sticker' && <StickerSelector addSticker={addSticker} />}
       </TabContent>
       {/* 탭 메뉴 */}
       <TabBar>
-        <TabButton $active={activeTab === 'sticker'} onClick={() => setActiveTab('sticker')}>
-          스티커
-        </TabButton>
         <TabButton $active={activeTab === 'frame'} onClick={() => setActiveTab('frame')}>
           프레임
         </TabButton>
@@ -77,10 +65,9 @@ const Container = styled.div`
 `;
 
 const PreviewCanvas = styled.canvas`
-  height: 425px;
+  height: 477px;
   width: 375px;
   background: #111;
-  border-radius: 12px;
   transition: 0.3s ease;
 `;
 

@@ -4,11 +4,10 @@ export default function usePhotoEdit(photos) {
   const canvasRef = useRef(null);
   const [filter, setFilter] = useState('none');
   const [frameSrc, setFrameSrc] = useState(null);
-  const [stickers, setStickers] = useState([]); // {id, src, x, y, scale, isSelected}
 
   const CANVAS_W = 375;
-  const CANVAS_H = 420;
-  const PHOTO_SIZE = 160;
+  const CANVAS_H = 477;
+  const PHOTO_SIZE = 158;
 
   const getCanvasFilter = f => {
     switch (f) {
@@ -51,20 +50,32 @@ export default function usePhotoEdit(photos) {
       ctx.filter = getCanvasFilter(filter);
 
       // 기본 사진 (2x2, 15px 간격)
+      // 사진 배치 계산
       const gap = 15;
-      const marginX = (CANVAS_W - (PHOTO_SIZE * 2 + gap)) / 2; // 20px
-      const marginY = (CANVAS_H - (PHOTO_SIZE * 2 + gap)) / 2; // 중앙 정렬용
+      const TOP_OFFSET = 80;
 
-      for (let i = 0; i < photos.length; i++) {
+      // 전체 너비 = 사진 2개 + 간격
+      const totalWidth = PHOTO_SIZE * 2 + gap;
+
+      // 가로 중앙 정렬
+      const marginX = (CANVAS_W - totalWidth) / 2;
+
+      // 세로는 위에서부터 70px 고정
+      const marginY = TOP_OFFSET;
+
+      // 4장 그리기
+      for (let i = 0; i < photos.length && i < 4; i++) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.src = photos[i];
         await new Promise(res => (img.onload = res));
 
-        const col = i % 2;
-        const row = Math.floor(i / 2);
+        const col = i % 2; // 0 or 1
+        const row = Math.floor(i / 2); // 0 or 1
+
         const x = marginX + col * (PHOTO_SIZE + gap);
         const y = marginY + row * (PHOTO_SIZE + gap);
+
         ctx.drawImage(img, x, y, PHOTO_SIZE, PHOTO_SIZE);
       }
 
@@ -79,54 +90,10 @@ export default function usePhotoEdit(photos) {
         ctx.drawImage(frame, 0, 0, CANVAS_W, CANVAS_H);
         ctx.globalCompositeOperation = 'source-over';
       }
-
-      // 스티커
-      for (const s of stickers) {
-        const sticker = new Image();
-        sticker.crossOrigin = 'anonymous';
-        sticker.src = s.src;
-        await new Promise(res => (sticker.onload = res));
-        const size = 100 * s.scale;
-        ctx.drawImage(sticker, s.x, s.y, size, size);
-
-        if (s.isSelected) {
-          ctx.strokeStyle = '#ff5fa2';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(s.x - 2, s.y - 2, size + 4, size + 4);
-        }
-      }
     };
 
     drawAll();
-  }, [photos, filter, frameSrc, stickers]);
-
-  /* ---------------- 스티커 조작 ---------------- */
-  const addSticker = src => {
-    setStickers(prev => [
-      ...prev,
-      { id: Date.now(), src, x: 200, y: 300, scale: 1, isSelected: false },
-    ]);
-  };
-
-  const selectSticker = (x, y) => {
-    setStickers(prev =>
-      prev.map(s => {
-        const size = 100 * s.scale;
-        const clicked = x >= s.x && x <= s.x + size && y >= s.y && y <= s.y + size;
-        return { ...s, isSelected: clicked };
-      })
-    );
-  };
-
-  const moveSticker = (dx, dy) => {
-    setStickers(prev => prev.map(s => (s.isSelected ? { ...s, x: s.x + dx, y: s.y + dy } : s)));
-  };
-
-  const scaleSticker = delta => {
-    setStickers(prev =>
-      prev.map(s => (s.isSelected ? { ...s, scale: Math.max(0.3, s.scale + delta * 0.01) } : s))
-    );
-  };
+  }, [photos, filter, frameSrc]);
 
   /* ---------------- 저장 ---------------- */
   const saveMerged = () => {
@@ -143,12 +110,7 @@ export default function usePhotoEdit(photos) {
     setFilter,
     frameSrc,
     setFrameSrc,
-    stickers,
-    addSticker,
     saveMerged,
     getCanvasFilter,
-    selectSticker,
-    moveSticker,
-    scaleSticker,
   };
 }

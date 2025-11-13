@@ -41,8 +41,8 @@ export async function logoutUser({ email, password }) {
 
 export async function createGuestAccount({ nickname, slug, profileImageFile }) {
   const formData = new FormData();
-  const payload = { nickname, slug };
-  formData.append('data', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+  formData.append('nickname', nickname);
+  formData.append('slug', slug);
 
   if (profileImageFile instanceof File) {
     formData.append('profileImage', profileImageFile);

@@ -96,7 +96,7 @@ const LocationInfoItem = styled(InfoItem)`
   }
 `;
 
-export default function FestivalCard({ festival, disabled }) {
+export default function FestivalCard({ festival, disabled, guestMode = false, guestSlug }) {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -110,7 +110,11 @@ export default function FestivalCard({ festival, disabled }) {
         navigate('/');
       } else {
         // 처음 보는 축제면 환영 페이지로 이동
-        navigate('/welcome', { state: { festival } });
+        const targetSlug = guestSlug || 'line4thon';
+        const welcomeState = guestMode
+          ? { festival, guest: true, slug: targetSlug }
+          : { festival };
+        navigate('/welcome', { state: welcomeState });
       }
     }
   };

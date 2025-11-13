@@ -122,10 +122,31 @@ export default function Festival() {
   const location = useLocation();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [guestMode, setGuestMode] = useState(() => {
+    if (location.state?.guest === true) {
+      return true;
+    }
+    return localStorage.getItem('isGuest') === 'true';
+  });
+  const [guestSlug, setGuestSlug] = useState(() => {
+    if (location.state?.slug) {
+      return location.state.slug;
+    }
+    return localStorage.getItem('userSlug') || 'line4thon';
+  });
   const [sortOrder, setSortOrder] = useState(() => {
     // location state에서 가져오거나 localStorage에서 가져오기
     return location.state?.sortOrder || localStorage.getItem('festivalSortOrder') || 'latest';
   });
+
+  useEffect(() => {
+    if (location.state?.guest === true && !guestMode) {
+      setGuestMode(true);
+    }
+    if (location.state?.slug) {
+      setGuestSlug(location.state.slug);
+    }
+  }, [location.state, guestMode]);
 
   // location state가 변경되면 sortOrder 업데이트
   useEffect(() => {
@@ -178,7 +199,12 @@ export default function Festival() {
 
         <FestivalList>
           {festivals.map(festival => (
-            <FestivalCard key={festival.id} festival={festival} />
+            <FestivalCard
+              key={festival.id}
+              festival={festival}
+              guestMode={guestMode}
+              guestSlug={guestSlug}
+            />
           ))}
         </FestivalList>
       </PageContainer>

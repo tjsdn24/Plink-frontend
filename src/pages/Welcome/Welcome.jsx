@@ -10,6 +10,36 @@ import Firework from './Firework';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import ChatArrowIcon from '../../assets/icons/ChatArrowDown.svg';
 import FestivalImage from '../../assets/images/4호선톤.webp';
+import { createGuestAccount } from '../../api/authService';
+import avatar1 from '../../assets/icons/profile/avatar1.svg';
+import avatar2 from '../../assets/icons/profile/avatar2.svg';
+import avatar3 from '../../assets/icons/profile/avatar3.svg';
+import avatar4 from '../../assets/icons/profile/avatar4.svg';
+import avatar5 from '../../assets/icons/profile/avatar5.svg';
+
+const DEFAULT_SLUG = 'line4thon';
+
+const avatarPool = [avatar1, avatar2, avatar3, avatar4, avatar5];
+
+const getRandomAvatarSrc = () => {
+  const randomIndex = Math.floor(Math.random() * avatarPool.length);
+  return avatarPool[randomIndex];
+};
+
+const createFileFromAsset = async assetUrl => {
+  if (!assetUrl) return null;
+  try {
+    const response = await fetch(assetUrl);
+    const blob = await response.blob();
+    const extension = assetUrl.split('.').pop()?.split('?')[0] || 'svg';
+    const fileName = `guest-avatar-${Date.now()}.${extension}`;
+    const type = blob.type || `image/${extension}`;
+    return new File([blob], fileName, { type });
+  } catch (error) {
+    console.error('게스트 아바타 파일 생성 실패', error);
+    return null;
+  }
+};
 
 // 랜덤 닉네임 생성 함수
 const generateRandomNickname = () => {
@@ -91,6 +121,9 @@ export default function Welcome() {
   });
   const slotItemRef = useRef(null);
   const stopTimeoutRef = useRef(null);
+
+  const guestMode = location.state?.guest === true;
+  const guestSlug = location.state?.slug || DEFAULT_SLUG;
 
   const festival = location.state?.festival || {
     id: 1,
@@ -180,7 +213,7 @@ export default function Welcome() {
     changeSlotSpeed(2200, 0.6); // 속도 줄이기 3
     changeSlotSpeed(3200, 1.2); // 속도 줄이기 4
 
-    stopTimeoutRef.current = setTimeout(() => {
+    stopTimeoutRef.current = setTimeout(async () => {
       // 최종 닉네임 인덱스로 이동
       const finalIndex = pool.length - 1;
       setCurrentIndex(finalIndex);
@@ -196,9 +229,66 @@ export default function Welcome() {
 
       // 최종 닉네임 선택
       setFinalNickname(finalNickname);
+      let resolvedNickname = finalNickname;
+      let resolvedProfileImageUrl = null;
+      let avatarSrc = null;
 
-      // 닉네임을 localStorage에 저장
-      localStorage.setItem('nickname', finalNickname);
+      if (guestMode) {
+        try {
+          avatarSrc = getRandomAvatarSrc();
+          const avatarFile = await createFileFromAsset(avatarSrc);
+          const guestResponse = await createGuestAccount({
+            nickname: finalNickname,
+            slug: guestSlug,
+            profileImageFile: avatarFile,
+          });
+
+          resolvedNickname = finalNickname;
+          resolvedProfileImageUrl = guestResponse?.profileImageUrl || avatarSrc || null;
+
+          const guestEmail = guestResponse?.email || `guest-${Date.now()}`;
+          const guestRole = guestResponse?.role || 'GUEST';
+          const guestSlugValue = guestSlug;
+
+          localStorage.setItem('userId', guestEmail);
+          localStorage.setItem('nickname', resolvedNickname);
+          if (resolvedProfileImageUrl) {
+            localStorage.setItem('userProfileImage', resolvedProfileImageUrl);
+          } else {
+            localStorage.removeItem('userProfileImage');
+          }
+          localStorage.setItem('userRole', guestRole);
+          localStorage.setItem('userSlug', guestSlugValue);
+          localStorage.setItem('isGuest', 'true');
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('userPassword');
+        } catch (error) {
+          console.error('게스트 로그인 실패', error);
+          localStorage.setItem('nickname', finalNickname);
+          if (avatarSrc) {
+            resolvedProfileImageUrl = avatarSrc;
+            localStorage.setItem('userProfileImage', avatarSrc);
+          } else {
+            localStorage.removeItem('userProfileImage');
+          }
+          localStorage.setItem('userRole', 'GUEST');
+          localStorage.setItem('userSlug', guestSlug);
+          localStorage.setItem('userId', `guest-${Date.now()}`);
+          localStorage.setItem('isGuest', 'true');
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('userPassword');
+        }
+      } else {
+        localStorage.setItem('nickname', finalNickname);
+      }
+
+      setFinalNickname(resolvedNickname);
+
+      if (!resolvedProfileImageUrl && !guestMode) {
+        localStorage.removeItem('userProfileImage');
+      } else if (resolvedProfileImageUrl) {
+        localStorage.setItem('userProfileImage', resolvedProfileImageUrl);
+      }
 
       // 환영 페이지를 본 것으로 기록
       const welcomedFestivals = JSON.parse(localStorage.getItem('welcomedFestivals') || '[]');
@@ -210,7 +300,7 @@ export default function Welcome() {
       // 폭죽 효과 시작
       setShowFirework(true);
 
-      // 4초 후 홈으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
+      // 4초 후 홈 또는 축제 목록으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
       setTimeout(() => {
         navigate('/');
       }, 4000);

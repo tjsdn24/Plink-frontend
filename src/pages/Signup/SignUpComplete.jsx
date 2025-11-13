@@ -56,6 +56,7 @@ export default function SignUpComplete() {
   const location = useLocation();
   const routeState = location.state ?? {};
 
+  const fromGuest = routeState.fromGuest === true;
   const nickname = routeState.nickname || '숨쉬는 고양이';
   const randomAvatar = routeState.randomAvatar || '';
   const slug = routeState.slug || 'line4thon';
@@ -122,8 +123,13 @@ export default function SignUpComplete() {
         localStorage.setItem('userProfileImage', profileImageUrl);
       }
 
-      const role = signupResponse?.role || 'USER';
-      localStorage.setItem('userRole', role);
+      const responseRole = signupResponse?.role;
+      const resolvedRole = fromGuest ? 'USER' : responseRole || 'USER';
+      localStorage.setItem('userRole', resolvedRole);
+
+      if (fromGuest) {
+        localStorage.removeItem('isGuest');
+      }
 
       const slugToPersist = signupResponse?.slug || slug || '';
       localStorage.setItem('userSlug', slugToPersist);

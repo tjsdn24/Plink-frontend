@@ -5,8 +5,11 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
-import { getPostDetail, createComment } from '../../api/Chat/CommentsApi';
-import { canWritePost } from '../../utils/guestSession';
+import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
+import { likePost } from '../../api/Chat/CommentsApi';
+
+import { canWritePost } from '../../utils/guestSession'; // 
+
 import {
   Wrapper,
   Header,
@@ -41,7 +44,7 @@ export default function Comments() {
 
   // 댓글, 좋아요, 투표 상태
   const [comments, setComments] = useState(initialPost?.comments || []);
-  const [likes, setLikes] = useState(initialPost?.like || 0);
+  const [likes, setLikes] = useState(initialPost?.likeCount || 0);
   const [pollVotes, setPollVotes] = useState(null);
   const [commentLikes, setCommentLikes] = useState(
     initialPost?.comments?.map(() => ({ liked: false, count: 0 })) || []
@@ -50,7 +53,7 @@ export default function Comments() {
   // 추가 상태들
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null); // 신고 대상 정보
-  const [liked, setLiked] = useState(false);
+
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
@@ -74,15 +77,11 @@ export default function Comments() {
   useEffect(() => {
     console.log('post 상태 변경:', post);
     setComments(post?.comments || []);
-    setLikes(post?.like || 0);
+    setLikes(post?.likeCount ?? 0);
     setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
   }, [post]);
 
   useEffect(() => {
-    setComments(post?.comments || []);
-    setLikes(post?.like || 0);
-    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
-
     if (Array.isArray(post?.content)) {
       const pollItem = post.content.find(item => item.type === 'poll');
       setPollVotes(pollItem?.data?.votes || []);
@@ -179,9 +178,22 @@ export default function Comments() {
     }
   };
 
-  const handleLike = () => {
-    setLikes(prev => (liked ? prev - 1 : prev + 1));
-    setLiked(!liked);
+  const handleLike = async () => {
+    try {
+      setLoading(true);
+
+      await likePost(slug, postId);
+
+      const res = await getPostDetail(slug, postId);
+
+      console.log('detailRes:', res.data);
+
+      setPost(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePollVote = (pollData, optionIndex) => {
@@ -217,7 +229,7 @@ export default function Comments() {
         <PostDetail
           post={post}
           likes={likes}
-          liked={liked}
+          liked={post.liked}
           commentsCount={comments.length}
           pollVotes={pollVotes}
           onLike={handleLike}

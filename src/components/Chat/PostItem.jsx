@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
-import LikeIcon from '../../assets/icons/ChatLike.svg';
-import ChatLikePink from '../../assets/icons/ChatLikePink.svg';
+import LikeButton from '../Chat/LikeButton';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import PostContent from './PostContent';
 import PostPollDetail from './PostPollDetail';
@@ -13,35 +11,12 @@ import {
   ContentAndEtcWrapper,
   ContentWrapper,
   Etc,
-  Like,
   Comment,
   ReactionIcon,
   Time,
 } from './Post.styles';
 
 export default function PostItem({ post, onCommentClick, highlightKeyword, onLike, onPollVote }) {
-  const [liked, setLiked] = useState(post.liked || false);
-  const [likesCount, setLikesCount] = useState(post.likeCount || 0);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleLike = async () => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    const newLiked = !liked;
-    setLiked(newLiked);
-    setLikesCount(prev => (newLiked ? prev + 1 : prev - 1));
-
-    try {
-      if (onLike) await onLike(post.id, newLiked);
-    } catch (error) {
-      console.error('좋아요 반영 실패:', error);
-      setLiked(!newLiked);
-      setLikesCount(prev => (newLiked ? prev - 1 : prev + 1));
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   // poll 데이터를 PostPollDetail에 맞게 변환
   const transformedPollData = post.poll
     ? {
@@ -81,10 +56,12 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onLik
           </ContentWrapper>
 
           <Etc>
-            <Like onClick={handleLike} disabled={isProcessing}>
-              <ReactionIcon src={liked ? ChatLikePink : LikeIcon} alt="like" />
-              {likesCount}
-            </Like>
+            {/* ❤️ 공통 LikeButton 사용 */}
+            <LikeButton
+              liked={post.liked}
+              count={post.likeCount}
+              onToggle={() => onLike && onLike(post.id)}
+            />
 
             <Comment onClick={onCommentClick}>
               <ReactionIcon src={CommentIcon} alt="comment" />

@@ -18,8 +18,22 @@ import {
 export default function Comments() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { post } = state || {};
-  const { postId } = useParams();
+  const initialPost = state?.post || null;
+
+  const params = useParams();
+  let rawSlug = params.slug;
+
+  // slug 정제
+  let slug = rawSlug;
+  if (slug?.startsWith('?')) {
+    slug = slug.substring(1);
+  }
+  if (!slug || slug === 'undefined') {
+    slug = 'line4thon';
+  }
+
+  const postId = params.postId;
+
 
   console.log('post 데이터:', post);
   console.log('post.content:', post?.content);

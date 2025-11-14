@@ -82,7 +82,8 @@ export default function Router() {
           }
         />
         {/*채팅 상세 페이지 */}
-        <Route path="/chat/:postId" element={<Comments />} />
+        <Route path="/chat/:slug/post/:postId" element={<Comments />} />
+        <Route path="/chat/post/:postId" element={<Comments />} />
 
         {/* 게임 관련 페이지 (Header + Navbar 유지) */}
         <Route

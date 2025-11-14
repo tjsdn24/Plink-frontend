@@ -39,6 +39,7 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "vite": "^7.1.7",
+    "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-svgr": "^4.5.0"
   }
 }

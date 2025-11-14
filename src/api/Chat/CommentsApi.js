@@ -1,8 +1,11 @@
 import apiClient from '../axios';
 
 //---게시글 관련---
-//일반 게시글 작성하기 XX403떠서 일단 멈춤
-export const createPost = (slug, data) => apiClient.post(`/${slug}/posts`, data);
+//일반 게시글 작성하기 XX완료인데 글저장이 안됨
+export const createPost = (slug, data, config = {}) =>
+  apiClient.post(`/${slug}/posts`, data, {
+    ...config,
+  });
 
 //앙케이스 생성하기
 export const createPoll = (slug, data) => apiClient.post(`/${slug}/posts`, data);
@@ -13,11 +16,20 @@ export const updatePost = (slug, postId, data) => apiClient.patch(`/${slug}/post
 //게시글 삭제하기
 export const deletePost = (slug, postId) => apiClient.delete(`/${slug}/posts/${postId}`);
 
-//게시글 상세 조회하기 @완료햇는데 나중에 Time 필터링 해야할듯
-export const getPostDetail = (slug, postId) => apiClient.get(`/${slug}/posts/${postId}`);
+//게시글 상세 조회하기 @완료 - 시간되면 time 필터링
+export const getPostDetail = (slug, postId) => {
+  const url = slug ? `/${slug}/posts/${postId}` : `/posts/${postId}`;
 
-//게시판마다 게시글 조회하기 @일단은 된듯 투표랑 빨간줄 문제 잇음 slug 하드코딩 해결필요
-export const getPostsByTag = (slug, tag) => apiClient.get(`/${slug}/posts?tagId=${tag}`);
+  return apiClient.get(url);
+};
+
+//게시판마다 게시글 조회하기 @완료
+export const getPostsByTag = (slug, tag) => {
+  const params = {};
+  if (tag) params.tagId = tag; // 태그 있을 때만
+
+  return apiClient.get(`/${slug}/posts`, { params });
+};
 
 //게시물에 좋아요 누르기
 export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postId}/like`);

@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ContentRow, ContentBox, ImagesWrapper, PostImage, Highlight } from './Post.styles';
 
 export default function PostContent({ contentItem, highlightKeyword, post }) {
   const navigate = useNavigate();
-  //const { slug } = useParams();
+  const { slug } = useParams(); // URL에서 slug 자동 추출
 
   const normalizedKeyword = highlightKeyword.trim().toLowerCase();
   const hasKeyword = normalizedKeyword.length > 0;
@@ -26,8 +26,15 @@ export default function PostContent({ contentItem, highlightKeyword, post }) {
 
   const handleCommentClick = () => {
     if (contentItem.type === 'text') {
-      navigate(`${post.id}`, { state: { post } });
-      // navigate(`/${slug}/comments/${post.id}`, { state: { post } });
+      if (slug) {
+        navigate(`/chat/${slug}/post/${post.id}`, {
+          state: { post },
+        });
+      } else {
+        navigate(`/chat/post/${post.id}`, {
+          state: { post },
+        });
+      }
     }
   };
 
@@ -35,8 +42,6 @@ export default function PostContent({ contentItem, highlightKeyword, post }) {
     return (
       <ContentRow onClick={handleCommentClick}>
         <ContentBox>{highlight(contentItem.data)}</ContentBox>
-        {/*<ReportButton src={ReportIcon} alt="report" onClick={onReportClick} />
-         */}
       </ContentRow>
     );
 

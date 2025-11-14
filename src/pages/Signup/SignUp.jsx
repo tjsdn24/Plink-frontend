@@ -21,6 +21,23 @@ const getRandomAvatar = () => {
   return avatarPool[randomIndex];
 };
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
+
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -95,43 +112,45 @@ export default function SignUp() {
   };
 
   return (
-    <div>
-      <PageHeader title="회원가입" onBack={handleBack} />
-      <SignUpTitle userName={nickname} />
-      <FieldsContainer>
-        <TextField
-          name="email"
-          placeholder="이메일 입력"
-          helperText="이메일을 입력해주세요."
-          value={formData.email}
-          onChange={handleChange}
-        />
-        <TextField
-          name="password"
-          placeholder="비밀번호 입력"
-          helperText="비밀번호를 입력해주세요."
-          value={formData.password}
-          onChange={handleChange}
-          type={showPassword ? 'text' : 'password'}
-          icon={showPassword ? EyeOpen : EyeClosed}
-          onIconClick={() => setShowPassword(prev => !prev)}
-        />
-        <TextField
-          name="passwordConfirm"
-          placeholder="비밀번호 확인"
-          helperText={
-            passwordMismatch
-              ? '비밀번호가 일치하지 않습니다.'
-              : '영문/숫자/특수문자로 8자 이상 적어주세요.'
-          }
-          value={formData.passwordConfirm}
-          onChange={handleChange}
-          type={showPasswordConfirm ? 'text' : 'password'}
-          icon={showPasswordConfirm ? EyeOpen : EyeClosed}
-          onIconClick={() => setShowPasswordConfirm(prev => !prev)}
-        />
-      </FieldsContainer>
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="회원가입" onBack={handleBack} />
+        <SignUpTitle userName={nickname} />
+        <FieldsContainer>
+          <TextField
+            name="email"
+            placeholder="이메일 입력"
+            helperText="이메일 주소를 입력해주세요."
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <TextField
+            name="password"
+            placeholder="비밀번호 입력"
+            helperText="영문/숫자/특수문자로 8자 이상 적어주세요."
+            value={formData.password}
+            onChange={handleChange}
+            type={showPassword ? 'text' : 'password'}
+            icon={showPassword ? EyeOpen : EyeClosed}
+            onIconClick={() => setShowPassword(prev => !prev)}
+          />
+          <TextField
+            name="passwordConfirm"
+            placeholder="비밀번호 확인"
+            helperText={
+              passwordMismatch
+                ? '비밀번호가 일치하지 않습니다.'
+                : '비밀번호를 다시 입력해주세요.'
+            }
+            value={formData.passwordConfirm}
+            onChange={handleChange}
+            type={showPasswordConfirm ? 'text' : 'password'}
+            icon={showPasswordConfirm ? EyeOpen : EyeClosed}
+            onIconClick={() => setShowPasswordConfirm(prev => !prev)}
+          />
+        </FieldsContainer>
+      </ContentWrapper>
       <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>가입하기</NavButton>
-    </div>
+    </Container>
   );
 }

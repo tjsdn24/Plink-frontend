@@ -6,6 +6,23 @@ import TextField from '../../components/Signup/TextField';
 import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
+
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -48,32 +65,34 @@ export default function NewPassword() {
   };
 
   return (
-    <div>
-      <PageHeader title="비밀번호 찾기" onBack={handleBack} />
-      <SignUpTitle title={
-          <>
-            새로 사용할<br />
-            비밀번호를 입력해주세요.
-          </>
-        }
-      />
-      <FieldsContainer>
-        <TextField
-          name="newPassword"
-          placeholder="새 비밀번호"
-          helperText="영문/숫자/특수문자로 8자 이상 작성해주세요."
-          value={formData.newPassword}
-          onChange={handleChange}
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="비밀번호 찾기" onBack={handleBack} />
+        <SignUpTitle title={
+            <>
+              새로 사용할<br />
+              비밀번호를 입력해주세요.
+            </>
+          }
         />
-        <TextField
-          name="newPasswordConfirm"
-          placeholder="새 비밀번호 확인"
-          helperText="새 비밀번호로 다시 입력해주세요."
-          value={formData.newPasswordConfirm}
-          onChange={handleChange}
-        />
-      </FieldsContainer>
+        <FieldsContainer>
+          <TextField
+            name="newPassword"
+            placeholder="새 비밀번호"
+            helperText="영문/숫자/특수문자로 8자 이상 작성해주세요."
+            value={formData.newPassword}
+            onChange={handleChange}
+          />
+          <TextField
+            name="newPasswordConfirm"
+            placeholder="새 비밀번호 확인"
+            helperText="새 비밀번호로 다시 입력해주세요."
+            value={formData.newPasswordConfirm}
+            onChange={handleChange}
+          />
+        </FieldsContainer>
+      </ContentWrapper>
       <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>변경하기</NavButton>
-    </div>
+    </Container>
   );
 }

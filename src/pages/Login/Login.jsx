@@ -17,6 +17,7 @@ export default function Login() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const loginButtonRef = useRef(null);
+  const navButtonRef = useRef(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -24,6 +25,7 @@ export default function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -121,8 +123,22 @@ export default function Login() {
     navigate('/signup/password');
   };
 
-  // 입력 필드 포커스 시 스크롤 조정
+  // 키보드 높이 감지 및 버튼 위치 조정
   useEffect(() => {
+    const handleResize = () => {
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      const keyboardHeight = windowHeight - viewportHeight;
+      
+      if (keyboardHeight > 0) {
+        // 키보드가 올라온 경우
+        setKeyboardHeight(keyboardHeight);
+      } else {
+        // 키보드가 내려간 경우
+        setKeyboardHeight(0);
+      }
+    };
+
     const handleFocus = () => {
       // 키보드가 올라올 때를 대비해 약간의 지연 후 스크롤
       setTimeout(() => {
@@ -133,25 +149,48 @@ export default function Login() {
             inline: 'nearest'
           });
         }
+        handleResize();
       }, 300);
     };
+
+    const handleBlur = () => {
+      setTimeout(() => {
+        handleResize();
+      }, 300);
+    };
+
+    // Visual Viewport API 사용 (모바일 브라우저)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
 
     const emailInput = document.querySelector('input[name="email"]');
     const passwordInput = document.querySelector('input[name="password"]');
 
     if (emailInput) {
       emailInput.addEventListener('focus', handleFocus);
+      emailInput.addEventListener('blur', handleBlur);
     }
     if (passwordInput) {
       passwordInput.addEventListener('focus', handleFocus);
+      passwordInput.addEventListener('blur', handleBlur);
     }
 
     return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
       if (emailInput) {
         emailInput.removeEventListener('focus', handleFocus);
+        emailInput.removeEventListener('blur', handleBlur);
       }
       if (passwordInput) {
         passwordInput.removeEventListener('focus', handleFocus);
+        passwordInput.removeEventListener('blur', handleBlur);
       }
     };
   }, []);
@@ -166,23 +205,27 @@ export default function Login() {
           <LoginTitle>PLINK에 오신 것을 환영합니다!</LoginTitle>
         </LoginTitleContainer>
         <FieldsContainer>
-          <TextField
-            name="email"
-            placeholder="이메일"
-            value={formData.email}
-            onChange={handleChange}
-            type="email"
-          />
-          <TextField
-            name="password"
-            placeholder="비밀번호"
-            value={formData.password}
-            onChange={handleChange}
-            type={showPassword ? 'text' : 'password'}
-            icon={showPassword ? EyeOpen : EyeClosed}
-            onIconClick={() => setShowPassword(prev => !prev)}
-            helperText={errorMessage || undefined}
-          />
+          <TextFieldWrapper>
+            <TextField
+              name="email"
+              placeholder="이메일"
+              value={formData.email}
+              onChange={handleChange}
+              type="email"
+            />
+          </TextFieldWrapper>
+          <TextFieldWrapper>
+            <TextField
+              name="password"
+              placeholder="비밀번호"
+              value={formData.password}
+              onChange={handleChange}
+              type={showPassword ? 'text' : 'password'}
+              icon={showPassword ? EyeOpen : EyeClosed}
+              onIconClick={() => setShowPassword(prev => !prev)}
+              helperText={errorMessage || undefined}
+            />
+          </TextFieldWrapper>
         </FieldsContainer>
         <LoginButtonContainer ref={loginButtonRef}>
           <LoginButton
@@ -201,7 +244,7 @@ export default function Login() {
         <CircleImg src={Purple} bottom="-340px" right="10px" />
         <CircleImg src={Pink} bottom="-320px" left="130px" />
       </ContentWrapper>
-      <LoginNavButton $isRelative onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
+      <LoginNavButton ref={navButtonRef} $keyboardHeight={keyboardHeight} onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
     </Container>
   );
 }
@@ -281,6 +324,14 @@ const FieldsContainer = styled.div`
   width: 100%;
   flex-shrink: 0;
   min-height: fit-content;
+`;
+
+const TextFieldWrapper = styled.div`
+  width: 100%;
+  
+  > div {
+    padding: 0 !important;
+  }
 `;
 
 const LoginButtonContainer = styled.div`

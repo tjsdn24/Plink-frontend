@@ -6,6 +6,23 @@ import PageHeader from '../../components/PageHeader';
 import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
+
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -152,37 +169,39 @@ export default function Auth() {
   };
 
   return (
-    <div>
-      <PageHeader title="비밀번호 찾기" onBack={handleBack} />
-      <SignUpTitle 
-        title={
-          <>
-            이메일로 전송된<br />
-            인증번호를 입력해주세요.
-          </>
-        }
-      />
-      <FieldsContainer>
-        <AuthInputWrapper>
-          <AuthInputContainer>
-            <AuthInput
-              name="auth"
-              placeholder="인증번호 6자리"
-              value={formData.auth}
-              onChange={handleChange}
-              maxLength={6}
-              type="text"
-              inputMode="numeric"
-            />
-            {timeLeft > 0 && <Timer>{formatTime(timeLeft)}</Timer>}
-          </AuthInputContainer>
-          {email && (
-            <HelperText>{`"${email}으로 인증번호를 보냈습니다."`}</HelperText>
-          )}
-          <ResendLink onClick={handleResend}>인증번호 재전송</ResendLink>
-        </AuthInputWrapper>
-      </FieldsContainer>
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="비밀번호 찾기" onBack={handleBack} />
+        <SignUpTitle 
+          title={
+            <>
+              이메일로 전송된<br />
+              인증번호를 입력해주세요.
+            </>
+          }
+        />
+        <FieldsContainer>
+          <AuthInputWrapper>
+            <AuthInputContainer>
+              <AuthInput
+                name="auth"
+                placeholder="인증번호 6자리"
+                value={formData.auth}
+                onChange={handleChange}
+                maxLength={6}
+                type="text"
+                inputMode="numeric"
+              />
+              {timeLeft > 0 && <Timer>{formatTime(timeLeft)}</Timer>}
+            </AuthInputContainer>
+            {email && (
+              <HelperText>{`"${email}으로 인증번호를 보냈습니다."`}</HelperText>
+            )}
+            <ResendLink onClick={handleResend}>인증번호 재전송</ResendLink>
+          </AuthInputWrapper>
+        </FieldsContainer>
+      </ContentWrapper>
       <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>인증하기</NavButton>
-    </div>
+    </Container>
   );
 }

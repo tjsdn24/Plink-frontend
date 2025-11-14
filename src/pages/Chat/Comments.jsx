@@ -5,7 +5,7 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
-import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
+import { getPostDetail, createComment } from '../../api/Chat/CommentsApi';
 import { likePost } from '../../api/Chat/CommentsApi';
 
 import { canWritePost } from '../../utils/guestSession'; // 

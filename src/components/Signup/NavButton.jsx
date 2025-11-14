@@ -9,6 +9,7 @@ const ButtonWrapper = styled.div`
   padding: 0 16px;
   width: 100%;
   box-sizing: border-box;
+  z-index: 1000;
 `;
 
 const Button = styled.button`

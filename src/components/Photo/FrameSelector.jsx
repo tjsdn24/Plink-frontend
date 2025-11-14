@@ -7,15 +7,7 @@ import frame5 from '../../assets/frames/frame5.svg';
 import frame6 from '../../assets/frames/frame6.svg';
 import frame7 from '../../assets/frames/frame7.svg';
 export default function FrameSelector({ frame, setFrame, hasSecretFrame }) {
-  const frames = [
-    frame1,
-    hasSecretFrame ? frame2 : null, // 해금됐을 때만 추가
-    frame3,
-    frame4,
-    frame5,
-    frame6,
-    frame7,
-  ].filter(Boolean); // null 제거
+  const frames = [frame1, frame2, frame3, frame4, frame5, frame6, frame7].filter(Boolean); // null 제거
 
   return <ItemSelector items={frames} selected={frame} onSelect={setFrame} />;
 }

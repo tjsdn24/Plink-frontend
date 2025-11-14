@@ -163,7 +163,7 @@ export default function Festival() {
       name: '4호선톤',
       hashtags: '#해커톤 #멋사',
       date: '2025.11.15',
-      location: '국민대학교',
+      location: '서경대학교',
       image: FestivalImage,
       dday: 'D-DAY',
     },

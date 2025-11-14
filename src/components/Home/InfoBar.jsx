@@ -2,10 +2,9 @@ import firework from '../../assets/images/HomeFirework.webp';
 import locationicon from '../../assets/icons/HomeLocation.svg';
 import calendaricon from '../../assets/icons/HomeCalendar.svg';
 import usersIcon from '../../assets/icons/HomeUsers.svg';
-import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components';
-import { c, s, typography } from '../../styles/themeUtils';
+import { c, typography } from '../../styles/themeUtils';
 
 const InfoBarContainer = styled.div`
   width: 100%;
@@ -63,9 +62,9 @@ const SmallPinkText = styled.span`
 export default function InfoBar({
   nickname = '숨쉬는 고양이',
   festivalname = '축제',
-  location = '국민대학교',
+  location = '서경대학교',
   date = '2025.11.15',
-  usernum = { usernum },
+  usernum = 0,
 }) {
   return (
     <InfoBarContainer>

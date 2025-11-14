@@ -48,6 +48,21 @@ export default function PostDetail({
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  /** 🔥 투표 데이터 변환 로직 */
+  const transformedPollData = post.poll
+    ? {
+        id: post.poll.pollId,
+        options: post.poll.result.map(item => ({
+          id: item.optionId,
+          text: item.content,
+          voteCount: item.voteCount,
+        })),
+        votes: post.poll.result.map(item => item.voteCount),
+        totalVotes: post.poll.totalVotes,
+      }
+    : null;
+
+  /** ❤️ 좋아요 처리 */
   const handleLike = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -67,26 +82,31 @@ export default function PostDetail({
     }
   };
 
+  /** 🗳 투표 클릭 처리 */
   const handleVote = (pollData, index) => {
     setSelectedIndex(index);
     if (onPollVote) onPollVote(pollData, index);
   };
 
+  /** ✏ 수정 */
   const handleEdit = () => {
     setMenuOpen(false);
     if (onEdit) onEdit(post.id);
   };
 
+  /** ❌ 삭제 */
   const handleDelete = () => {
     setMenuOpen(false);
     if (onDelete) onDelete(post.id);
   };
+
+  /** 🚨 신고 */
   const handleReport = () => {
     setMenuOpen(false);
-
     if (onReport) onReport();
   };
 
+  /** 📄 일반 content 렌더 함수 */
   const renderContent = (item, index) => {
     switch (item.type) {
       case 'text':
@@ -101,36 +121,6 @@ export default function PostDetail({
           </ImageGrid>
         );
 
-      case 'poll': {
-        const currentVotes = pollVotes || item.data.votes;
-        const totalVotes = currentVotes.reduce((sum, v) => sum + v, 0);
-        const maxVotes = Math.max(...currentVotes);
-
-        return (
-          <PollBox key={index}>
-            {item.data.options.map((option, i) => {
-              const votes = currentVotes[i] || 0;
-              const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-              const isMax = votes === maxVotes && totalVotes > 0;
-              const isMine = selectedIndex === i;
-
-              return (
-                <PollOption key={i} $isMax={isMax} onClick={() => handleVote(item.data, i)}>
-                  <PollBar $percentage={percentage} $isMax={isMax} />
-                  <PollText>
-                    <PollLeft $isMax={isMax}>
-                      <span>{option}</span>
-                      {isMine && <img src={ChatPollChecked} alt="checked" />}
-                    </PollLeft>
-                    <span>{percentage.toFixed(0)}%</span>
-                  </PollText>
-                </PollOption>
-              );
-            })}
-            <PollTotal>총 {totalVotes}표</PollTotal>
-          </PollBox>
-        );
-      }
       default:
         return null;
     }
@@ -138,6 +128,7 @@ export default function PostDetail({
 
   return (
     <PostSection>
+      {/* HEADER */}
       <Info>
         <div>
           <ProfileImg src={post.profileImageUrl || BasicProfile} alt="profile" />
@@ -146,6 +137,7 @@ export default function PostDetail({
             <Time>{post.createdAt || post.time || '시간 정보 없음'}</Time>
           </Section>
         </div>
+
         <DotMenuWrapper>
           <DotButton src={ChatDots} alt="options" onClick={() => setMenuOpen(prev => !prev)} />
           {menuOpen && (
@@ -158,12 +150,40 @@ export default function PostDetail({
         </DotMenuWrapper>
       </Info>
 
-      {Array.isArray(post?.content) ? (
-        post.content.map((item, i) => renderContent(item, i))
-      ) : (
-        <ContentBox>{post.content}</ContentBox>
+      {/* 🔥 투표 글이라면 Poll을 최우선으로 렌더 */}
+      {post.postType === 'POLL' && transformedPollData && (
+        <PollBox>
+          {transformedPollData.options.map((option, i) => {
+            const votes = transformedPollData.votes[i] || 0;
+            const totalVotes = transformedPollData.totalVotes || 0;
+            const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
+            const isMax = votes === Math.max(...transformedPollData.votes);
+            const isMine = selectedIndex === i;
+
+            return (
+              <PollOption key={i} $isMax={isMax} onClick={() => handleVote(transformedPollData, i)}>
+                <PollBar $percentage={percentage} $isMax={isMax} />
+                <PollText>
+                  <PollLeft $isMax={isMax}>
+                    <span>{option.text}</span>
+                    {isMine && <img src={ChatPollChecked} alt="checked" />}
+                  </PollLeft>
+                  <span>{percentage.toFixed(0)}%</span>
+                </PollText>
+              </PollOption>
+            );
+          })}
+          <PollTotal>총 {transformedPollData.totalVotes}표</PollTotal>
+        </PollBox>
       )}
 
+      {/* 🔽 일반 글 내용 렌더 (투표글이면 제외) */}
+      {post.postType !== 'POLL' &&
+        (Array.isArray(post?.content)
+          ? post.content.map((item, i) => renderContent(item, i))
+          : post.content && <ContentBox>{post.content}</ContentBox>)}
+
+      {/* FOOTER - 좋아요/댓글 */}
       <Reaction>
         <LikeButton onClick={handleLike} $liked={liked} disabled={isProcessing}>
           <img src={liked ? ChatLikePink : LikeIcon} alt="like" />

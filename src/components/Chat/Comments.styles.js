@@ -1,5 +1,3 @@
-//Comments.styles.js
-
 import styled from 'styled-components';
 import { c, typography } from '../../styles/themeUtils';
 
@@ -7,7 +5,7 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: ${c('neutral.white')};
+  background: ${c('neutral.bg')};
   padding-bottom: 70px;
 `;
 
@@ -31,8 +29,7 @@ export const BackButton = styled.button`
 `;
 
 export const HeaderTitle = styled.div`
-  ${typography('headline01')};
-  color: ${c('brand.pink')};
+  ${typography('headline02')};
 `;
 
 export const PostSection = styled.div`
@@ -46,7 +43,6 @@ export const PostSection = styled.div`
 export const Info = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
 `;
 
 export const ProfileImg = styled.img`
@@ -69,8 +65,6 @@ export const Nickname = styled.div`
 export const Time = styled.div`
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
-  display: block;
-  font-size: 12px;
 `;
 
 export const ContentBox = styled.div`
@@ -96,32 +90,19 @@ export const PostImage = styled.img`
 export const PollBox = styled.div`
   margin: 12px 0;
   padding: 12px;
-  background: ${c('neutral.white')};
-  // border: 1px solid ${c('neutral.gray')};
+  background: ${c('neutral.bg')};
   border-radius: 8px;
-  box-shadow:
-    2px 2px 5px ${c('neutral.bg')},
-    -2px 2px 5px ${c('neutral.bg')},
-    2px -2px 5px ${c('neutral.bg')},
-    -2px -2px 5px ${c('neutral.bg')};
 `;
 
 export const PollOption = styled.div`
   position: relative;
   margin-bottom: 8px;
-  box-shadow: 2px 2px 5px ${c('neutral.gray')};
   padding: 12px;
-  background: ${c('neutral.bg')};
-  border-radius: 12px;
+  background: ${c('neutral.white')};
+  border-radius: 8px;
   cursor: pointer;
   overflow: hidden;
-  transition:
-    transform 0.2s,
-    border 0.2s,
-    background 0.2s;
-
-  border: ${({ $isMax }) =>
-    $isMax ? `2px solid ${c('brand.pink')}` : `1px solid ${c('neutral.gray')}`};
+  transition: transform 0.2s;
 
   &:hover {
     transform: translateX(2px);
@@ -134,8 +115,7 @@ export const PollBar = styled.div`
   top: 0;
   bottom: 0;
   width: ${({ $percentage }) => $percentage}%;
-  background: ${({ $isMax }) => ($isMax ? c('brand.pink') : c('neutral.gray'))};
-  border-radius: 8px;
+  background: linear-gradient(90deg, #fde3fd 0%, #fbbbe5 100%);
   transition: width 0.3s ease;
   z-index: 0;
 `;
@@ -145,11 +125,14 @@ export const PollText = styled.div`
   z-index: 1;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   ${typography('body02')};
 
+  span:first-child {
+    font-weight: 500;
+  }
+
   span:last-child {
-    color: ${c('neutral.black')};
+    color: ${c('neutral.gray2')};
     ${typography('caption01')};
   }
 `;
@@ -158,25 +141,19 @@ export const PollLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-
-  span {
-    color: ${({ $isMax }) => ($isMax ? c('neutral.white') : c('neutral.black'))};
-    font-weight: 500;
-    transition: color 0.2s ease;
-  }
+  font-weight: ${({ $isMax }) => ($isMax ? 600 : 500)};
 
   img {
     width: 16px;
     height: 16px;
-    filter: ${({ $isMax }) => ($isMax ? 'brightness(0) invert(1)' : 'none')};
   }
 `;
 
 export const PollTotal = styled.div`
-  text-align: left;
+  text-align: right;
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
-  margin: 5px 5px 0px 5px;
+  margin-top: 8px;
 `;
 
 export const Reaction = styled.div`
@@ -245,10 +222,9 @@ export const ReportIconImg = styled.img`
 `;
 
 export const CommentBubble = styled.div`
-  background: ${({ $mine }) => ($mine ? '#e6f0ff' : c('neutral.bg'))};
-  box-shadow: 2px 2px 10px ${c('neutral.gray')};
+  background: ${({ $mine }) => ($mine ? '#e6f0ff' : c('neutral.white'))};
   padding: 10px 14px;
-  border-radius: 4px 12px 12px 12px;
+  border-radius: 16px;
   margin-top: 4px;
   color: ${c('neutral.black')};
   ${typography('body02')};
@@ -291,41 +267,4 @@ export const Arrow = styled.img`
   margin-left: 8px;
   cursor: pointer;
   color: ${c('sub.blue')};
-`;
-
-export const DotButton = styled.img`
-  width: 20px;
-  height: 20px;
-  background: none;
-  cursor: pointer;
-`;
-
-export const DotMenuWrapper = styled.div`
-  position: relative;
-`;
-
-export const MenuBox = styled.div`
-  position: absolute;
-  top: 28px;
-  right: 0;
-  background: white;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  overflow: hidden;
-`;
-
-export const MenuItem = styled.div`
-  padding: 10px 14px;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  width: 60px;
-
-  cursor: pointer;
-  transition: background 0.2s;
-  &:hover {
-    background: #f8f8f8;
-  }
 `;

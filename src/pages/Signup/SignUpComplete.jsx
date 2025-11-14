@@ -56,7 +56,6 @@ export default function SignUpComplete() {
   const location = useLocation();
   const routeState = location.state ?? {};
 
-  const fromGuest = routeState.fromGuest === true;
   const nickname = routeState.nickname || '숨쉬는 고양이';
   const randomAvatar = routeState.randomAvatar || '';
   const slug = routeState.slug || 'line4thon';
@@ -123,22 +122,49 @@ export default function SignUpComplete() {
         localStorage.setItem('userProfileImage', profileImageUrl);
       }
 
-      const responseRole = signupResponse?.role;
-      const resolvedRole = fromGuest ? 'USER' : responseRole || 'USER';
-      localStorage.setItem('userRole', resolvedRole);
-
-      if (fromGuest) {
-        localStorage.removeItem('isGuest');
-      }
+      const role = signupResponse?.role || 'USER';
+      localStorage.setItem('userRole', role);
 
       const slugToPersist = signupResponse?.slug || slug || '';
       localStorage.setItem('userSlug', slugToPersist);
 
       handleLogin();
     } catch (error) {
-      const message =
-        error?.data?.message || error?.message || '회원가입에 실패했습니다. 다시 시도해주세요.';
-      console.error(message, error);
+      const errorStatus = error?.response?.status || error?.status;
+      const errorData = error?.response?.data || error?.data;
+      
+      let message =
+        errorData?.message ||
+        error?.data?.message ||
+        error?.message ||
+        '회원가입에 실패했습니다. 다시 시도해주세요.';
+
+      // 409 CONFLICT 에러 처리
+      if (errorStatus === 409) {
+        // 닉네임 중복 또는 이메일 중복
+        if (message.includes('닉네임') || message.includes('nickname')) {
+          // 닉네임 중복인 경우 닉네임 선택 페이지로 이동
+          navigate('/signup/nickname', {
+            state: {
+              errorMessage: message,
+              previousNickname: nickname,
+              fromGuest: false,
+              slug,
+            },
+            replace: true,
+          });
+          return;
+        } else if (message.includes('이메일') || message.includes('email')) {
+          // 이메일 중복인 경우
+          message = '이미 사용 중인 이메일입니다.';
+        }
+      }
+
+      console.error('회원가입 실패:', {
+        status: errorStatus,
+        message,
+        error: errorData || error,
+      });
       window.alert(message);
     } finally {
       setIsSubmitting(false);

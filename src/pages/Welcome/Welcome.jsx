@@ -60,6 +60,27 @@ const generateRandomNickname = () => {
     '시원한',
     '신비로운',
     '재미있는',
+    '화려한',
+    '우아한',
+    '자유로운',
+    '열정적인',
+    '평화로운',
+    '즐거운',
+    '기쁜',
+    '사랑스러운',
+    '아름다운',
+    '순수한',
+    '깨끗한',
+    '새로운',
+    '신선한',
+    '특별한',
+    '독특한',
+    '창의적인',
+    '영리한',
+    '빠른',
+    '느긋한',
+    '조용한',
+    '명랑한',
   ];
 
   const nouns = [
@@ -88,6 +109,27 @@ const generateRandomNickname = () => {
     '달빛',
     '무지개',
     '눈멍이',
+    '사자',
+    '호랑이',
+    '코끼리',
+    '기린',
+    '얼룩말',
+    '원숭이',
+    '캥거루',
+    '코알라',
+    '여우',
+    '늑대',
+    '사슴',
+    '말',
+    '소',
+    '양',
+    '염소',
+    '돼지',
+    '닭',
+    '오리',
+    '거위',
+    '백조',
+    '도마뱀',
   ];
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -243,14 +285,17 @@ export default function Welcome() {
             profileImageFile: avatarFile,
           });
 
-          resolvedNickname = finalNickname;
+          // 백엔드 응답의 닉네임을 우선 사용 (백엔드에 저장된 정확한 닉네임)
+          // 백엔드: festival.getNickname().equals(newNickname) 체크를 위해 정확히 일치해야 함
+          resolvedNickname = guestResponse?.nickname || finalNickname;
           resolvedProfileImageUrl = guestResponse?.profileImageUrl || avatarSrc || null;
 
-          const guestEmail = guestResponse?.email || `guest-${Date.now()}`;
           const guestRole = guestResponse?.role || 'GUEST';
           const guestSlugValue = guestSlug;
 
-          localStorage.setItem('userId', guestEmail);
+          // 게스트 로그인 시 userId는 저장하지 않음 (회원가입 시 이메일로 설정됨)
+          localStorage.removeItem('userId');
+          // 백엔드 응답의 닉네임을 저장 (백엔드와 정확히 일치하도록)
           localStorage.setItem('nickname', resolvedNickname);
           if (resolvedProfileImageUrl) {
             localStorage.setItem('userProfileImage', resolvedProfileImageUrl);
@@ -273,7 +318,8 @@ export default function Welcome() {
           }
           localStorage.setItem('userRole', 'GUEST');
           localStorage.setItem('userSlug', guestSlug);
-          localStorage.setItem('userId', `guest-${Date.now()}`);
+          // 게스트 로그인 시 userId는 저장하지 않음 (회원가입 시 이메일로 설정됨)
+          localStorage.removeItem('userId');
           localStorage.setItem('isGuest', 'true');
           localStorage.removeItem('isLoggedIn');
           localStorage.removeItem('userPassword');

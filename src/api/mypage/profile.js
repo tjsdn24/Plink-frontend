@@ -56,6 +56,7 @@ export async function updateProfile({
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      withCredentials: true,
       signal,
     });
     return response?.data;

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const baseURL =
   (import.meta.env?.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) ||
-  'http://15.165.177.229:8080';
+  'https://plink-api.duckdns.org';
 
 const apiClient = axios.create({
   baseURL,

@@ -17,13 +17,25 @@ export default function MyActivityChat() {
         console.log('내가 작성한 글 조회 API 호출:', { slug });
         const myPosts = await getMyPosts({ slug });
         console.log('내가 작성한 글 조회 성공:', myPosts);
-        setStories(myPosts || []);
+        const postsArray = myPosts || [];
+        setStories(postsArray);
+        // localStorage에 개수 저장
+        localStorage.setItem('myStoryCount', String(postsArray.length));
+        // 커스텀 이벤트 발생
+        window.dispatchEvent(new CustomEvent('activityCountUpdated', { 
+          detail: { type: 'story', count: postsArray.length } 
+        }));
         setStoryStatus({ loading: false, error: null });
       } catch (error) {
         console.error('내가 작성한 글 조회 실패:', error);
         const errorMessage = error?.message || '작성한 글을 불러오지 못했어요.';
         setStoryStatus({ loading: false, error: errorMessage });
         setStories([]);
+        // 에러 시에도 0으로 설정
+        localStorage.setItem('myStoryCount', '0');
+        window.dispatchEvent(new CustomEvent('activityCountUpdated', { 
+          detail: { type: 'story', count: 0 } 
+        }));
       }
     };
 

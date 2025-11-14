@@ -1,14 +1,19 @@
 import apiClient from '../axios';
 
 //---게시글 관련---
-//일반 게시글 작성하기 @@완료
+//일반 게시글 작성하기 (완료)
 export const createPost = (slug, data, config = {}) =>
   apiClient.post(`/${slug}/posts`, data, {
     ...config,
   });
 
 //앙케이스 생성하기 @@
-export const createPoll = (slug, data) => apiClient.post(`/${slug}/posts`, data);
+export const createPoll = (slug, data) =>
+  apiClient.post(`/${slug}/posts`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
 //게시글 수정하기 @@
 export const updatePost = (slug, postId, data) => apiClient.patch(`/${slug}/posts/${postId}`, data);
@@ -36,10 +41,10 @@ export const getPostsByTag = (slug, tagId) => {
   return apiClient.get(`/${slug}/posts`, { params });
 };
 
-//게시물에 좋아요 누르기 @@
+//게시물에 좋아요 누르기 (미완 - 상태 저장이 안됨)
 export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postId}/like`);
 
-//게시글 검색 (완료 - 검색이 되긴 하는데 그냥 검색만 되고 위정렬은 안됨
+//게시글 검색 (완료 - 검색이 되긴 하는데 그냥 검색만 되고 위정렬은 안됨)
 export const searchPosts = (slug, keyword, tag) => {
   const params = { keyword };
 

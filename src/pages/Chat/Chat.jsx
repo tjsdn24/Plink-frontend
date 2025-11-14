@@ -11,7 +11,6 @@ import { c, typography, s } from '../../styles/themeUtils';
 import { categories } from '../../components/Chat/Categories';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
-import { canWritePost } from '../../utils/guestSession';
 
 /* ----------------------------------------------------
     태그 매핑
@@ -35,46 +34,33 @@ export default function Chat({ slug = 'line4thon' }) {
     fetchPosts();
   }, [selectedCategory, searchKeyword, slug]);
 
-  /* 게시글 작성 버튼 클릭 핸들러 */
-  const handleWriteClick = () => {
-    if (!canWritePost()) {
-      alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
-      return;
-    }
-    setOpenWrite(true);
-  };
-
   /* ----------------------------------------------------
       게시글 불러오기
   ----------------------------------------------------- */
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        // tagName 매핑 (여기가 중요!)
+        const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
+        const tagName = tagMap[selectedCategory] ?? null;
+
+        // 검색
+        if (searchKeyword.trim()) {
+          const res = await searchPosts(slug, searchKeyword, tagName);
+          setPosts(res.data.posts);
+        }
+        // 카테고리 조회
+        else {
+          const res = await getPostsByTag(slug, tagName);
+          setPosts(res.data.posts);
+        }
+      } catch (err) {
+        console.error('게시글 불러오기 실패:', err);
+      }
+    };
+
     fetchPosts();
   }, [selectedCategory, searchKeyword, slug]);
-
-  const fetchPosts = async () => {
-    try {
-      // tagName 매핑
-      const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
-      const tagName = selectedCategory === '전체' ? null : tagMap[selectedCategory];
-
-      let res;
-
-      if (searchKeyword.trim()) {
-        res = await searchPosts(slug, searchKeyword, tagName);
-      } else {
-        res = await getPostsByTag(slug, tagName);
-      }
-
-      // 최신순(내림차순) 정렬
-      const sorted = [...res.data.posts].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-
-      setPosts(sorted);
-    } catch (err) {
-      console.error('게시글 불러오기 실패:', err);
-    }
-  };
 
   /* 새로운 게시글 추가 시 */
   const handleAddPost = newPost => {
@@ -110,10 +96,10 @@ export default function Chat({ slug = 'line4thon' }) {
         {posts.length > 0 ? (
           <Post postData={posts} slug={slug} highlightKeyword={searchKeyword} />
         ) : (
-          <NonSearch onWrite={handleWriteClick} />
+          <NonSearch onWrite={() => setOpenWrite(true)} />
         )}
 
-        <WriteButton onClick={handleWriteClick} />
+        <WriteButton onClick={() => setOpenWrite(true)} />
 
         {openWrite && (
           <WritePost slug={slug} onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />

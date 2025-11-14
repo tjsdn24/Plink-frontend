@@ -11,7 +11,7 @@ import ChatSend from '../../assets/icons/ChatSend.svg';
 import ChatXButtonGray from '../../assets/icons/ChatXButtonGray.svg';
 import ChatXButtonBlack from '../../assets/icons/ChatXButtonBlack.svg';
 
-import { createPost } from '../../api/Chat/CommentsApi';
+import { createPost, createPoll } from '../../api/Chat/CommentsApi';
 import { canWritePost } from '../../utils/guestSession';
 
 export default function WritePost({ onClose, onAddPost }) {
@@ -47,9 +47,10 @@ export default function WritePost({ onClose, onAddPost }) {
   };
 
   /* 게시글 전송 */
+
   const handleSend = async () => {
     if (!canWritePost()) {
-      alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      alert('게시글을 작성하려면 로그인이 필요합니다.');
       return;
     }
     if (!selectedCategory) return alert('카테고리를 선택해주세요.');
@@ -57,19 +58,22 @@ export default function WritePost({ onClose, onAddPost }) {
     const formData = new FormData();
 
     if (showPoll) {
+      // POLL
       if (!title.trim()) return alert('투표 제목을 입력해주세요.');
 
       formData.append('title', title);
       formData.append('postType', 'POLL');
       formData.append('tagId', tagId);
+      formData.append('content', ''); // POLL의 content는 optional
 
       const options = pollOptions.filter(o => o.trim() !== '');
       if (options.length < 2) return alert('투표 항목은 2개 이상 입력해주세요.');
 
-      options.forEach((opt, idx) => {
-        formData.append(`poll.option[${idx}]`, opt);
+      options.forEach(opt => {
+        formData.append('poll.options', opt);
       });
     } else {
+      // NORMAL
       if (!text.trim() && images.length === 0) {
         return alert('내용을 입력해주세요.');
       }
@@ -77,16 +81,21 @@ export default function WritePost({ onClose, onAddPost }) {
       formData.append('title', text.slice(0, 20) || '');
       formData.append('content', text);
       formData.append('postType', 'NORMAL');
+      formData.append('tagId', tagId);
     }
-
-    formData.append('tagId', tagId);
 
     images.forEach(img => {
       formData.append('images', img);
     });
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ':', pair[1]);
+    }
 
     try {
-      const res = await createPost('line4thon', formData);
+      let res = showPoll
+        ? await createPoll('line4thon', formData)
+        : await createPost('line4thon', formData);
+
       onAddPost?.(res.data);
       onClose();
     } catch (err) {

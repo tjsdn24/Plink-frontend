@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
-import { c, f, s } from '../../styles/themeUtils';
+import { s } from '../../styles/themeUtils';
 import axios from 'axios';
+import { connectSocket, disconnectSocket, subscribeUserCount, sendJoinMessage } from '../../api/Chat/socketApi';
 
 import InfoBar from '../../components/Home/InfoBar';
 import ChatBox from '../../components/Home/ChatBox';
@@ -35,6 +36,8 @@ export default function Home() {
   const [popularPoll, setPopularPoll] = useState([]);
   const [popularPosts, setPopularPosts] = useState([]);
   const [usernum, setUsernum] = useState(0);
+  const subscriptionRef = useRef(null);
+  const slug = 'line4thon';
 
   //닉네임 갱신
   useEffect(() => {
@@ -54,7 +57,7 @@ export default function Home() {
   //인기글 api
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}/line4thon/main/popular`);
       setPopularPosts(response.data.popularPosts);
@@ -62,31 +65,102 @@ export default function Home() {
     } catch (error) {
       console.error('데이터 불러오기 실패:', error);
     }
-  }
+  }, [BASE_URL]);
+
   useEffect(() => {
     fetchData();
-  }, []);
-  async function getActiveUsers(slug) {
-    try {
-      const res = await axios.get(`${BASE_URL}/plink/festivals/${slug}/active-users`);
-      return res.data;
-    } catch (err) {
-      console.error('active-users 불러오기 실패:', err);
-      return null;
-    }
-  }
+  }, [fetchData]);
+
+  // 초기 사용자 수 가져오기 (폴링 백업)
+  const getActiveUsers = useCallback(
+    async slug => {
+      try {
+        const res = await axios.get(`${BASE_URL}/plink/festivals/${slug}/active-users`);
+        return res.data;
+      } catch (err) {
+        console.error('active-users 불러오기 실패:', err);
+        return null;
+      }
+    },
+    [BASE_URL]
+  );
+
+  // 웹소켓 연결 및 사용자 수 구독
   useEffect(() => {
-    async function load() {
-      const users = await getActiveUsers('line4thon');
-      if (users !== null) setUsernum(users.line4thon);
-    }
+    let fallbackInterval = null;
 
-    load();
+    // 초기 사용자 수 로드
+    const loadInitialCount = async () => {
+      const users = await getActiveUsers(slug);
+      console.log('초기 사용자 수 API 응답:', users);
+      if (users !== null) {
+        // API 응답 형식에 따라 처리
+        if (users[slug] !== undefined) {
+          setUsernum(users[slug]);
+        } else if (users.activeUsers !== undefined) {
+          setUsernum(users.activeUsers);
+        } else if (typeof users === 'number') {
+          setUsernum(users);
+        }
+      }
+    };
 
-    const interval = setInterval(load, 10000); // 10초마다 자동 갱신
+    loadInitialCount();
 
-    return () => clearInterval(interval);
-  }, []);
+    // 웹소켓 연결
+    const onConnected = () => {
+      console.log('웹소켓 연결 성공');
+      
+      // 사용자 수 구독
+      subscriptionRef.current = subscribeUserCount(slug, data => {
+        console.log('사용자 수 업데이트 받음:', data);
+        // 서버 응답 형식: {"slug":"line4thon", "activeUsers":3}
+        if (data && typeof data === 'object') {
+          if (data.activeUsers !== undefined) {
+            console.log('접속자 수 업데이트:', data.activeUsers);
+            setUsernum(data.activeUsers);
+          } else if (data[slug] !== undefined) {
+            console.log('접속자 수 업데이트:', data[slug]);
+            setUsernum(data[slug]);
+          } else if (data.count !== undefined) {
+            console.log('접속자 수 업데이트:', data.count);
+            setUsernum(data.count);
+          } else if (typeof data === 'number') {
+            console.log('접속자 수 업데이트:', data);
+            setUsernum(data);
+          }
+        }
+      });
+      
+      // 사용자 입장 메시지 전송
+      sendJoinMessage(slug);
+    };
+
+    const onError = error => {
+      console.error('웹소켓 연결 실패:', error);
+      // 웹소켓 실패 시 폴링으로 폴백
+      fallbackInterval = setInterval(async () => {
+        const users = await getActiveUsers(slug);
+        if (users !== null && users[slug] !== undefined) {
+          setUsernum(users[slug]);
+        }
+      }, 10000);
+    };
+
+    connectSocket(onConnected, onError);
+
+    // cleanup: 컴포넌트 언마운트 시 웹소켓 연결 해제
+    return () => {
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+      }
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
+      disconnectSocket();
+    };
+  }, [slug, getActiveUsers]);
 
   return (
     <>

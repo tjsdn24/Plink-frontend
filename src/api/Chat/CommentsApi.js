@@ -1,7 +1,7 @@
 import apiClient from '../axios';
 
 //---게시글 관련---
-//일반 게시글 작성하기 @@ 글저장이 안됨
+//일반 게시글 작성하기 @@완료
 export const createPost = (slug, data, config = {}) =>
   apiClient.post(`/${slug}/posts`, data, {
     ...config,
@@ -39,7 +39,7 @@ export const getPostsByTag = (slug, tagId) => {
 //게시물에 좋아요 누르기 @@
 export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postId}/like`);
 
-//게시글 검색 (완료
+//게시글 검색 (완료 - 검색이 되긴 하는데 그냥 검색만 되고 위정렬은 안됨
 export const searchPosts = (slug, keyword, tag) => {
   const params = { keyword };
 
@@ -60,7 +60,7 @@ export const addPostImage = (slug, postId, data) =>
   apiClient.post(`/${slug}/images/${postId}`, data);
 
 //---댓글 관련---
-//댓글 작성하기 @@
+//댓글 작성하기 (완료)
 export const createComment = (slug, postId, data) =>
   apiClient.post(`/${slug}/posts/${postId}/comments`, data);
 

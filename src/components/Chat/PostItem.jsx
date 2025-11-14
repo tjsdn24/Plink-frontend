@@ -16,8 +16,15 @@ import {
   Time,
 } from './Post.styles';
 
-export default function PostItem({ post, onCommentClick, highlightKeyword, onLike, onPollVote }) {
-  // poll 데이터를 PostPollDetail에 맞게 변환
+import { usePostStore } from '../../store/postStore';
+
+export default function PostItem({ post, onCommentClick, highlightKeyword, onPollVote, slug }) {
+  const initPost = usePostStore(state => state.initPost);
+
+  //  전역 상태 초기화 (좋아요가 안 보이던 원인 해결)
+  initPost(post.id, post.liked, post.likeCount);
+
+  // poll 변환
   const transformedPollData = post.poll
     ? {
         id: post.poll.pollId,
@@ -56,12 +63,7 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onLik
           </ContentWrapper>
 
           <Etc>
-            {/* ❤️ 공통 LikeButton 사용 */}
-            <LikeButton
-              liked={post.liked}
-              count={post.likeCount}
-              onToggle={() => onLike && onLike(post.id)}
-            />
+            <LikeButton postId={post.id} slug={slug} />
 
             <Comment onClick={onCommentClick}>
               <ReactionIcon src={CommentIcon} alt="comment" />

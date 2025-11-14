@@ -159,17 +159,27 @@ const adaptPost = rawPost => {
     contentItems.push({ type: 'text', data: '내용이 없습니다.' });
   }
 
+  // PostItem 컴포넌트가 기대하는 형식으로 변환
+  // content는 문자열 또는 contentItems 배열 둘 다 지원
+  const contentString = content || title || '';
+  
   return {
     id,
     nickname: author || '익명',
-    content: contentItems,
+    author: author || '익명', // PostItem에서 author도 사용
+    content: contentString, // PostItem이 문자열로 기대
+    contentItems: contentItems, // PostContent에서 배열로 사용할 수 있도록
     like: Number(likeCount) || 0,
+    likeCount: Number(likeCount) || 0, // PostItem에서 likeCount 사용
     comment: Number(commentCount) || 0,
+    commentCount: Number(commentCount) || 0, // PostItem에서 commentCount 사용
     comments: [],
     time: formatRelativeTime(createdAt || updatedAt),
+    createdAt: createdAt || updatedAt, // PostItem에서 createdAt 사용
     category: tagName || postType || '기타',
     postType: postType || null,
     profileImageUrl: profileImageUrl || null,
+    poll: poll || null, // PostItem에서 poll 직접 확인
     raw: rawPost,
   };
 };

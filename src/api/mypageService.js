@@ -210,14 +210,14 @@ export async function updateNickname({ slug, nickname }) {
 export async function changePassword({ slug, currentPassword, newPassword }) {
   const encodedSlug = encodeURIComponent(slug.trim());
   
-  const requestBody = {
-    currentPassword: currentPassword.trim(),
-    newPassword: newPassword.trim(),
-  };
+  // FormData 사용
+  const formData = new FormData();
+  formData.append('currentPassword', currentPassword.trim());
+  formData.append('newPassword', newPassword.trim());
   
   try {
     // 디버깅: 요청 정보 로깅
-    console.log('비밀번호 변경 API 요청:', {
+    console.log('비밀번호 변경 API 요청 (FormData):', {
       url: `/${encodedSlug}/mypage/password`,
       slug: encodedSlug,
       withCredentials: true, // axios 인스턴스에서 설정됨
@@ -225,10 +225,10 @@ export async function changePassword({ slug, currentPassword, newPassword }) {
     
     const response = await apiClient.patch(
       `/${encodedSlug}/mypage/password`,
-      requestBody,
+      formData,
       {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
         withCredentials: true, // 명시적으로 설정
       }

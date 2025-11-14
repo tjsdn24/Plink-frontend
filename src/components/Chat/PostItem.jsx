@@ -14,6 +14,7 @@ import {
   Comment,
   ReactionIcon,
   Time,
+  PollTitle,
 } from './Post.styles';
 
 import { usePostStore } from '../../store/postStore';
@@ -44,6 +45,7 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onPol
       <PostBox>
         <div>
           <Nickname>{post.author || post.nickname}</Nickname>
+          {post.postType === 'POLL' && post.title && <PollTitle>{post.title}</PollTitle>}
         </div>
         <ContentAndEtcWrapper>
           <ContentWrapper>

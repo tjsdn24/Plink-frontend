@@ -7,7 +7,7 @@ export const createPost = (slug, data, config = {}) =>
     ...config,
   });
 
-//앙케이스 생성하기 @@
+//앙케이스 생성하기 (완료)
 export const createPoll = (slug, data) =>
   apiClient.post(`/${slug}/posts`, data, {
     headers: {
@@ -21,14 +21,14 @@ export const updatePost = (slug, postId, data) => apiClient.patch(`/${slug}/post
 //게시글 삭제하기 @@
 export const deletePost = (slug, postId) => apiClient.delete(`/${slug}/posts/${postId}`);
 
-//게시글 상세 조회하기 (완료 - 시간되면 time 필터링
+//게시글 상세 조회하기 (완료-근데 댓글이 안 보이는 듯)
 export const getPostDetail = (slug, postId) => {
   const url = slug ? `/${slug}/posts/${postId}` : `/posts/${postId}`;
 
   return apiClient.get(url);
 };
 
-// 게시판마다 게시글 조회하기 (완료
+// 게시판마다 게시글 조회하기 (완료)
 export const getPostsByTag = (slug, tagId) => {
   const params = {};
 
@@ -78,5 +78,5 @@ export const deleteComment = (slug, commentId) =>
   apiClient.delete(`/${slug}/comments/${commentId}`);
 
 //---신고 관련---
-//게시글 / 댓글 신고하기 @@이것도 로그인 후 확인 필요
+//게시글 / 댓글 신고하기 @@
 export const reportPostOrComment = (slug, data) => apiClient.post(`/${slug}/reports`, data);

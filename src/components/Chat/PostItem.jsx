@@ -3,6 +3,7 @@ import LikeButton from '../Chat/LikeButton';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import PostContent from './PostContent';
 import PostPollDetail from './PostPollDetail';
+import { votePoll } from '../../api/Chat/voteApi';
 import {
   PostWrapper,
   ProfileImg,
@@ -19,13 +20,11 @@ import {
 
 import { usePostStore } from '../../store/postStore';
 
-export default function PostItem({ post, onCommentClick, highlightKeyword, onPollVote, slug }) {
+export default function PostItem({ post, onCommentClick, highlightKeyword, slug }) {
   const initPost = usePostStore(state => state.initPost);
 
-  //  전역 상태 초기화 (좋아요가 안 보이던 원인 해결)
   initPost(post.id, post.liked, post.likeCount);
 
-  // poll 변환
   const transformedPollData = post.poll
     ? {
         id: post.poll.pollId,
@@ -39,6 +38,10 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onPol
       }
     : null;
 
+  const onPollVote = async (pollId, optionId) => {
+    await votePoll(slug, pollId, optionId);
+  };
+
   return (
     <PostWrapper>
       <ProfileImg src={post.profileImageUrl || BasicProfile} alt="profile" />
@@ -47,6 +50,7 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onPol
           <Nickname>{post.author || post.nickname}</Nickname>
           {post.postType === 'POLL' && post.title && <PollTitle>{post.title}</PollTitle>}
         </div>
+
         <ContentAndEtcWrapper>
           <ContentWrapper>
             {post.postType === 'POLL' && transformedPollData ? (
@@ -54,6 +58,7 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onPol
                 pollData={transformedPollData}
                 pollVotes={transformedPollData.votes}
                 onPollVote={onPollVote}
+                slug={slug}
               />
             ) : (
               <PostContent

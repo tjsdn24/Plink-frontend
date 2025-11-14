@@ -3,6 +3,8 @@ import LikeButton from '../Chat/LikeButton';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import PostContent from './PostContent';
 import PostPollDetail from './PostPollDetail';
+import { votePoll } from '../../api/Chat/voteApi';
+import { useLocation } from 'react-router-dom';
 import {
   PostWrapper,
   ProfileImg,
@@ -19,13 +21,14 @@ import {
 
 import { usePostStore } from '../../store/postStore';
 
-export default function PostDetail({ post, slug, onCommentClick, highlightKeyword, onPollVote }) {
-  const initPost = usePostStore(state => state.initPost);
+export default function PostDetail({ onCommentClick, highlightKeyword }) {
+  const { state } = useLocation();
+  const post = state?.post;
+  const slug = state?.slug;
 
-  // 상세 페이지에서도 초기값 세팅 필수
+  const initPost = usePostStore(state => state.initPost);
   initPost(post.id, post.liked, post.likeCount);
 
-  // poll 데이터 변환
   const transformedPollData = post.poll
     ? {
         id: post.poll.pollId,
@@ -38,6 +41,11 @@ export default function PostDetail({ post, slug, onCommentClick, highlightKeywor
         totalVotes: post.poll.totalVotes,
       }
     : null;
+
+  const onPollVote = async (pollId, optionId) => {
+    console.log('slug in Detail', slug);
+    await votePoll(slug, pollId, optionId);
+  };
 
   return (
     <PostWrapper>
@@ -66,7 +74,6 @@ export default function PostDetail({ post, slug, onCommentClick, highlightKeywor
           </ContentWrapper>
 
           <Etc>
-            {/* 상세 페이지도 전역 LikeButton 사용 */}
             <LikeButton postId={post.id} slug={slug} />
 
             <Comment onClick={onCommentClick}>

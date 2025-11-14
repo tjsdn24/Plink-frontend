@@ -12,8 +12,11 @@ export default function Post({ postData, slug, highlightKeyword = '' }) {
 
   // 댓글 클릭 → 상세 페이지 이동
   const handlePostClick = postId => {
-    navigate(`/chat/post/${postId}`, {
-      state: { post: postData.find(p => p.id === postId) },
+    navigate(`/chat/${slug}/post/${postId}`, {
+      state: {
+        post: postData.find(p => p.id === postId),
+        slug: slug,
+      },
     });
   };
 

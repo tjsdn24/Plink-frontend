@@ -39,10 +39,12 @@ export default function HotBox({ popularPosts = [] }) {
       {popularPosts.map(post => (
         <HotChat
           key={post.id}
+          id={post.id}
           image={post.profileImageUrl}
           nickname={post.author}
           time={timeAgo(post.updatedAt)}
           content={post.content}
+          images={post.images}
         />
       ))}
     </BoxContainer>

@@ -1,5 +1,3 @@
-//Chat.jsx
-
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
@@ -8,12 +6,17 @@ import NonSearch from '../../components/Chat/NonSearch';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
-import { c, s, typography } from '../../styles/themeUtils';
+import { c, typography, s } from '../../styles/themeUtils';
+import { categories } from '../../components/Chat/Categories';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 import { canWritePost } from '../../utils/guestSession';
 
-export default function Chat() {
+/* ----------------------------------------------------
+    태그 매핑
+----------------------------------------------------- */
+
+export default function Chat({ slug = 'line4thon' }) {
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
@@ -29,50 +32,42 @@ export default function Chat() {
     setOpenWrite(true);
   };
 
+  /* ----------------------------------------------------
+      게시글 불러오기
+  ----------------------------------------------------- */
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        // tagName 매핑 (여기가 중요!)
+        const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
+        const tagName = tagMap[selectedCategory] ?? null;
+
+        // 검색
         if (searchKeyword.trim()) {
-          // 검색 시 - 카테고리 필터링도 함께 적용
-          const tag = selectedCategory === '전체' ? '' : selectedCategory;
-          console.log('검색 요청:', { slug, keyword: searchKeyword, tag });
-
-          const res = await searchPosts(slug, searchKeyword, tag);
-
-          console.log('검색 API 응답:', res);
-          console.log('검색 API 응답 데이터:', res.data);
-          console.log('검색된 게시글 수:', res.data.posts.length);
-
+          const res = await searchPosts(slug, searchKeyword, tagName);
           setPosts(res.data.posts);
-        } else {
-          // 검색어 없을 때 - 카테고리별 목록
-          const tag = selectedCategory === '전체' ? '' : selectedCategory;
-          console.log('목록 요청:', { slug, tag });
-
-          const res = await getPostsByTag(slug, tag);
-
-          console.log('목록 API 응답:', res.data);
-          console.log('불러온 게시글 수:', res.data.posts.length);
-
+        }
+        // 카테고리 조회
+        else {
+          const res = await getPostsByTag(slug, tagName);
           setPosts(res.data.posts);
         }
       } catch (err) {
-        console.error('=== 게시글 불러오기 실패 ===');
-        console.error('에러:', err);
-        console.error('에러 응답:', err.response);
-        console.error('에러 데이터:', err.response?.data);
+        console.error('게시글 불러오기 실패:', err);
       }
     };
 
     fetchPosts();
-  }, [selectedCategory, searchKeyword]);
+  }, [selectedCategory, searchKeyword, slug]);
 
+  /* 새로운 게시글 추가 시 */
   const handleAddPost = newPost => {
     setPosts(prev => [newPost, ...prev]);
   };
 
-  const handleSearchChange = useCallback(event => {
-    setSearchKeyword(event.target.value);
+  /* 검색 */
+  const handleSearchChange = useCallback(e => {
+    setSearchKeyword(e.target.value);
   }, []);
 
   return (
@@ -81,8 +76,6 @@ export default function Chat() {
         <SearchBarContainer>
           <SearchBar>
             <SearchInput
-              id="chat-search"
-              name="search"
               type="text"
               value={searchKeyword}
               onChange={handleSearchChange}
@@ -93,12 +86,13 @@ export default function Chat() {
             </SearchIconWrapper>
           </SearchBar>
         </SearchBarContainer>
+
         <ChatCatagory selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       </ChatTop>
 
       <ChatBottom>
         {posts.length > 0 ? (
-          <Post postData={posts} highlightKeyword={searchKeyword} />
+          <Post postData={posts} slug={slug} highlightKeyword={searchKeyword} />
         ) : (
           <NonSearch onWrite={handleWriteClick} />
         )}
@@ -109,10 +103,9 @@ export default function Chat() {
   );
 }
 
-const ChatWrapper = styled.div`
-  // background-color: ${c('neutral.white')};
-  //height: 100%;
-`;
+/* -------------------------------- 스타일 -------------------------------- */
+
+const ChatWrapper = styled.div``;
 
 const ChatTop = styled.div`
   background: ${c('neutral.bg')};
@@ -157,11 +150,9 @@ const SearchIconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: 0 16px;
 `;
 
 const SearchIconImg = styled.img`
   width: 20px;
   height: 20px;
-  margin-right: 10px;
 `;

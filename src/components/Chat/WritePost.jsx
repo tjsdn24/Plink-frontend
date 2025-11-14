@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { c } from '../../styles/themeUtils';
+import { categories } from './Categories';
 
 import ArrowImg from '../../assets/icons/ChatArrowDown.svg';
 import ChatPoll from '../../assets/icons/ChatPoll.svg';
@@ -15,26 +16,17 @@ import { canWritePost } from '../../utils/guestSession';
 
 export default function WritePost({ onClose, onAddPost }) {
   const [openCategory, setOpenCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(''); // 문자열만 저장
   const [text, setText] = useState('');
   const [images, setImages] = useState([]);
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState(['', '']);
+  const [title, setTitle] = useState('');
 
-  const categories = ['만남/동행', '정보/공유', '질문/요청', '분실물', '굿즈/이벤트', '기타'];
+  const tagIdMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagId]));
+  const tagId = tagIdMap[selectedCategory];
 
-  const tagMap = {
-    '만남/동행': 1,
-    '정보/공유': 2,
-    '질문/요청': 3,
-    분실물: 4,
-    '굿즈/이벤트': 5,
-    기타: 6,
-  };
-
-  /* --------------------------
-        이미지 선택
-  --------------------------- */
+  /* 이미지 선택 */
   const handleImageChange = e => {
     const files = Array.from(e.target.files);
     if (images.length + files.length > 3) {
@@ -48,51 +40,54 @@ export default function WritePost({ onClose, onAddPost }) {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  /* --------------------------
-        카테고리 선택
-  --------------------------- */
-  const handleSelect = cat => {
-    setSelectedCategory(cat);
+  /* 카테고리 선택 */
+  const handleSelect = catName => {
+    setSelectedCategory(catName);
     setOpenCategory(false);
   };
 
-  /* --------------------------
-        게시글 전송
-  --------------------------- */
+  /* 게시글 전송 */
   const handleSend = async () => {
     if (!canWritePost()) {
       alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
       return;
     }
     if (!selectedCategory) return alert('카테고리를 선택해주세요.');
-    if (!text.trim() && images.length === 0) return alert('내용을 입력해주세요.');
-
-    const tagId = tagMap[selectedCategory];
-    if (!tagId) return alert('유효하지 않은 카테고리입니다.');
 
     const formData = new FormData();
-    formData.append('content', text);
-    formData.append('tagId', tagId);
-    formData.append('postType', showPoll ? 'POLL' : 'NORMAL');
 
-    // 이미지 추가
-    images.forEach(file => {
-      formData.append('images', file);
-    });
-
-    // 투표 옵션 추가
     if (showPoll) {
-      const options = pollOptions.filter(opt => opt.trim() !== '');
-      if (options.length < 2) {
-        alert('투표 항목은 2개 이상 입력해주세요.');
-        return;
+      if (!title.trim()) return alert('투표 제목을 입력해주세요.');
+
+      formData.append('title', title);
+      formData.append('postType', 'POLL');
+      formData.append('tagId', tagId);
+
+      const options = pollOptions.filter(o => o.trim() !== '');
+      if (options.length < 2) return alert('투표 항목은 2개 이상 입력해주세요.');
+
+      options.forEach((opt, idx) => {
+        formData.append(`poll.option[${idx}]`, opt);
+      });
+    } else {
+      if (!text.trim() && images.length === 0) {
+        return alert('내용을 입력해주세요.');
       }
-      options.forEach(opt => formData.append('pollOptions', opt));
+
+      formData.append('title', text.slice(0, 20) || '');
+      formData.append('content', text);
+      formData.append('postType', 'NORMAL');
     }
+
+    formData.append('tagId', tagId);
+
+    images.forEach(img => {
+      formData.append('images', img);
+    });
 
     try {
       const res = await createPost('line4thon', formData);
-      if (onAddPost) onAddPost(res.data);
+      onAddPost?.(res.data);
       onClose();
     } catch (err) {
       console.error(err);
@@ -102,35 +97,40 @@ export default function WritePost({ onClose, onAddPost }) {
 
   return (
     <>
-      {/* 블러 오버레이 */}
       <Overlay onClick={onClose}>
         <PostContainer onClick={e => e.stopPropagation()}>
-          {/* 헤더 */}
           <Header>
-            <Title>이야기하기</Title>
+            <TitleHeader>이야기하기</TitleHeader>
             <CloseButton onClick={onClose}>취소</CloseButton>
           </Header>
 
-          {/* 카테고리 선택 */}
           <CategoryToggle onClick={() => setOpenCategory(true)}>
             {selectedCategory || '카테고리를 선택해주세요'}
             <Arrow src={ArrowImg} />
           </CategoryToggle>
 
-          {/* 글쓰기 입력 */}
-          <Textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="어떤 이야기를 하고 싶으신가요?"
-          />
+          {!showPoll && (
+            <Textarea
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder="어떤 이야기를 하고 싶으신가요?"
+            />
+          )}
 
-          {/* 이미지 미리보기 */}
+          {showPoll && (
+            <TitleInput
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="투표 제목을 입력해주세요"
+            />
+          )}
+
           {images.length > 0 && (
             <ImagePreviewContainer>
-              {images.map((file, index) => (
-                <Preview key={index}>
+              {images.map((file, idx) => (
+                <Preview key={idx}>
                   <PreviewImg src={URL.createObjectURL(file)} />
-                  <DeletePreviewButton onClick={() => handleRemoveImage(index)}>
+                  <DeletePreviewButton onClick={() => handleRemoveImage(idx)}>
                     <img src={ChatXButtonBlack} alt="삭제" />
                   </DeletePreviewButton>
                 </Preview>
@@ -138,7 +138,6 @@ export default function WritePost({ onClose, onAddPost }) {
             </ImagePreviewContainer>
           )}
 
-          {/* 투표가 활성화되면 입력 필드 */}
           {showPoll && (
             <PollBox>
               {pollOptions.map((opt, i) => (
@@ -147,9 +146,9 @@ export default function WritePost({ onClose, onAddPost }) {
                     placeholder={`항목 ${i + 1}`}
                     value={opt}
                     onChange={e => {
-                      const newOptions = [...pollOptions];
-                      newOptions[i] = e.target.value;
-                      setPollOptions(newOptions);
+                      const newList = [...pollOptions];
+                      newList[i] = e.target.value;
+                      setPollOptions(newList);
                     }}
                   />
                   <DeleteButton
@@ -171,7 +170,6 @@ export default function WritePost({ onClose, onAddPost }) {
             </PollBox>
           )}
 
-          {/* 아이콘 / 전송 */}
           <IconBox>
             <LeftIcon>
               <Icon
@@ -179,12 +177,11 @@ export default function WritePost({ onClose, onAddPost }) {
                 onClick={() => setShowPoll(prev => !prev)}
               />
 
-              {/* 이미지 업로드 */}
               <label>
                 <input
                   type="file"
-                  multiple
                   accept="image/*"
+                  multiple
                   style={{ display: 'none' }}
                   onChange={handleImageChange}
                 />
@@ -199,7 +196,6 @@ export default function WritePost({ onClose, onAddPost }) {
         </PostContainer>
       </Overlay>
 
-      {/* 카테고리 바텀시트 */}
       {openCategory && (
         <CategorySheet onClick={() => setOpenCategory(false)}>
           <SheetContainer onClick={e => e.stopPropagation()}>
@@ -210,11 +206,11 @@ export default function WritePost({ onClose, onAddPost }) {
 
             {categories.map(cat => (
               <CategoryItem
-                key={cat}
-                selected={selectedCategory === cat}
-                onClick={() => handleSelect(cat)}
+                key={cat.tagId ?? 'all'} // 고유 key
+                selected={selectedCategory === cat.name}
+                onClick={() => handleSelect(cat.name)}
               >
-                {cat}
+                {cat.name}
               </CategoryItem>
             ))}
           </SheetContainer>
@@ -224,7 +220,7 @@ export default function WritePost({ onClose, onAddPost }) {
   );
 }
 
-/* ========================= 스타일 ========================= */
+/* ========== 스타일 ========== */
 
 const slideUp = keyframes`
   from { transform: translateY(100%); }
@@ -235,10 +231,10 @@ const Overlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
-  z-index: 1100;
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  z-index: 1100;
 `;
 
 const PostContainer = styled.div`
@@ -256,55 +252,58 @@ const PostContainer = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
 `;
 
-const Title = styled.h2`
+const TitleHeader = styled.h2`
   font-size: 18px;
   font-weight: bold;
 `;
 
 const CloseButton = styled.button`
   background: none;
-  color: ${c('sub.yellow')};
   border: none;
-  font-size: 15px;
+  color: ${c('sub.yellow')};
 `;
 
 const CategoryToggle = styled.div`
   background: ${c('neutral.white')};
   border: 1px solid ${c('neutral.gray')};
-  border-radius: 8px;
+  padding: 15px 20px;
   height: 50px;
   margin: 12px 0 20px;
-  padding: 15px 20px;
-  font-size: 15px;
   display: flex;
   justify-content: space-between;
+  border-radius: 8px;
   cursor: pointer;
 `;
 
 const Arrow = styled.img`
   width: 20px;
-  height: 20px;
 `;
 
 const Textarea = styled.textarea`
   flex: 1;
   border: 1px solid ${c('neutral.gray')};
   background: ${c('neutral.white')};
-  border-radius: 10px;
   padding: 10px;
+  border-radius: 8px;
   resize: none;
-  outline: none;
   margin-bottom: 10px;
 `;
 
+const TitleInput = styled.input`
+  width: 100%;
+  border: 1px solid ${c('neutral.gray')};
+  padding: 12px;
+  margin-bottom: 12px;
+  background: ${c('neutral.white')};
+  border-radius: 8px;
+`;
+
 const IconBox = styled.div`
-  height: 40px;
-  padding: 10px 5px;
   display: flex;
   justify-content: space-between;
+  padding: 10px 5px;
 `;
 
 const LeftIcon = styled.div`
@@ -318,22 +317,21 @@ const RightIcon = styled.div`
 
 const Icon = styled.img`
   width: 26px;
-  height: 26px;
 `;
 
 const ImagePreviewContainer = styled.div`
   display: flex;
   gap: 10px;
-  margin-bottom: 8px;
   flex-wrap: wrap;
+  margin-bottom: 8px;
 `;
 
 const Preview = styled.div`
   position: relative;
   width: 90px;
   height: 90px;
-  border-radius: 8px;
   overflow: hidden;
+  border-radius: 8px;
 `;
 
 const PreviewImg = styled.img`
@@ -348,16 +346,9 @@ const DeletePreviewButton = styled.button`
   right: 4px;
   background: none;
   border: none;
-  cursor: pointer;
-  img {
-    width: 20px;
-    height: 20px;
-  }
 `;
 
-/* 투표 */
 const PollBox = styled.div`
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -365,29 +356,22 @@ const PollBox = styled.div`
 
 const PollItem = styled.div`
   display: flex;
-  align-items: center;
   background: ${c('neutral.white')};
   border: 1px solid ${c('neutral.gray')};
-  padding-right: 4px;
   border-radius: 8px;
+  padding-right: 4px;
 `;
 
 const PollInput = styled.input`
   flex: 1;
   border: none;
   padding: 10px;
-  outline: none;
   border-radius: 8px;
 `;
 
 const DeleteButton = styled.button`
   background: none;
   border: none;
-  cursor: pointer;
-  img {
-    width: 18px;
-    height: 18px;
-  }
 `;
 
 const AddOptionButton = styled.button`
@@ -398,15 +382,14 @@ const AddOptionButton = styled.button`
   cursor: pointer;
 `;
 
-/* 카테고리 바텀시트 */
 const CategorySheet = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
-  z-index: 1200;
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  z-index: 1200;
 `;
 
 const SheetContainer = styled.div`
@@ -421,12 +404,9 @@ const SheetContainer = styled.div`
 const SheetHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
 `;
 
 const SheetTitle = styled.h3`
-  font-size: 16px;
   font-weight: bold;
 `;
 

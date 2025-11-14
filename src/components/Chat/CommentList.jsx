@@ -14,7 +14,6 @@ import {
   CommentFooter,
   LikeButton,
   ReportIconImg,
-  Time,
 } from './Comments.styles';
 
 export default function CommentList({
@@ -69,7 +68,6 @@ export default function CommentList({
                 {commentLikes[i]?.count || 0}
               </LikeButton>
               <ReportIconImg src={ReportIcon} alt="report" onClick={() => handleReport(c.id)} />
-              <Time>{c.time2}</Time>
             </CommentFooter>
           </CommentContent>
           {c.isMine && <ProfileImg src={c.profileImage || BasicProfile} alt="profile" />}

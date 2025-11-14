@@ -15,7 +15,6 @@ import {
   Etc,
   Comment,
   ReactionIcon,
-  Time,
   PollTitle,
 } from './Post.styles';
 
@@ -80,8 +79,6 @@ export default function PostDetail({ onCommentClick, highlightKeyword }) {
               <ReactionIcon src={CommentIcon} alt="comment" />
               {post.commentCount || 0}
             </Comment>
-
-            <Time>{new Date(post.createdAt).toLocaleString()}</Time>
           </Etc>
         </ContentAndEtcWrapper>
       </PostBox>

@@ -6,6 +6,7 @@ import Report from '../../components/Chat/Report';
 import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
 import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
+import { canWritePost } from '../../utils/guestSession';
 import {
   Wrapper,
   Header,
@@ -131,6 +132,10 @@ export default function Comments() {
 
   // 댓글 추가 시 createPost 호출하여 서버에 저장하고 댓글 리스트 갱신
   const handleAddComment = async () => {
+    if (!canWritePost()) {
+      alert('댓글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      return;
+    }
     if (!newComment.trim()) return;
 
     const newEntry = {
@@ -222,10 +227,11 @@ export default function Comments() {
 
         <CommentInputBox>
           <Input
-            placeholder="이야기에 반응해보세요"
+            placeholder={canWritePost() ? '이야기에 반응해보세요' : '로그인 후 댓글을 작성할 수 있습니다'}
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+            disabled={!canWritePost()}
           />
           <Arrow onClick={handleAddComment} src={ChatSend} alt="send" />
         </CommentInputBox>

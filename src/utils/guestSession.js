@@ -77,4 +77,19 @@ export const clearGuestSession = () => {
   }
 };
 
+/**
+ * 게시글/댓글 작성 권한 확인
+ * ROLE이 USER인 경우에만 작성 가능
+ * @returns {boolean} 작성 가능 여부
+ */
+export const canWritePost = () => {
+  try {
+    const userRole = localStorage.getItem('userRole');
+    return userRole === 'USER';
+  } catch (error) {
+    console.error('게시글 작성 권한 확인 실패', error);
+    return false;
+  }
+};
+
 

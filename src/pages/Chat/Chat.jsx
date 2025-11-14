@@ -25,29 +25,33 @@ export default function Chat({ slug = 'line4thon' }) {
       게시글 불러오기
   ----------------------------------------------------- */
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        // tagName 매핑
-        const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
-        const tagName = selectedCategory === '전체' ? null : tagMap[selectedCategory];
-
-        // 검색
-        if (searchKeyword.trim()) {
-          const res = await searchPosts(slug, searchKeyword, tagName);
-          setPosts(res.data.posts);
-        }
-        // 카테고리 조회
-        else {
-          const res = await getPostsByTag(slug, tagName);
-          setPosts(res.data.posts);
-        }
-      } catch (err) {
-        console.error('게시글 불러오기 실패:', err);
-      }
-    };
-
     fetchPosts();
   }, [selectedCategory, searchKeyword, slug]);
+
+  const fetchPosts = async () => {
+    try {
+      // tagName 매핑
+      const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
+      const tagName = selectedCategory === '전체' ? null : tagMap[selectedCategory];
+
+      let res;
+
+      if (searchKeyword.trim()) {
+        res = await searchPosts(slug, searchKeyword, tagName);
+      } else {
+        res = await getPostsByTag(slug, tagName);
+      }
+
+      // 최신순(내림차순) 정렬
+      const sorted = [...res.data.posts].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setPosts(sorted);
+    } catch (err) {
+      console.error('게시글 불러오기 실패:', err);
+    }
+  };
 
   /* 새로운 게시글 추가 시 */
   const handleAddPost = newPost => {

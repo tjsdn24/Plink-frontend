@@ -26,7 +26,12 @@ export const getPostDetail = (slug, postId) => {
 // 게시판마다 게시글 조회하기 (완료
 export const getPostsByTag = (slug, tagId) => {
   const params = {};
-  if (tagId !== null && tagId !== undefined) params.tag = tagId;
+
+  // ✔ tagId가 truthy일 때만 tag 파라미터를 추가
+  //   → null, undefined, '', 0 전부 제외 가능
+  if (tagId) {
+    params.tag = tagId;
+  }
 
   return apiClient.get(`/${slug}/posts`, { params });
 };
@@ -37,7 +42,11 @@ export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postI
 //게시글 검색 (완료
 export const searchPosts = (slug, keyword, tag) => {
   const params = { keyword };
-  if (tag !== null && tag !== undefined) params.tag = tag;
+
+  // ✔ 검색에서도 동일하게 적용
+  if (tag) {
+    params.tag = tag;
+  }
 
   return apiClient.get(`/${slug}/posts/search`, { params });
 };

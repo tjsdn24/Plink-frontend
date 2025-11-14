@@ -97,10 +97,16 @@ export default function usePhotoEdit(photos) {
   /* ---------------- 저장 ---------------- */
   const saveMerged = () => {
     const canvas = canvasRef.current;
-    const link = document.createElement('a');
-    link.download = 'photo_edit.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+
+    return new Promise(resolve => {
+      canvas.toBlob(
+        blob => {
+          resolve(blob);
+        },
+        'image/jpeg',
+        0.92
+      );
+    });
   };
 
   return {

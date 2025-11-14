@@ -55,16 +55,8 @@ export default function Logout() {
       console.error(message, error);
       window.alert(message);
     } finally {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('userPassword');
-      localStorage.removeItem('isGuest');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('nickname');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userSlug');
-      localStorage.removeItem('userProfileImage');
+      // localStorage의 모든 항목 삭제
+      localStorage.clear();
 
       window.dispatchEvent(new Event('storage'));
       setIsSubmitting(false);
@@ -109,6 +101,8 @@ export default function Logout() {
         '로그아웃 후 PLINK를',
         '사용하기 위해서는 재로그인이 필요합니다.',
       ]}
+      subMessagesAlign="center"
+      subMessagesTextAlign="center"
       buttonText={isSubmitting ? '로그아웃 중...' : '로그아웃하기'}
       buttonDisabled={isSubmitting}
       onButtonClick={handleLogout}

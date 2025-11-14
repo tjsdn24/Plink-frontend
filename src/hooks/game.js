@@ -14,6 +14,7 @@ export async function submitGameScore({ slug = 'line4thon', gameId, nickname, sc
           success,
         },
         paramsSerializer: params => new URLSearchParams(params).toString(), // ✨ encode 안 함
+        withCredentials: true, // 🔥 쿠키/세션 포함 (로그인 유지)
       }
     );
   } catch (err) {

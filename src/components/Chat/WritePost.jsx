@@ -12,6 +12,7 @@ import ChatXButtonGray from '../../assets/icons/ChatXButtonGray.svg';
 import ChatXButtonBlack from '../../assets/icons/ChatXButtonBlack.svg';
 
 import { createPost } from '../../api/Chat/CommentsApi';
+import { canWritePost } from '../../utils/guestSession';
 
 export default function WritePost({ onClose, onAddPost }) {
   const [openCategory, setOpenCategory] = useState(false);
@@ -47,6 +48,10 @@ export default function WritePost({ onClose, onAddPost }) {
 
   /* 게시글 전송 */
   const handleSend = async () => {
+    if (!canWritePost()) {
+      alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      return;
+    }
     if (!selectedCategory) return alert('카테고리를 선택해주세요.');
 
     const formData = new FormData();

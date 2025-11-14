@@ -14,7 +14,6 @@ import {
   Etc,
   Comment,
   ReactionIcon,
-  Time,
   PollTitle,
 } from './Post.styles';
 
@@ -76,8 +75,6 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, slug 
               <ReactionIcon src={CommentIcon} alt="comment" />
               {post.commentCount || 0}
             </Comment>
-
-            <Time>{new Date(post.createdAt).toLocaleString()}</Time>
           </Etc>
         </ContentAndEtcWrapper>
       </PostBox>

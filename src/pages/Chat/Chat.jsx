@@ -34,16 +34,23 @@ export default function Chat({ slug = 'line4thon' }) {
       const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
       const tagName = tagMap[selectedCategory] ?? null;
 
+      let res;
+
       // 검색
       if (searchKeyword.trim()) {
-        const res = await searchPosts(slug, searchKeyword, tagName);
-        setPosts(res.data.posts);
+        res = await searchPosts(slug, searchKeyword, tagName);
       }
       // 카테고리 조회
       else {
-        const res = await getPostsByTag(slug, tagName);
-        setPosts(res.data.posts);
+        res = await getPostsByTag(slug, tagName);
       }
+
+      // 🔥 최신순 정렬 (createdAt 기준)
+      const sortedPosts = [...res.data.posts].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setPosts(sortedPosts);
     } catch (err) {
       console.error('게시글 불러오기 실패:', err);
     }

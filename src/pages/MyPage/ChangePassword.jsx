@@ -9,6 +9,7 @@ import successIcon from '../../assets/icons/PasswordTrue.svg';
 import errorIcon from '../../assets/icons/PasswordFalse.svg';
 import EyeOpen from '../../assets/icons/EyeOpen.svg';
 import EyeClosed from '../../assets/icons/EyeClosed.svg';
+import { changePassword as changePasswordApi } from '../../api/mypageService';
 
 function PasswordTextField({ 
   name, 
@@ -85,10 +86,7 @@ export default function ChangePassword() {
     newPasswordConfirm: '변경할 비밀번호를 다시 입력해주세요.',
   });
 
-  const DEFAULT_PASSWORD = 'abcd1234!';
-  const [storedCurrentPassword, setStoredCurrentPassword] = useState(
-    () => localStorage.getItem('userPassword') || DEFAULT_PASSWORD
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 비밀번호 유효성 검사
   const validatePassword = (password) => {
@@ -101,18 +99,18 @@ export default function ChangePassword() {
   };
 
   useEffect(() => {
-    // 현재 비밀번호 검증
+    // 현재 비밀번호 입력 확인 (실제 검증은 백엔드에서 수행)
     if (formData.currentPassword) {
-      const isValid = formData.currentPassword === storedCurrentPassword;
+      const hasValue = formData.currentPassword.trim() !== '';
       setFieldStatus(prev => ({
         ...prev,
-        currentPassword: isValid ? 'success' : 'error',
+        currentPassword: hasValue ? null : null, // 백엔드에서 검증하므로 null로 유지
       }));
       setHelperMessages(prev => ({
         ...prev,
-        currentPassword: isValid
-          ? '현재 비밀번호가 확인되었습니다.'
-          : '사용 중인 비밀번호가 아닙니다.',
+        currentPassword: hasValue
+          ? '현재 비밀번호를 입력했습니다.'
+          : '현재 비밀번호를 입력해주세요.',
       }));
     } else {
       setFieldStatus(prev => ({
@@ -124,7 +122,7 @@ export default function ChangePassword() {
         currentPassword: '현재 비밀번호를 입력해주세요.',
       }));
     }
-  }, [formData.currentPassword, storedCurrentPassword]);
+  }, [formData.currentPassword]);
 
   useEffect(() => {
     // 새 비밀번호 검증
@@ -178,17 +176,6 @@ export default function ChangePassword() {
     }
   }, [formData.newPasswordConfirm, formData.newPassword]);
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setStoredCurrentPassword(localStorage.getItem('userPassword') || DEFAULT_PASSWORD);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -206,7 +193,7 @@ export default function ChangePassword() {
   };
 
   const isAllFieldsValid =
-    fieldStatus.currentPassword === 'success' &&
+    formData.currentPassword.trim() !== '' &&
     fieldStatus.newPassword === 'success' &&
     fieldStatus.newPasswordConfirm === 'success';
 
@@ -214,10 +201,66 @@ export default function ChangePassword() {
     navigate('/mypage');
   };
 
-  const handleSubmit = () => {
-    if (isAllFieldsValid) {
+  const normalizeSlug = slug => {
+    if (typeof slug !== 'string') return null;
+    const trimmed = slug.trim();
+    if (!trimmed) return null;
+    if (trimmed === 'line4thon') {
+      try {
+        localStorage.setItem('userSlug', 'line4thon');
+      } catch {
+        // ignore storage errors
+      }
+      return 'line4thon';
+    }
+    return trimmed;
+  };
+
+  const handleSubmit = async () => {
+    if (!isAllFieldsValid || isSubmitting) {
+      return;
+    }
+
+    // 로그인 상태 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userId = localStorage.getItem('userId');
+    
+    if (!isLoggedIn || !userId) {
+      window.alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+      navigate('/login');
+      return;
+    }
+
+    const slug =
+      (() => {
+        try {
+          const stored = localStorage.getItem('userSlug');
+          const normalized = normalizeSlug(stored);
+          return normalized || 'line4thon';
+        } catch {
+          return 'line4thon';
+        }
+      })();
+
+    setIsSubmitting(true);
+
+    try {
+      console.log('비밀번호 변경 API 호출 전 확인:', {
+        isLoggedIn,
+        userId,
+        slug,
+      });
+
+      await changePasswordApi({
+        slug,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      });
+
+      // 성공 시 localStorage 업데이트
       localStorage.setItem('userPassword', formData.newPassword);
-      setStoredCurrentPassword(formData.newPassword);
+
+      // 폼 초기화
       setFormData({
         currentPassword: '',
         newPassword: '',
@@ -233,12 +276,65 @@ export default function ChangePassword() {
         newPassword: '영문/숫자/특수문자로 8자 이상 작성해주세요.',
         newPasswordConfirm: '변경할 비밀번호를 다시 입력해주세요.',
       });
-      navigate('/mypage', {
-        state: {
-          newPassword: formData.newPassword,
-          newPasswordConfirm: formData.newPasswordConfirm,
-        },
+
+      window.alert('비밀번호가 성공적으로 변경되었습니다.');
+      navigate('/mypage');
+    } catch (error) {
+      const errorStatus = error?.response?.status || error?.status;
+      const errorData = error?.response?.data || error?.data;
+      
+      let message =
+        errorData?.message ||
+        error?.data?.message ||
+        error?.message ||
+        '비밀번호 변경에 실패했습니다. 다시 시도해주세요.';
+
+      // 401 UNAUTHORIZED 에러 처리 (현재 비밀번호 불일치)
+      if (errorStatus === 401) {
+        setFieldStatus(prev => ({
+          ...prev,
+          currentPassword: 'error',
+        }));
+        setHelperMessages(prev => ({
+          ...prev,
+          currentPassword: message || '현재 비밀번호가 올바르지 않습니다.',
+        }));
+        message = message || '현재 비밀번호가 올바르지 않습니다.';
+      }
+
+      // 403 Forbidden 에러 처리 (인증/권한 문제)
+      if (errorStatus === 403) {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userId = localStorage.getItem('userId');
+        
+        console.error('403 Forbidden - 세션 확인:', {
+          isLoggedIn,
+          userId,
+          slug,
+          error: error?.response?.data || error?.data,
+        });
+        
+        if (isLoggedIn && userId) {
+          message = '세션이 만료되었거나 권한이 없습니다. 다시 로그인해주세요.';
+          if (window.confirm('세션이 만료되었습니다. 로그인 페이지로 이동하시겠습니까?')) {
+            navigate('/login');
+            return;
+          }
+        } else {
+          message = '로그인이 필요합니다. 로그인 페이지로 이동합니다.';
+          navigate('/login');
+          return;
+        }
+      }
+
+      console.error('비밀번호 변경 실패:', {
+        status: errorStatus,
+        message,
+        error,
       });
+      window.alert(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -284,7 +380,13 @@ export default function ChangePassword() {
           onToggleVisibility={() => handleToggleVisibility('newPasswordConfirm')}
         />
       </FieldsContainer>
-      <NavButton isActive={isAllFieldsValid} onClick={handleSubmit}>변경하기</NavButton>
+      <NavButton 
+        isActive={isAllFieldsValid && !isSubmitting} 
+        onClick={handleSubmit}
+        disabled={!isAllFieldsValid || isSubmitting}
+      >
+        {isSubmitting ? '변경 중...' : '변경하기'}
+      </NavButton>
     </div>
   );
 }

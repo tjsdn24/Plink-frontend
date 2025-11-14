@@ -11,12 +11,7 @@ import Purple from '../../assets/icons/LoginPurple.svg';
 import EyeOpen from '../../assets/icons/EyeOpen.svg';
 import EyeClosed from '../../assets/icons/EyeClosed.svg';
 import { loginUser } from '../../api/authService';
-import {
-  isGuestSession,
-  getStoredNickname,
-  getStoredSlug,
-  getStoredEmail,
-} from '../../utils/guestSession';
+import { isGuestSession, getStoredNickname, getStoredSlug } from '../../utils/guestSession';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -79,7 +74,7 @@ export default function Login() {
       navigate('/festival');
     } catch (error) {
       const message =
-        error?.data?.message || error?.message || '이메일 또는 비밀번호가 올바르지 않습니다.';
+        error?.response?.data?.message || error?.data?.message || error?.message || '이메일 또는 비밀번호가 올바르지 않습니다.';
       setErrorMessage(message);
     }
   };
@@ -96,21 +91,25 @@ export default function Login() {
   const handleSignUp = e => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // 백엔드 로직: upgradeGuestToUser에서 게스트의 UserFestival을 새 User로 소유권 변경
+    // 게스트 닉네임을 그대로 사용하면 백엔드에서 통과 (festival.getNickname().equals(newNickname))
     if (isGuestSession()) {
       const nickname = getStoredNickname();
       const slug = getStoredSlug();
-    const email = getStoredEmail();
 
-      navigate('/signup/email', {
+      // 게스트 로그인 시 사용한 닉네임을 기본값으로 사용
+      // 사용자가 원하면 닉네임 선택 페이지에서 변경 가능
+      navigate('/signup/nickname', {
         state: {
           nickname: nickname || '숨쉬는 고양이',
-          slug,
+          slug: slug || 'line4thon',
           fromGuest: true,
-        email,
         },
       });
       return;
     }
+    
     navigate('/signup/nickname');
   };
 

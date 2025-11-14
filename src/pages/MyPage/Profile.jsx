@@ -10,7 +10,7 @@ import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
 import MyPageCameraIcon from '../../assets/icons/MyPageCamera.svg';
 import successIcon from '../../assets/icons/PasswordTrue.svg';
 import errorIcon from '../../assets/icons/PasswordFalse.svg';
-import { updateNickname as updateNicknameApi } from '../../api/mypageService';
+import { updateProfile as updateProfileApi } from '../../api/mypageService';
 
 const normalizeSlug = slug => {
   if (typeof slug !== 'string') return null;
@@ -351,13 +351,19 @@ const LoginButton = styled.button`
 const generateRandomNickname = () => {
   const adjectives = [
     '멋진', '귀여운', '행복한', '빛나는', '용감한', '똑똑한', '친절한', '활발한',
-    '차분한', '밝은', '강한', '부드러운', '따뜻한', '시원한', '신비로운', '재미있는'
+    '차분한', '밝은', '강한', '부드러운', '따뜻한', '시원한', '신비로운', '재미있는',
+    '화려한', '우아한', '자유로운', '열정적인', '평화로운', '즐거운', '기쁜', '사랑스러운',
+    '아름다운', '순수한', '깨끗한', '새로운', '신선한', '특별한', '독특한', '창의적인',
+    '영리한', '빠른', '느긋한', '조용한', '명랑한'
   ];
   
   const nouns = [
     '고양이', '강아지', '토끼', '햄스터', '다람쥐', '팬더', '곰', '펭귄',
     '돌고래', '나비', '별', '달', '구름', '바람', '물결', '꽃',
-    '나무', '산', '바다', '하늘', '별빛', '햇살', '달빛', '무지개'
+    '나무', '산', '바다', '하늘', '별빛', '햇살', '달빛', '무지개',
+    '사자', '호랑이', '코끼리', '기린', '얼룩말', '원숭이', '캥거루', '코알라',
+    '여우', '늑대', '사슴', '말', '소', '양', '염소', '돼지',
+    '닭', '오리', '거위', '백조', '도마뱀'
   ];
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -472,20 +478,36 @@ export default function Profile({
 
     const trimmedNickname = formData.nickname.trim();
     const nicknameChanged = trimmedNickname !== initialNickname;
-    const canPersistNickname = nicknameChanged ? nicknameStatus === 'success' : true;
-
-    if (!canPersistNickname) {
-      setNicknameStatus('error');
-      setHelperMessage('사용 불가능한 닉네임이에요!');
-      return;
-    }
-
+    
+    // 닉네임이 변경되지 않았으면 저장하지 않음
     if (!nicknameChanged) {
       navigate('/mypage');
       return;
     }
 
-    const nicknameToSave = nicknameChanged ? trimmedNickname : initialNickname;
+    // 닉네임이 변경되었을 때 유효성 검사
+    const canPersistNickname = nicknameStatus === 'success';
+    
+    if (!canPersistNickname) {
+      // 유효성 검사가 아직 완료되지 않았거나 실패한 경우
+      const isValid = validateNickname(trimmedNickname);
+      if (isValid === false) {
+        setNicknameStatus('error');
+        setHelperMessage('사용 불가능한 닉네임이에요!');
+        return;
+      }
+      // 유효성 검사는 통과했지만 상태가 업데이트되지 않은 경우
+      if (isValid === true) {
+        setNicknameStatus('success');
+        setHelperMessage('사용 가능한 닉네임이에요!');
+      } else {
+        setNicknameStatus('error');
+        setHelperMessage('2~8자 이내로 작성해주세요.');
+        return;
+      }
+    }
+
+    const nicknameToSave = trimmedNickname;
 
     const slug =
       (() => {
@@ -498,24 +520,73 @@ export default function Profile({
         }
       })();
 
+    // 로그인 상태 확인
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userId = localStorage.getItem('userId');
+    
+    if (!isLoggedIn || !userId) {
+      window.alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+      navigate('/login');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await updateNicknameApi({
+      // 백엔드: 같은 엔드포인트 /{slug}/mypage/profile 사용
+      // nickname을 보내면 닉네임 수정, profileImage를 보내면 프로필 사진 수정
+      // 백엔드에서 해당 축제(slug) 내에서 닉네임 중복 체크
+      console.log('닉네임 수정 API 호출:', {
+        isLoggedIn,
+        userId,
+        slug,
+        nickname: nicknameToSave,
+        initialNickname,
+      });
+      
+      const response = await updateProfileApi({
         slug,
         nickname: nicknameToSave,
       });
 
-      const updatedNickname = response?.nickname || nicknameToSave;
-      const updatedProfileImage = response?.profileImageUrl || profileImage;
-      const updatedRole = response?.role;
-      const updatedSlug = response?.slug || slug;
-      const updatedEmail = response?.email;
+      // 응답 구조 확인을 위한 로깅
+      console.log('닉네임 수정 API 응답:', {
+        response,
+        responseType: typeof response,
+        responseKeys: response ? Object.keys(response) : null,
+        responseNickname: response?.nickname,
+        nicknameToSave,
+      });
 
+      // 백엔드 응답: { email, nickname, profileImageUrl, role, slug }
+      // 응답이 객체인지 확인하고 닉네임 추출
+      const updatedNickname = response?.nickname || response?.data?.nickname || nicknameToSave;
+      const updatedProfileImage = response?.profileImageUrl || response?.data?.profileImageUrl || profileImage;
+      const updatedRole = response?.role || response?.data?.role;
+      const updatedSlug = response?.slug || response?.data?.slug || slug;
+      const updatedEmail = response?.email || response?.data?.email;
+
+      console.log('추출된 닉네임 정보:', {
+        updatedNickname,
+        originalNickname: nicknameToSave,
+        responseNickname: response?.nickname,
+        responseDataNickname: response?.data?.nickname,
+      });
+
+      // localStorage 업데이트
       if (updatedEmail) {
         localStorage.setItem('userId', updatedEmail);
       }
-      localStorage.setItem('nickname', updatedNickname);
+      // 닉네임이 응답에 있으면 업데이트, 없으면 요청한 닉네임 사용
+      if (response?.nickname || response?.data?.nickname) {
+        localStorage.setItem('nickname', updatedNickname);
+        console.log('localStorage 닉네임 업데이트:', updatedNickname);
+      } else {
+        // 응답에 닉네임이 없어도 요청한 닉네임으로 업데이트
+        localStorage.setItem('nickname', nicknameToSave);
+        console.log('localStorage 닉네임 업데이트 (응답 없음):', nicknameToSave);
+      }
+      
       if (updatedProfileImage) {
         localStorage.setItem('userProfileImage', updatedProfileImage);
         setProfileImage(updatedProfileImage);
@@ -527,12 +598,65 @@ export default function Profile({
         localStorage.setItem('userSlug', updatedSlug);
       }
 
-      window.dispatchEvent(new Event('profileUpdated'));
+      // 프로필 업데이트 이벤트 발생 (다른 컴포넌트에서 닉네임 변경 감지)
+      window.dispatchEvent(new CustomEvent('profileUpdated', {
+        detail: { nickname: updatedNickname }
+      }));
+      
       navigate('/mypage');
     } catch (error) {
-      const message =
-        error?.data?.message || error?.message || '프로필 수정에 실패했습니다. 다시 시도해주세요.';
-      console.error(message, error);
+      // 백엔드: 409 CONFLICT - "이 행사의 닉네임은 이미 사용 중입니다."
+      // 403 Forbidden - 인증/권한 문제
+      const errorStatus = error?.response?.status || error?.status;
+      let message =
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.message ||
+        '프로필 수정에 실패했습니다. 다시 시도해주세요.';
+
+      // 403 Forbidden 에러 처리 (인증/권한 문제)
+      if (errorStatus === 403) {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userId = localStorage.getItem('userId');
+        const userSlug = localStorage.getItem('userSlug');
+        
+        console.error('403 Forbidden - 세션 확인:', {
+          isLoggedIn,
+          userId,
+          userSlug,
+          slug,
+          error: error?.response?.data || error?.data,
+        });
+        
+        // 세션이 만료되었거나 권한이 없는 경우
+        if (isLoggedIn && userId) {
+          // 로그인 상태인데 403이면 세션 만료 또는 권한 문제
+          message = '세션이 만료되었거나 권한이 없습니다. 다시 로그인해주세요.';
+          // 로그인 페이지로 이동
+          if (window.confirm('세션이 만료되었습니다. 로그인 페이지로 이동하시겠습니까?')) {
+            navigate('/login');
+            return;
+          }
+        } else {
+          // 로그인하지 않은 상태
+          message = '로그인이 필요합니다. 로그인 페이지로 이동합니다.';
+          navigate('/login');
+          return;
+        }
+      }
+
+      // 409 CONFLICT 에러 처리 (닉네임 중복)
+      if (errorStatus === 409) {
+        setNicknameStatus('error');
+        setHelperMessage('이 행사의 닉네임은 이미 사용 중입니다.');
+        message = '이 행사의 닉네임은 이미 사용 중입니다.';
+      }
+
+      console.error('닉네임 수정 실패:', {
+        status: errorStatus,
+        message,
+        error,
+      });
       window.alert(message);
     } finally {
       setIsSubmitting(false);
@@ -601,8 +725,8 @@ export default function Profile({
           </NicknameFieldsContainer>
         </Content>
         <ButtonContainer>
-          <LoginButton onClick={handleSave} disabled={isSubmitting}>
-            {isSubmitting ? '수정 중...' : '수정하기'}
+          <LoginButton onClick={handleSave}>
+            수정하기
           </LoginButton>
         </ButtonContainer>
       </BottomSheet>

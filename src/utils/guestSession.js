@@ -18,6 +18,21 @@ export const getStoredNickname = () => {
     if (!storedNickname) {
       return '';
     }
+    // 게스트 닉네임은 원본 그대로 반환 (백엔드와 정확히 일치해야 함)
+    return storedNickname;
+  } catch (error) {
+    console.error('닉네임 조회 실패', error);
+    return '';
+  }
+};
+
+// sanitize된 닉네임이 필요한 경우 사용
+export const getStoredNicknameSanitized = () => {
+  try {
+    const storedNickname = localStorage.getItem('nickname');
+    if (!storedNickname) {
+      return '';
+    }
     return sanitizeNickname(storedNickname);
   } catch (error) {
     console.error('닉네임 조회 실패', error);

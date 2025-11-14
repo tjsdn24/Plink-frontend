@@ -40,6 +40,31 @@ export default function MyActivityLike() {
     };
 
     fetchLikedPosts();
+
+    // 좋아요 취소 시 목록에서 제거하는 이벤트 리스너
+    const handleRemoveLikedPost = (event) => {
+      const { postId } = event.detail;
+      setLikes(prevLikes => {
+        const filtered = prevLikes.filter(like => {
+          const likePostId = like.postId || like.id;
+          return likePostId !== postId;
+        });
+        
+        // localStorage와 이벤트 업데이트
+        localStorage.setItem('myEmpathyCount', String(filtered.length));
+        window.dispatchEvent(new CustomEvent('activityCountUpdated', { 
+          detail: { type: 'empathy', count: filtered.length } 
+        }));
+        
+        return filtered;
+      });
+    };
+
+    window.addEventListener('removeLikedPost', handleRemoveLikedPost);
+
+    return () => {
+      window.removeEventListener('removeLikedPost', handleRemoveLikedPost);
+    };
   }, []);
 
   return (

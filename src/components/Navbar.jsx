@@ -52,7 +52,7 @@ export default function Navbar() {
 
   return (
     <Nav>
-      <NavItem to="/" $active={pathname === '/'}>
+      <NavItem to="/home" $active={pathname === '/home'}>
         <Home />
         HOME
       </NavItem>

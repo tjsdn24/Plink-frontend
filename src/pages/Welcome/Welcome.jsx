@@ -222,7 +222,7 @@ export default function Welcome() {
 
       // 2초 후 홈으로 이동
       setTimeout(() => {
-        navigate('/');
+        navigate('/home');
       }, 2000);
       return;
     }
@@ -348,7 +348,7 @@ export default function Welcome() {
 
       // 4초 후 홈 또는 축제 목록으로 이동 (폭죽 효과와 닉네임, 환영 메시지를 충분히 볼 수 있도록)
       setTimeout(() => {
-        navigate('/');
+        navigate('/home');
       }, 4000);
     }, 4700); // 5200ms -> 4700ms (0.5초 감소)
 

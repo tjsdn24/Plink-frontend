@@ -10,6 +10,7 @@ import { c, typography, s } from '../../styles/themeUtils';
 import { categories } from '../../components/Chat/Categories';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
+import { canWritePost } from '../../utils/guestSession';
 
 /* ----------------------------------------------------
     태그 매핑
@@ -20,6 +21,15 @@ export default function Chat({ slug = 'line4thon' }) {
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
+
+  /* 게시글 작성 버튼 클릭 핸들러 */
+  const handleWriteClick = () => {
+    if (!canWritePost()) {
+      alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      return;
+    }
+    setOpenWrite(true);
+  };
 
   /* ----------------------------------------------------
       게시글 불러오기
@@ -87,10 +97,10 @@ export default function Chat({ slug = 'line4thon' }) {
         {posts.length > 0 ? (
           <Post postData={posts} slug={slug} highlightKeyword={searchKeyword} />
         ) : (
-          <NonSearch onWrite={() => setOpenWrite(true)} />
+          <NonSearch onWrite={handleWriteClick} />
         )}
 
-        <WriteButton onClick={() => setOpenWrite(true)} />
+        <WriteButton onClick={handleWriteClick} />
 
         {openWrite && (
           <WritePost slug={slug} onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />

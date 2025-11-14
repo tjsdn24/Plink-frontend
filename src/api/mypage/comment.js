@@ -77,12 +77,15 @@ const adaptComment = rawComment => {
     author: author || '익명',
     profileImageUrl: profileImageUrl || null,
     content: content || '',
+    commentText: content || '', // ActivityLayout에서 사용하는 필드명
     createdAt: createdAt || null,
     updatedAt: updatedAt || null,
     time: formatRelativeTime(createdAt || updatedAt),
     likeCount: Number(likeCount) || 0,
     postTitle: postTitle || '',
+    postPreview: postTitle || '', // ActivityLayout에서 사용하는 필드명
     postId: Number(postId) || null,
+    postNickname: null, // 필요시 추가
     raw: rawComment,
   };
 };

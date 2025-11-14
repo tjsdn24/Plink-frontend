@@ -17,13 +17,25 @@ export default function MyActivityLike() {
         console.log('좋아요한 게시글 조회 API 호출:', { slug });
         const likedPosts = await getMyLikedPosts({ slug });
         console.log('좋아요한 게시글 조회 성공:', likedPosts);
-        setLikes(likedPosts || []);
+        const likesArray = likedPosts || [];
+        setLikes(likesArray);
+        // localStorage에 개수 저장
+        localStorage.setItem('myEmpathyCount', String(likesArray.length));
+        // 커스텀 이벤트 발생
+        window.dispatchEvent(new CustomEvent('activityCountUpdated', { 
+          detail: { type: 'empathy', count: likesArray.length } 
+        }));
         setLikeStatus({ loading: false, error: null });
       } catch (error) {
         console.error('좋아요한 게시글 조회 실패:', error);
         const errorMessage = error?.message || '공감한 이야기를 불러오지 못했어요.';
         setLikeStatus({ loading: false, error: errorMessage });
         setLikes([]);
+        // 에러 시에도 0으로 설정
+        localStorage.setItem('myEmpathyCount', '0');
+        window.dispatchEvent(new CustomEvent('activityCountUpdated', { 
+          detail: { type: 'empathy', count: 0 } 
+        }));
       }
     };
 

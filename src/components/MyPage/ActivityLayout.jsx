@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PageHeader from '../PageHeader';
-import Post from '../Chat/Post';
+import ActivityCard from './ActivityCard';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, s, typography } from '../../styles/themeUtils';
 import { extractSearchableText } from './activityUtils';
@@ -58,40 +58,30 @@ export default function ActivityLayout({
     </EmptyState>
   );
 
+  // slug 가져오기
+  const slug = useMemo(() => {
+    return localStorage.getItem('userSlug') || 'line4thon';
+  }, []);
+
   let content;
 
   if (isLoading) {
     content = renderStatusCard('불러오는 중이에요.', '잠시만 기다려 주세요.');
   } else if (errorMessage) {
     content = renderStatusCard('오류가 발생했어요.', errorMessage);
-  } else if (type === 'comment') {
-    content = hasItems
-      ? (
-        <CommentList>
-          {filteredItems.map(item => (
-            <CommentCard key={item.id}>
-              <CommentHeader>
-                <CommentBadge>내 댓글</CommentBadge>
-                <CommentMeta>{item.time}</CommentMeta>
-              </CommentHeader>
-              <CommentHighlight>{item.commentText}</CommentHighlight>
-              {(item.postPreview || item.postNickname) && (
-                <CommentSource>
-                  {item.postNickname ? `${item.postNickname} · ` : ''}
-                  {item.postPreview || '원문 텍스트 없음'}
-                </CommentSource>
-              )}
-            </CommentCard>
-          ))}
-        </CommentList>
-        )
-      : renderStatusCard(emptyTitle, emptyDescription);
   } else {
     content = hasItems
       ? (
-        <PostListWrapper>
-          <Post postData={filteredItems} />
-        </PostListWrapper>
+        <CardList>
+          {filteredItems.map(item => (
+            <ActivityCard
+              key={item.id}
+              item={item}
+              type={type}
+              slug={slug}
+            />
+          ))}
+        </CardList>
         )
       : renderStatusCard(emptyTitle, emptyDescription);
   }
@@ -250,7 +240,10 @@ const ContentArea = styled.div`
   padding-top: ${s('sm')};
 `;
 
-const PostListWrapper = styled.div`
+const CardList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: ${s('md')};
@@ -280,56 +273,5 @@ const EmptyDescription = styled.p`
   ${typography('body02')};
   color: ${c('neutral.black2')};
   text-align: center;
-`;
-
-const CommentList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: ${s('md')};
-`;
-
-const CommentCard = styled.li`
-  background: ${c('neutral.white')};
-  border-radius: ${({ theme }) => theme.radius.md};
-  border: 1px solid rgba(149, 152, 163, 0.12);
-  box-shadow: 0 10px 24px rgba(26, 29, 45, 0.08);
-  padding: ${s('md')};
-  display: flex;
-  flex-direction: column;
-  gap: ${s('sm')};
-`;
-
-const CommentHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const CommentBadge = styled.span`
-  background: rgba(249, 64, 158, 0.1);
-  color: ${c('brand.pink')};
-  padding: 4px 10px;
-  border-radius: 999px;
-  ${typography('caption01')};
-`;
-
-const CommentMeta = styled.span`
-  ${typography('caption01')};
-  color: ${c('neutral.gray2')};
-`;
-
-const CommentHighlight = styled.p`
-  margin: 0;
-  ${typography('body01')};
-  color: ${c('neutral.black')};
-  white-space: pre-line;
-`;
-
-const CommentSource = styled.span`
-  ${typography('body02')};
-  color: ${c('neutral.black2')};
 `;
 

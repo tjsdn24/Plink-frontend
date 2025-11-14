@@ -203,9 +203,9 @@ export default function MyPage({
   profileImage: propProfileImage,
   nickname: propNickname,
   userId: propUserId,
-  storyCount = 7,
-  empathyCount = 12,
-  commentCount = 36,
+  storyCount: propStoryCount,
+  empathyCount: propEmpathyCount,
+  commentCount: propCommentCount,
 }) {
   const navigate = useNavigate();
   
@@ -215,6 +215,20 @@ export default function MyPage({
       return propIsLoggedIn;
     }
     return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  // 활동 개수 state
+  const [storyCount, setStoryCount] = useState(() => {
+    if (propStoryCount !== undefined) return propStoryCount;
+    return Number(localStorage.getItem('myStoryCount')) || 0;
+  });
+  const [empathyCount, setEmpathyCount] = useState(() => {
+    if (propEmpathyCount !== undefined) return propEmpathyCount;
+    return Number(localStorage.getItem('myEmpathyCount')) || 0;
+  });
+  const [commentCount, setCommentCount] = useState(() => {
+    if (propCommentCount !== undefined) return propCommentCount;
+    return Number(localStorage.getItem('myCommentCount')) || 0;
   });
 
   // 프로필 데이터 state
@@ -340,6 +354,46 @@ export default function MyPage({
       }
     }
   }, [isLoggedIn]);
+
+  // 활동 개수 업데이트 감지
+  useEffect(() => {
+    const handleActivityCountUpdate = (event) => {
+      const { type, count } = event.detail;
+      if (type === 'story') {
+        setStoryCount(count);
+      } else if (type === 'empathy') {
+        setEmpathyCount(count);
+      } else if (type === 'comment') {
+        setCommentCount(count);
+      }
+    };
+
+    // localStorage 변경 감지
+    const handleStorageChange = () => {
+      const story = Number(localStorage.getItem('myStoryCount')) || 0;
+      const empathy = Number(localStorage.getItem('myEmpathyCount')) || 0;
+      const comment = Number(localStorage.getItem('myCommentCount')) || 0;
+      setStoryCount(story);
+      setEmpathyCount(empathy);
+      setCommentCount(comment);
+    };
+
+    window.addEventListener('activityCountUpdated', handleActivityCountUpdate);
+    window.addEventListener('storage', handleStorageChange);
+
+    // 초기 로드 시 localStorage에서 값 가져오기
+    const story = Number(localStorage.getItem('myStoryCount')) || 0;
+    const empathy = Number(localStorage.getItem('myEmpathyCount')) || 0;
+    const comment = Number(localStorage.getItem('myCommentCount')) || 0;
+    setStoryCount(story);
+    setEmpathyCount(empathy);
+    setCommentCount(comment);
+
+    return () => {
+      window.removeEventListener('activityCountUpdated', handleActivityCountUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   return (
     <>

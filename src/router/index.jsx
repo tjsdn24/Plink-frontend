@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import PageLayout from '../layouts/PageLayout';
-// ✅ 페이지 import
+// 페이지 import
 import Home from '../pages/Home/Home';
 import Photo from '../pages/Photo/Photo';
 import PhotoBooth from '../pages/Photo/PhotoBooth';
 import PhotoEdit from '../pages/Photo/PhotoEdit';
+import PhotoQR from '../pages/Photo/PhotoQR';
 import Chat from '../pages/Chat/Chat';
 import Comments from '../pages/Chat/Comments';
 //import PostEdit from './pages/Chat/PostEdit';
@@ -72,6 +73,7 @@ export default function Router() {
             </PageLayout>
           }
         />
+        <Route path="/photo/qr" element={<PhotoQR />} />
         {/* 채팅 관련 페이지 (Header + Navbar 유지) */}
         <Route
           path="/chat"

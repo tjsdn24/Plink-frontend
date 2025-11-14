@@ -7,6 +7,9 @@ import PostDetail from '../../components/Chat/PostDetail';
 import CommentList from '../../components/Chat/CommentList';
 import { getPostDetail, createPost } from '../../api/Chat/CommentsApi';
 import { likePost } from '../../api/Chat/CommentsApi';
+
+import { canWritePost } from '../../utils/guestSession'; // 
+
 import {
   Wrapper,
   Header,
@@ -126,36 +129,51 @@ export default function Comments() {
     });
   };
 
-  // 댓글 추가 시 createPost 호출하여 서버에 저장하고 댓글 리스트 갱신
+  // 댓글 추가
   const handleAddComment = async () => {
+    if (!canWritePost()) {
+      alert('댓글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      return;
+    }
     if (!newComment.trim()) return;
 
-    const newEntry = {
-      nickname: '나',
-      text: newComment,
-      time: '방금 전',
-      isMine: true,
-    };
-
     try {
-      // API에 보낼 데이터 형태에 맞게 조정 필요
-      const postData = {
-        ...post,
-        comments: [...comments, newEntry], // 기존 댓글에 새 댓글 추가
-      };
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('content', newComment.trim());
 
-      // createPost 호출 (slug, postData 전달)
-      const response = await createPost(slug, postData);
+      // 댓글 작성 API 호출
+      const response = await createComment(slug, postId, formData);
+      const newCommentData = response.data;
 
-      // 응답에 새 댓글 포함되어 있다고 가정하고 상태 갱신
-      setComments(response.data.post.comments || []);
-      setCommentLikes(prev => [...prev, { liked: false, count: 0 }]);
+      // 입력 필드 초기화
       setNewComment('');
 
-      // 필요 시 post 상태도 업데이트
-      setPost(response.data.post);
+      // 새 댓글을 목록에 추가
+      if (newCommentData && newCommentData.id) {
+        setComments(prev => [...prev, newCommentData]);
+        setCommentLikes(prev => [...prev, { 
+          liked: false, 
+          count: newCommentData.likeCount || 0 
+        }]);
+        
+        // 게시글의 댓글 수 업데이트
+        setPost(prev => prev ? { ...prev, commentCount: (prev.commentCount || comments.length) + 1 } : prev);
+      } else {
+        // 응답에 댓글 데이터가 없으면 게시글 상세 정보 새로고침
+        const postResponse = await getPostDetail(slug, postId);
+        const updatedPostData = postResponse.data.post || postResponse.data;
+        setPost(updatedPostData);
+        const updatedComments = updatedPostData.comments || [];
+        setComments(updatedComments);
+        setCommentLikes(updatedComments.map(comment => ({ 
+          liked: false, 
+          count: comment.likeCount || 0 
+        })));
+      }
     } catch (error) {
       console.error('댓글 작성 실패:', error);
+      console.error('에러 상세:', error.response?.data);
       alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
     }
   };
@@ -232,10 +250,11 @@ export default function Comments() {
 
         <CommentInputBox>
           <Input
-            placeholder="이야기에 반응해보세요"
+            placeholder={canWritePost() ? '이야기에 반응해보세요' : '로그인 후 댓글을 작성할 수 있습니다'}
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+            disabled={!canWritePost()}
           />
           <Arrow onClick={handleAddComment} src={ChatSend} alt="send" />
         </CommentInputBox>

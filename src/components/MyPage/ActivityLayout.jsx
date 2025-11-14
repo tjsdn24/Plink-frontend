@@ -90,7 +90,7 @@ export default function ActivityLayout({
     content = hasItems
       ? (
         <PostListWrapper>
-          <Post postData={filteredItems} variant="card" />
+          <Post postData={filteredItems} />
         </PostListWrapper>
         )
       : renderStatusCard(emptyTitle, emptyDescription);

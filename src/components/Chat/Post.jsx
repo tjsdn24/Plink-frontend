@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PostItem from './PostItem';
 import Report from './Report';
 import { ChatWrapper } from './Post.styles';
@@ -9,7 +9,7 @@ export default function Post({ postData, highlightKeyword = '' }) {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
   const navigate = useNavigate();
-  const slug = 'line4thon'; // 하드코딩
+  const { slug } = useParams();
 
   // 댓글 클릭 → 상세 페이지 이동
   const handlePostClick = postId => {

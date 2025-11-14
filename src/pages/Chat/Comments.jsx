@@ -20,7 +20,20 @@ export default function Comments() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const initialPost = state?.post || null;
-  const { slug, postId } = useParams();
+
+  const params = useParams();
+  let rawSlug = params.slug;
+
+  // slug 정제
+  let slug = rawSlug;
+  if (slug?.startsWith('?')) {
+    slug = slug.substring(1);
+  }
+  if (!slug || slug === 'undefined') {
+    slug = 'line4thon';
+  }
+
+  const postId = params.postId;
 
   const [post, setPost] = useState(initialPost);
   const [loading, setLoading] = useState(!initialPost);

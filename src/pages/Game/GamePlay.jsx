@@ -166,15 +166,20 @@ export default function GamePlay() {
   const [best, setBest] = useState(7.75);
   const [showModal, setShowModal] = useState(false);
   const [isJackpot, setIsJackpot] = useState(false);
+
   const startRef = useRef(null);
   const rafRef = useRef(null);
+
+  // 🔥 중복 실행 방지 플래그
+  const endRef = useRef(false);
+
   const TARGET = 7.77;
 
-  const { slug } = useParams(); // URL에서 slug 가져오기
-  const gameId = 1; // PLINK 기본 게임 ID = 항상 1번
+  const { slug } = useParams();
+  const gameId = 1;
   const nickname = localStorage.getItem('nickname') || 'Guest';
 
-  // 타이머
+  /** 타이머 */
   useEffect(() => {
     if (isHolding) {
       startRef.current = Date.now();
@@ -190,14 +195,22 @@ export default function GamePlay() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [isHolding]);
 
+  /** ✋ HOLD 시작 */
   const handleHoldStart = () => {
+    endRef.current = false; // 🔥 중복방지 리셋
+
     setResult(null);
     setShowModal(false);
     setIsJackpot(false);
     setIsHolding(true);
   };
 
+  /** 🛑 HOLD 종료 */
   const handleHoldEnd = async () => {
+    // 🔥 이미 실행되었으면 재실행 금지
+    if (endRef.current) return;
+    endRef.current = true;
+
     if (!isHolding) return;
     setIsHolding(false);
 
@@ -226,7 +239,7 @@ export default function GamePlay() {
     if (diff < Math.abs(best - TARGET)) setBest(finalTime);
     setTimeout(() => setShowModal(true), 500);
   };
-
+  s;
   // Confetti 색상 랜덤
   const colors = ['#F9409E', '#FF6B9D', '#FFD93D', '#4D96FF', '#6BCB77'];
 

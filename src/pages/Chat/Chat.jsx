@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
 import Post from '../../components/Chat/Post';
@@ -16,10 +17,22 @@ import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 ----------------------------------------------------- */
 
 export default function Chat({ slug = 'line4thon' }) {
+  const location = useLocation();
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
+  /* ChatBox → Chat 이동 시 카테고리 자동 선택 */
+  useEffect(() => {
+    if (location.state?.category) {
+      setSelectedCategory(location.state.category);
+    }
+  }, [location.state]);
+
+  /* 게시글 불러오기 */
+  useEffect(() => {
+    fetchPosts();
+  }, [selectedCategory, searchKeyword, slug]);
 
   /* ----------------------------------------------------
       게시글 불러오기

@@ -14,8 +14,13 @@ export default function HotChat({
   images = [],
 }) {
   const navigate = useNavigate();
+
   const handleClick = () => {
-    navigate(`/posts/${id}`, { state: { id } });
+    const targetPost = postList.find(p => p.id === id);
+
+    navigate(`/chat/line4thon/post/${id}`, {
+      state: { post: targetPost },
+    });
   };
 
   return (

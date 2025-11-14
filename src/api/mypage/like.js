@@ -147,10 +147,15 @@ const adaptPost = rawPost => {
 
   return {
     id,
+    postId: id, // 게시글 ID (ActivityCard에서 사용)
     nickname: author || '익명',
+    author: author || '익명', // ActivityCard에서 사용
     content: contentItems,
     like: Number(likeCount) || 0,
+    likeCount: Number(likeCount) || 0, // ActivityCard에서 사용
+    liked: true, // 좋아요한 게시글 목록이므로 기본적으로 true
     comment: Number(commentCount) || 0,
+    commentCount: Number(commentCount) || 0, // ActivityCard에서 사용
     comments: [],
     time: formatRelativeTime(createdAt || updatedAt),
     category: tagName || postType || '기타',
@@ -167,7 +172,7 @@ export async function getMyLikedPosts({ slug, signal } = {}) {
 
   try {
     const encodedSlug = encodeURIComponent(slug.trim());
-    const response = await apiClient.get(`/${encodedSlug}/mypage/liked`, {
+    const response = await apiClient.get(`/${encodedSlug}/mypage/posts/liked`, {
       signal,
     });
 

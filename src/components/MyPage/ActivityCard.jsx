@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BasicProfile from '../../assets/icons/ChatBasicProfile.svg';
 import ChatLikePink from '../../assets/icons/ChatLikePink.svg';
+import ChatLike from '../../assets/icons/ChatLike.svg';
 import CommentIcon from '../../assets/icons/ChatComment.svg';
 import ChatDots from '../../assets/icons/ChatDots.svg';
 import { c, s, typography } from '../../styles/themeUtils';
 import { getPostPreview } from './activityUtils';
+import { likePost } from '../../api/Chat/CommentsApi';
 
 export default function ActivityCard({ 
   item, 
@@ -14,6 +17,48 @@ export default function ActivityCard({
   onClick 
 }) {
   const navigate = useNavigate();
+  const [isLiked, setIsLiked] = useState(item.liked || false);
+  const [likeCount, setLikeCount] = useState(item.likeCount || item.like || 0);
+  const [isLiking, setIsLiking] = useState(false);
+
+  // 공감하기 핸들러
+  const handleLike = async (e) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 방지
+    
+    if (isLiking) return;
+    
+    const postId = item.postId || item.id;
+    if (!postId) return;
+
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+
+    // 낙관적 업데이트
+    setIsLiked(!previousLiked);
+    setLikeCount(previousLiked ? previousCount - 1 : previousCount + 1);
+
+    try {
+      await likePost(slug, postId);
+      // 성공 시 상태는 이미 업데이트됨
+      
+      // 좋아요 취소 시 (공감한 글 보기에서만) 목록에서 제거 이벤트 발생
+      // previousLiked가 true였고, 현재 취소된 경우
+      if (type === 'empathy' && previousLiked) {
+        window.dispatchEvent(new CustomEvent('removeLikedPost', {
+          detail: { postId }
+        }));
+      }
+    } catch (error) {
+      console.error('공감하기 실패:', error);
+      // 실패 시 롤백
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+      alert('공감하기에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
   // 게시글 본문 텍스트 추출
   const getContentText = () => {
@@ -46,9 +91,6 @@ export default function ActivityCard({
     return '';
   };
 
-  // 좋아요 수
-  const likeCount = item.likeCount || item.like || 0;
-  
   // 댓글 수
   const commentCount = item.commentCount || item.comments?.length || 0;
   
@@ -61,7 +103,8 @@ export default function ActivityCard({
       onClick(item);
     } else if (item.postId || item.id) {
       const postId = item.postId || item.id;
-      navigate(`/chat/${slug}/post/${postId}`, {
+      // 댓글의 경우 postId로 이동, 좋아요/게시글의 경우 id로 이동
+      navigate(`/chat/post/${postId}`, {
         state: { post: item },
       });
     }
@@ -86,8 +129,8 @@ export default function ActivityCard({
       {/* 하단 정보 */}
       <Footer>
         <Reactions>
-          <ReactionItem>
-            <ReactionIcon src={ChatLikePink} alt="like" />
+          <ReactionItem onClick={handleLike} $clickable>
+            <ReactionIcon src={isLiked ? ChatLikePink : ChatLike} alt="like" />
             <ReactionCount>{likeCount}</ReactionCount>
           </ReactionItem>
           <ReactionItem>
@@ -171,6 +214,19 @@ const ReactionItem = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
+  transition: opacity 0.2s ease;
+  
+  ${({ $clickable }) =>
+    $clickable &&
+    `
+    &:hover {
+      opacity: 0.7;
+    }
+    &:active {
+      opacity: 0.5;
+    }
+  `}
 `;
 
 const ReactionIcon = styled.img`

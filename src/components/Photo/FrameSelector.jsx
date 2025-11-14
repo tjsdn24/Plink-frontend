@@ -1,11 +1,14 @@
 import ItemSelector from './ItemSelector';
-import frame1 from '../../assets/frames/normaldevelop.svg';
-import frame2 from '../../assets/frames/normalwhite.svg';
-import frame3 from '../../assets/frames/normalgradation.svg';
-import frame4 from '../../assets/frames/normalorange.svg';
+import frame1 from '../../assets/frames/frame1.svg';
+import frame2 from '../../assets/frames/frame2.svg';
+import frame3 from '../../assets/frames/frame3.svg';
+import frame4 from '../../assets/frames/frame4.svg';
+import frame5 from '../../assets/frames/frame5.svg';
+import frame6 from '../../assets/frames/frame6.svg';
+import frame7 from '../../assets/frames/frame7.svg';
 
 export default function FrameSelector({ frame, setFrame }) {
-  const frames = [frame1, frame2, frame3, frame4];
+  const frames = [frame1, frame2, frame3, frame4, frame5, frame6, frame7];
 
   return <ItemSelector items={frames} selected={frame} onSelect={setFrame} />;
 }

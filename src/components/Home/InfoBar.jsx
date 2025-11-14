@@ -65,7 +65,7 @@ export default function InfoBar({
   festivalname = '축제',
   location = '국민대학교',
   date = '2025.11.15',
-  usernum = 74,
+  usernum = { usernum },
 }) {
   return (
     <InfoBarContainer>

@@ -34,6 +34,7 @@ export default function Home() {
   );
   const [popularPoll, setPopularPoll] = useState([]);
   const [popularPosts, setPopularPosts] = useState([]);
+  const [usernum, setUsernum] = useState(0);
 
   //닉네임 갱신
   useEffect(() => {
@@ -77,15 +78,20 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       const users = await getActiveUsers('line4thon');
-      console.log(users);
+      if (users !== null) setUsernum(users.line4thon);
     }
+
     load();
+
+    const interval = setInterval(load, 10000); // 10초마다 자동 갱신
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <>
       <HomeContainer>
-        <InfoBar nickname={nickname} />
+        <InfoBar nickname={nickname} usernum={usernum} />
         <ChatBox />
         <VoteBox popularPoll={popularPoll} />
         <EventBox />

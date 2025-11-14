@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { c, typography } from '../../styles/themeUtils';
@@ -15,6 +15,8 @@ import { isGuestSession, getStoredNickname, getStoredSlug } from '../../utils/gu
 
 export default function Login() {
   const navigate = useNavigate();
+  const containerRef = useRef(null);
+  const loginButtonRef = useRef(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -118,9 +120,45 @@ export default function Login() {
     e.stopPropagation();
     navigate('/signup/password');
   };
+
+  // 입력 필드 포커스 시 스크롤 조정
+  useEffect(() => {
+    const handleFocus = () => {
+      // 키보드가 올라올 때를 대비해 약간의 지연 후 스크롤
+      setTimeout(() => {
+        if (loginButtonRef.current && containerRef.current) {
+          loginButtonRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'end',
+            inline: 'nearest'
+          });
+        }
+      }, 300);
+    };
+
+    const emailInput = document.querySelector('input[name="email"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+
+    if (emailInput) {
+      emailInput.addEventListener('focus', handleFocus);
+    }
+    if (passwordInput) {
+      passwordInput.addEventListener('focus', handleFocus);
+    }
+
+    return () => {
+      if (emailInput) {
+        emailInput.removeEventListener('focus', handleFocus);
+      }
+      if (passwordInput) {
+        passwordInput.removeEventListener('focus', handleFocus);
+      }
+    };
+  }, []);
+
   return (
-    <>
-      <Container>
+    <Container ref={containerRef}>
+      <ContentWrapper>
         <LogoHeaderContainer>
           <LogoHeader />
         </LogoHeaderContainer>
@@ -146,7 +184,7 @@ export default function Login() {
             helperText={errorMessage || undefined}
           />
         </FieldsContainer>
-        <LoginButtonContainer>
+        <LoginButtonContainer ref={loginButtonRef}>
           <LoginButton
             isActive={isAllFieldsFilled}
             onClick={handleLogin}
@@ -162,9 +200,9 @@ export default function Login() {
         </LinkContainer>
         <CircleImg src={Purple} bottom="-340px" right="10px" />
         <CircleImg src={Pink} bottom="-320px" left="130px" />
-      </Container>
-      <LoginNavButton onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
-    </>
+      </ContentWrapper>
+      <LoginNavButton $isRelative onClick={handleGuestLogin}>로그인 없이 입장하기</LoginNavButton>
+    </Container>
   );
 }
 
@@ -174,18 +212,33 @@ const Container = styled.div`
   flex-direction: column;
   min-height: 100vh;
   height: 100vh;
-  overflow: hidden;
-  padding-bottom: 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  padding: 0;
+  box-sizing: border-box;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 0 16px;
+  padding-bottom: clamp(60px, 10vh, 100px);
+  box-sizing: border-box;
+  gap: clamp(12px, 2.5vh, 20px);
 `;
 
 const LogoHeaderContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 16px;
-  margin-top: 64px;
-  margin-bottom: 54px;
+  padding: 0;
+  margin-top: clamp(24px, 6vh, 64px);
+  margin-bottom: 0;
+  flex-shrink: 0;
+  min-height: fit-content;
 
   > header {
     width: 100%;
@@ -202,11 +255,12 @@ const LoginTitleContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing.md} 16px;
-  margin-bottom: 32px;
-  margin-top: 0;
+  padding: clamp(8px, 1.5vh, 16px) 0;
+  margin: 0;
   box-sizing: border-box;
   width: 100%;
+  flex-shrink: 0;
+  min-height: fit-content;
 `;
 
 const LoginTitle = styled.h2`
@@ -215,21 +269,27 @@ const LoginTitle = styled.h2`
   line-height: 1.2;
   margin: 0;
   text-align: center;
+  font-size: clamp(20px, 4vw, 24px);
 `;
 
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: clamp(12px, 2vh, 16px);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  flex-shrink: 0;
+  min-height: fit-content;
 `;
 
 const LoginButtonContainer = styled.div`
-  padding: 0 16px;
-  margin-top: 24px;
-  margin-bottom: 24px;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
   width: 100%;
+  flex-shrink: 0;
+  min-height: fit-content;
 `;
 
 const LinkContainer = styled.div`
@@ -237,13 +297,14 @@ const LinkContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 2px;
-  padding: 0 16px;
-  margin-top: -14px;
-  margin-bottom: 24px;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
   width: 100%;
   position: relative;
   z-index: 10;
+  flex-shrink: 0;
+  min-height: fit-content;
 `;
 
 const LinkText = styled.button`

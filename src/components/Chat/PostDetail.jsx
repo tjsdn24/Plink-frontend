@@ -16,8 +16,15 @@ import {
   Time,
 } from './Post.styles';
 
-export default function PostItem({ post, onCommentClick, highlightKeyword, onLike, onPollVote }) {
-  // poll 데이터를 PostPollDetail에 맞게 변환
+import { usePostStore } from '../../store/postStore';
+
+export default function PostDetail({ post, slug, onCommentClick, highlightKeyword, onPollVote }) {
+  const initPost = usePostStore(state => state.initPost);
+
+  // 상세 페이지에서도 초기값 세팅 필수
+  initPost(post.id, post.liked, post.likeCount);
+
+  // poll 데이터 변환
   const transformedPollData = post.poll
     ? {
         id: post.poll.pollId,
@@ -38,6 +45,7 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onLik
         <div>
           <Nickname>{post.author || post.nickname}</Nickname>
         </div>
+
         <ContentAndEtcWrapper>
           <ContentWrapper>
             {post.postType === 'POLL' && transformedPollData ? (
@@ -56,12 +64,8 @@ export default function PostItem({ post, onCommentClick, highlightKeyword, onLik
           </ContentWrapper>
 
           <Etc>
-            {/* ❤️ LikeButton 적용 */}
-            <LikeButton
-              liked={post.liked}
-              count={post.likeCount}
-              onToggle={() => onLike(post.id)} // 목록에서도 하트 반영
-            />
+            {/* 상세 페이지도 전역 LikeButton 사용 */}
+            <LikeButton postId={post.id} slug={slug} />
 
             <Comment onClick={onCommentClick}>
               <ReactionIcon src={CommentIcon} alt="comment" />

@@ -79,6 +79,7 @@ export default function Post({ postData, slug, highlightKeyword = '' }) {
             <PostItem
               key={post.id}
               post={post}
+              slug={slug}
               onCommentClick={() => handlePostClick(post.id)}
               onReportOpen={handleReportOpen}
               highlightKeyword={highlightKeyword}

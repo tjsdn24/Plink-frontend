@@ -56,6 +56,92 @@ export default function Comments() {
 
   const [newComment, setNewComment] = useState('');
 
+  // 댓글 데이터를 CommentList가 기대하는 형식으로 변환
+  const transformComment = (comment) => {
+    if (!comment) return null;
+    
+    // 시간 포맷팅 함수
+    const formatTime = (dateString) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+      
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      
+      if (minutes < 1) return '방금 전';
+      if (minutes < 60) return `${minutes}분 전`;
+      if (hours < 24) return `${hours}시간 전`;
+      if (days < 7) return `${days}일 전`;
+      
+      // 일주일 이상이면 날짜 표시
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const minute = String(date.getMinutes()).padStart(2, '0');
+      const ampm = date.getHours() < 12 ? '오전' : '오후';
+      const displayHour = date.getHours() % 12 || 12;
+      
+      return `${year}. ${month}. ${day}. ${ampm} ${displayHour}:${minute}:${String(date.getSeconds()).padStart(2, '0')}`;
+    };
+
+    // 현재 사용자 ID 확인
+    const currentUserId = localStorage.getItem('userId');
+    const commentUserId = comment.userId || comment.user?.id || comment.authorId;
+    
+    // 닉네임 추출 - 다양한 API 응답 구조 지원
+    const getNickname = () => {
+      // 직접 필드
+      if (comment.nickname) return comment.nickname;
+      if (comment.author && typeof comment.author === 'string') return comment.author;
+      
+      // user 객체 내부
+      if (comment.user?.nickname) return comment.user.nickname;
+      if (comment.user?.author) return comment.user.author;
+      
+      // author 객체 내부
+      if (comment.author?.nickname) return comment.author.nickname;
+      if (comment.author?.name) return comment.author.name;
+      
+      // 기타 가능한 경로
+      if (comment.userNickname) return comment.userNickname;
+      if (comment.commentAuthor) return comment.commentAuthor;
+      
+      return '익명';
+    };
+    
+    // 프로필 이미지 추출
+    const getProfileImage = () => {
+      if (comment.profileImageUrl) return comment.profileImageUrl;
+      if (comment.user?.profileImageUrl) return comment.user.profileImageUrl;
+      if (comment.author?.profileImageUrl) return comment.author.profileImageUrl;
+      if (comment.user?.profileImage) return comment.user.profileImage;
+      if (comment.author?.profileImage) return comment.author.profileImage;
+      return null;
+    };
+    
+    return {
+      id: comment.id,
+      text: comment.content || comment.text || '',
+      nickname: getNickname(),
+      profileImage: getProfileImage(),
+      time2: comment.time2 || formatTime(comment.createdAt || comment.created_at),
+      isMine: comment.isMine !== undefined ? comment.isMine : (currentUserId && commentUserId && String(currentUserId) === String(commentUserId)),
+      type: comment.type || 'normal',
+      likeCount: comment.likeCount || comment.likes || 0,
+      pollData: comment.pollData,
+      pollVotes: comment.pollVotes,
+    };
+  };
+
+  // 댓글 배열 변환
+  const transformComments = (commentsArray) => {
+    if (!Array.isArray(commentsArray)) return [];
+    return commentsArray.map(transformComment).filter(Boolean);
+  };
+
   useEffect(() => {
     if (!initialPost) {
       const fetchPostDetail = async () => {
@@ -76,9 +162,20 @@ export default function Comments() {
 
   useEffect(() => {
     console.log('post 상태 변경:', post);
-    setComments(post?.comments || []);
+    if (post?.comments && post.comments.length > 0) {
+      console.log('댓글 데이터 샘플 (첫 번째):', post.comments[0]);
+    }
+    const transformedComments = transformComments(post?.comments || []);
+    if (transformedComments.length > 0) {
+      console.log('변환된 댓글 데이터 샘플 (첫 번째):', transformedComments[0]);
+    }
+    setComments(transformedComments);
     setLikes(post?.likeCount ?? 0);
-    setCommentLikes(post?.comments?.map(() => ({ liked: false, count: 0 })) || []);
+    setCommentLikes(transformedComments.map(comment => ({ 
+      liked: false, 
+      count: comment.likeCount || 0 
+    })));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);
 
   useEffect(() => {
@@ -151,22 +248,25 @@ export default function Comments() {
 
       // 새 댓글을 목록에 추가
       if (newCommentData && newCommentData.id) {
-        setComments(prev => [...prev, newCommentData]);
-        setCommentLikes(prev => [...prev, { 
-          liked: false, 
-          count: newCommentData.likeCount || 0 
-        }]);
-        
-        // 게시글의 댓글 수 업데이트
-        setPost(prev => prev ? { ...prev, commentCount: (prev.commentCount || comments.length) + 1 } : prev);
+        const transformedNewComment = transformComment(newCommentData);
+        if (transformedNewComment) {
+          setComments(prev => [...prev, transformedNewComment]);
+          setCommentLikes(prev => [...prev, { 
+            liked: false, 
+            count: transformedNewComment.likeCount || 0 
+          }]);
+          
+          // 게시글의 댓글 수 업데이트
+          setPost(prev => prev ? { ...prev, commentCount: (prev.commentCount || comments.length) + 1 } : prev);
+        }
       } else {
         // 응답에 댓글 데이터가 없으면 게시글 상세 정보 새로고침
         const postResponse = await getPostDetail(slug, postId);
         const updatedPostData = postResponse.data.post || postResponse.data;
         setPost(updatedPostData);
-        const updatedComments = updatedPostData.comments || [];
-        setComments(updatedComments);
-        setCommentLikes(updatedComments.map(comment => ({ 
+        const transformedComments = transformComments(updatedPostData.comments || []);
+        setComments(transformedComments);
+        setCommentLikes(transformedComments.map(comment => ({ 
           liked: false, 
           count: comment.likeCount || 0 
         })));

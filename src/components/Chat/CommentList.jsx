@@ -47,7 +47,7 @@ export default function CommentList({
     <CommentSection>
       {comments.map((c, i) => (
         <CommentBox key={i} $mine={c.isMine}>
-          {!c.isMine && <ProfileImg src={BasicProfile} alt="profile" />}
+          {!c.isMine && <ProfileImg src={c.profileImage || BasicProfile} alt="profile" />}
           <CommentContent $mine={c.isMine}>
             <CommentHeader>
               <strong>{c.nickname}</strong>
@@ -72,7 +72,7 @@ export default function CommentList({
               <Time>{c.time2}</Time>
             </CommentFooter>
           </CommentContent>
-          {c.isMine && <ProfileImg src={BasicProfile} alt="profile" />}
+          {c.isMine && <ProfileImg src={c.profileImage || BasicProfile} alt="profile" />}
         </CommentBox>
       ))}
       <div ref={commentsEndRef} />

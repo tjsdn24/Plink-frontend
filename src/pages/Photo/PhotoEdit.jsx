@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { c, typography } from '../../styles/themeUtils';
@@ -22,7 +22,20 @@ export default function PhotoEdit() {
     usePhotoEdit(photos);
 
   const [activeTab, setActiveTab] = useState('frame');
+  const [hasSecretFrame, setHasSecretFrame] = useState(false);
+  useEffect(() => {
+    async function fetchSecret() {
+      try {
+        const res = await axios.get(`${BASE_URL}/fourcuts/line4thon/secret`);
+        // res.data = { hasSecretFrame: true }
+        setHasSecretFrame(res.data?.hasSecretFrame || false);
+      } catch (e) {
+        console.error('Secret frame load error', e);
+      }
+    }
 
+    fetchSecret();
+  }, []);
   /** 최종 저장 핸들러 */
   const handleSave = async () => {
     try {
@@ -68,7 +81,9 @@ export default function PhotoEdit() {
       />
 
       <TabContent>
-        {activeTab === 'frame' && <FrameSelector frame={frameSrc} setFrame={setFrameSrc} />}
+        {activeTab === 'frame' && (
+          <FrameSelector frame={frameSrc} setFrame={setFrameSrc} hasSecretFrame={hasSecretFrame} />
+        )}
         {activeTab === 'filter' && <FilterSelector filter={filter} setFilter={setFilter} />}
       </TabContent>
 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { typography } from '../../styles/themeUtils';
 import { useParams } from 'react-router-dom';
+import { submitGameScore } from '../../hooks/game';
 
 // Confetti 애니메이션
 const fall = keyframes`
@@ -169,6 +170,10 @@ export default function GamePlay() {
   const rafRef = useRef(null);
   const TARGET = 7.77;
 
+  const { slug } = useParams(); // URL에서 slug 가져오기
+  const gameId = 1; // PLINK 기본 게임 ID = 항상 1번
+  const nickname = localStorage.getItem('nickname') || 'Guest';
+
   // 타이머
   useEffect(() => {
     if (isHolding) {
@@ -192,14 +197,32 @@ export default function GamePlay() {
     setIsHolding(true);
   };
 
-  const handleHoldEnd = () => {
+  const handleHoldEnd = async () => {
     if (!isHolding) return;
     setIsHolding(false);
+
     const finalTime = parseFloat(time.toFixed(2));
     setResult(finalTime);
+
     const diff = Math.abs(finalTime - TARGET);
+    const success = diff <= 1.0;
+
+    try {
+      await submitGameScore({
+        slug,
+        gameId,
+        nickname,
+        score: finalTime,
+        success,
+      });
+      console.log('🎉 점수 서버 저장 성공');
+    } catch (err) {
+      console.error('❌ 점수 전송 실패:', err);
+    }
+
     const jackpot = diff === 0;
     setIsJackpot(jackpot);
+
     if (diff < Math.abs(best - TARGET)) setBest(finalTime);
     setTimeout(() => setShowModal(true), 500);
   };

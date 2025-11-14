@@ -14,13 +14,8 @@ export default function HotChat({
   images = [],
 }) {
   const navigate = useNavigate();
-
   const handleClick = () => {
-    const targetPost = postList.find(p => p.id === id);
-
-    navigate(`/chat/post/${id}`, {
-      state: { post: targetPost },
-    });
+    navigate(`/posts/${id}`, { state: { id } });
   };
 
   return (

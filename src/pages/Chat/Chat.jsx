@@ -27,9 +27,9 @@ export default function Chat({ slug = 'line4thon' }) {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        // tagName 매핑 (여기가 중요!)
+        // tagName 매핑
         const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
-        const tagName = tagMap[selectedCategory] ?? null;
+        const tagName = selectedCategory === '전체' ? null : tagMap[selectedCategory];
 
         // 검색
         if (searchKeyword.trim()) {

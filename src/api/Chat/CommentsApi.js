@@ -23,10 +23,10 @@ export const getPostDetail = (slug, postId) => {
   return apiClient.get(url);
 };
 
-//게시판마다 게시글 조회하기 @완료
-export const getPostsByTag = (slug, tag) => {
+// 게시판마다 게시글 조회하기
+export const getPostsByTag = (slug, tagId) => {
   const params = {};
-  if (tag) params.tagId = tag; // 태그 있을 때만
+  if (tagId !== null && tagId !== undefined) params.tag = tagId;
 
   return apiClient.get(`/${slug}/posts`, { params });
 };
@@ -37,9 +37,9 @@ export const likePost = (slug, postId) => apiClient.post(`/${slug}/posts/${postI
 //게시글 검색 @완료지만 slug 하드코딩
 export const searchPosts = (slug, keyword, tag) => {
   const params = { keyword };
-  if (tag) params.tag = tag; // tag가 있을 때만 추가
+  if (tag !== null && tag !== undefined) params.tag = tag;
 
-  return apiClient.get(`/${slug}/posts`, { params });
+  return apiClient.get(`/${slug}/posts/search`, { params });
 };
 
 //---게시글 이미지 관련---

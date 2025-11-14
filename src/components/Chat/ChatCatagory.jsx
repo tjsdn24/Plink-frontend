@@ -1,24 +1,15 @@
 import styled from 'styled-components';
 import { c } from '../../styles/themeUtils';
+import { categories } from './Categories';
 
 export default function ChatCatagory({ selectedCategory, onSelectCategory }) {
-  const categories = [
-    { name: '전체', id: null },
-    { name: '만남/동행', id: 1 },
-    { name: '정보/공유', id: 2 },
-    { name: '질문/요청', id: 3 },
-    { name: '분실물', id: 4 },
-    { name: '굿즈/이벤트', id: 5 },
-    { name: '기타', id: 6 },
-  ];
-
   return (
     <ChatCatagoryWrapper>
       {categories.map(cat => (
         <CategoryItem
           key={cat.name}
-          onClick={() => onSelectCategory(cat.id)} // 숫자 id 전달
-          selected={selectedCategory === cat.id}
+          onClick={() => onSelectCategory(cat.name)} // name 기반 선택
+          selected={selectedCategory === cat.name}
         >
           {cat.name}
         </CategoryItem>

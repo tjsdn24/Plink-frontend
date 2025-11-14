@@ -7,62 +7,54 @@ import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, typography, s } from '../../styles/themeUtils';
+import { categories } from '../../components/Chat/Categories';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 
-// tagName → tagId 매핑
-const tagMap = {
-  전체: '',
-  '만남/동행': 1,
-  '정보/공유': 2,
-  '질문/요청': 3,
-  분실물: 4,
-  '굿즈/이벤트': 5,
-  기타: 6,
-};
+/* ----------------------------------------------------
+    태그 매핑
+----------------------------------------------------- */
 
-export default function Chat({ slug }) {
-  // slug가 props로 안 오면 URL param 등에서 가져올 수도 있음
-  if (!slug) slug = 'line4thon';
-
+export default function Chat({ slug = 'line4thon' }) {
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
 
+  /* ----------------------------------------------------
+      게시글 불러오기
+  ----------------------------------------------------- */
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const tagId = tagMap[selectedCategory];
+        // tagName 매핑 (여기가 중요!)
+        const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
+        const tagName = tagMap[selectedCategory] ?? null;
 
+        // 검색
         if (searchKeyword.trim()) {
-          console.log('검색 요청:', { slug, keyword: searchKeyword, tagId });
-
-          const res = await searchPosts(slug, searchKeyword, tagId);
-
-          console.log('검색 응답:', res.data);
+          const res = await searchPosts(slug, searchKeyword, tagName);
           setPosts(res.data.posts);
-        } else {
-          console.log('목록 요청:', { slug, tagId });
-
-          const res = await getPostsByTag(slug, tagId);
-
-          console.log('목록 응답:', res.data);
+        }
+        // 카테고리 조회
+        else {
+          const res = await getPostsByTag(slug, tagName);
           setPosts(res.data.posts);
         }
       } catch (err) {
         console.error('게시글 불러오기 실패:', err);
-        console.error('응답:', err.response);
       }
     };
 
     fetchPosts();
   }, [selectedCategory, searchKeyword, slug]);
 
+  /* 새로운 게시글 추가 시 */
   const handleAddPost = newPost => {
     setPosts(prev => [newPost, ...prev]);
   };
 
+  /* 검색 */
   const handleSearchChange = useCallback(e => {
     setSearchKeyword(e.target.value);
   }, []);
@@ -73,8 +65,6 @@ export default function Chat({ slug }) {
         <SearchBarContainer>
           <SearchBar>
             <SearchInput
-              id="chat-search"
-              name="search"
               type="text"
               value={searchKeyword}
               onChange={handleSearchChange}
@@ -105,6 +95,8 @@ export default function Chat({ slug }) {
     </ChatWrapper>
   );
 }
+
+/* -------------------------------- 스타일 -------------------------------- */
 
 const ChatWrapper = styled.div``;
 
@@ -151,11 +143,9 @@ const SearchIconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: 0 16px;
 `;
 
 const SearchIconImg = styled.img`
   width: 20px;
   height: 20px;
-  margin-right: 10px;
 `;

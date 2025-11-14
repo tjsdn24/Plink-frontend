@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { c } from '../../styles/themeUtils';
+import { categories } from './Categories';
 
 import ArrowImg from '../../assets/icons/ChatArrowDown.svg';
 import ChatPoll from '../../assets/icons/ChatPoll.svg';
@@ -14,23 +15,15 @@ import { createPost } from '../../api/Chat/CommentsApi';
 
 export default function WritePost({ onClose, onAddPost }) {
   const [openCategory, setOpenCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(''); // 문자열만 저장
   const [text, setText] = useState('');
   const [images, setImages] = useState([]);
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState(['', '']);
   const [title, setTitle] = useState('');
 
-  const categories = ['만남/동행', '정보/공유', '질문/요청', '분실물', '굿즈/이벤트', '기타'];
-
-  const tagMap = {
-    '만남/동행': 1,
-    '정보/공유': 2,
-    '질문/요청': 3,
-    분실물: 4,
-    '굿즈/이벤트': 5,
-    기타: 6,
-  };
+  const tagIdMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagId]));
+  const tagId = tagIdMap[selectedCategory];
 
   /* 이미지 선택 */
   const handleImageChange = e => {
@@ -47,17 +40,15 @@ export default function WritePost({ onClose, onAddPost }) {
   };
 
   /* 카테고리 선택 */
-  const handleSelect = cat => {
-    setSelectedCategory(cat);
+  const handleSelect = catName => {
+    setSelectedCategory(catName);
     setOpenCategory(false);
   };
 
   /* 게시글 전송 */
-
   const handleSend = async () => {
     if (!selectedCategory) return alert('카테고리를 선택해주세요.');
 
-    const tagId = tagMap[selectedCategory];
     const formData = new FormData();
 
     if (showPoll) {
@@ -65,8 +56,7 @@ export default function WritePost({ onClose, onAddPost }) {
 
       formData.append('title', title);
       formData.append('postType', 'POLL');
-
-      +formData.append('tagId', tagId);
+      formData.append('tagId', tagId);
 
       const options = pollOptions.filter(o => o.trim() !== '');
       if (options.length < 2) return alert('투표 항목은 2개 이상 입력해주세요.');
@@ -75,12 +65,11 @@ export default function WritePost({ onClose, onAddPost }) {
         formData.append(`poll.option[${idx}]`, opt);
       });
     } else {
-      // 일반 글
       if (!text.trim() && images.length === 0) {
         return alert('내용을 입력해주세요.');
       }
 
-      formData.append('title', text.slice(0, 20) || ''); // 서버 필수일 경우 대비
+      formData.append('title', text.slice(0, 20) || '');
       formData.append('content', text);
       formData.append('postType', 'NORMAL');
     }
@@ -90,9 +79,7 @@ export default function WritePost({ onClose, onAddPost }) {
     images.forEach(img => {
       formData.append('images', img);
     });
-    for (let p of formData.entries()) {
-      console.log(p[0], p[1]);
-    }
+
     try {
       const res = await createPost('line4thon', formData);
       onAddPost?.(res.data);
@@ -117,7 +104,6 @@ export default function WritePost({ onClose, onAddPost }) {
             <Arrow src={ArrowImg} />
           </CategoryToggle>
 
-          {/* 일반 글 서브텍스트 */}
           {!showPoll && (
             <Textarea
               value={text}
@@ -126,7 +112,6 @@ export default function WritePost({ onClose, onAddPost }) {
             />
           )}
 
-          {/* 투표 제목 */}
           {showPoll && (
             <TitleInput
               value={title}
@@ -135,7 +120,6 @@ export default function WritePost({ onClose, onAddPost }) {
             />
           )}
 
-          {/* 이미지 미리보기 */}
           {images.length > 0 && (
             <ImagePreviewContainer>
               {images.map((file, idx) => (
@@ -149,7 +133,6 @@ export default function WritePost({ onClose, onAddPost }) {
             </ImagePreviewContainer>
           )}
 
-          {/* 투표 옵션 */}
           {showPoll && (
             <PollBox>
               {pollOptions.map((opt, i) => (
@@ -218,11 +201,11 @@ export default function WritePost({ onClose, onAddPost }) {
 
             {categories.map(cat => (
               <CategoryItem
-                key={cat}
-                selected={selectedCategory === cat}
-                onClick={() => handleSelect(cat)}
+                key={cat.tagId ?? 'all'} // 고유 key
+                selected={selectedCategory === cat.name}
+                onClick={() => handleSelect(cat.name)}
               >
-                {cat}
+                {cat.name}
               </CategoryItem>
             ))}
           </SheetContainer>

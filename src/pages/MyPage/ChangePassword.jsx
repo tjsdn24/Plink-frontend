@@ -339,47 +339,49 @@ export default function ChangePassword() {
   };
 
   return (
-    <div>
-      <PageHeader title="My" onBack={handleBack} />
-      <SignUpTitle title={
-          <>
-            비밀번호 변경을 위해<br />
-            아래 정보를 입력해주세요.
-          </>
-        }
-      />
-      <FieldsContainer>
-        <PasswordTextField
-          name="currentPassword"
-          placeholder="현재 비밀번호"
-          helperText={helperMessages.currentPassword}
-          value={formData.currentPassword}
-          onChange={handleChange}
-          status={fieldStatus.currentPassword}
-          isVisible={visibility.currentPassword}
-          onToggleVisibility={() => handleToggleVisibility('currentPassword')}
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="My" onBack={handleBack} />
+        <SignUpTitle title={
+            <>
+              비밀번호 변경을 위해<br />
+              아래 정보를 입력해주세요.
+            </>
+          }
         />
-        <PasswordTextField
-          name="newPassword"
-          placeholder="변경할 비밀번호"
-          helperText={helperMessages.newPassword}
-          value={formData.newPassword}
-          onChange={handleChange}
-          status={fieldStatus.newPassword}
-          isVisible={visibility.newPassword}
-          onToggleVisibility={() => handleToggleVisibility('newPassword')}
-        />
-        <PasswordTextField
-          name="newPasswordConfirm"
-          placeholder="비밀번호 확인"
-          helperText={helperMessages.newPasswordConfirm}
-          value={formData.newPasswordConfirm}
-          onChange={handleChange}
-          status={fieldStatus.newPasswordConfirm}
-          isVisible={visibility.newPasswordConfirm}
-          onToggleVisibility={() => handleToggleVisibility('newPasswordConfirm')}
-        />
-      </FieldsContainer>
+        <FieldsContainer>
+          <PasswordTextField
+            name="currentPassword"
+            placeholder="현재 비밀번호"
+            helperText={helperMessages.currentPassword}
+            value={formData.currentPassword}
+            onChange={handleChange}
+            status={fieldStatus.currentPassword}
+            isVisible={visibility.currentPassword}
+            onToggleVisibility={() => handleToggleVisibility('currentPassword')}
+          />
+          <PasswordTextField
+            name="newPassword"
+            placeholder="변경할 비밀번호"
+            helperText={helperMessages.newPassword}
+            value={formData.newPassword}
+            onChange={handleChange}
+            status={fieldStatus.newPassword}
+            isVisible={visibility.newPassword}
+            onToggleVisibility={() => handleToggleVisibility('newPassword')}
+          />
+          <PasswordTextField
+            name="newPasswordConfirm"
+            placeholder="비밀번호 확인"
+            helperText={helperMessages.newPasswordConfirm}
+            value={formData.newPasswordConfirm}
+            onChange={handleChange}
+            status={fieldStatus.newPasswordConfirm}
+            isVisible={visibility.newPasswordConfirm}
+            onToggleVisibility={() => handleToggleVisibility('newPasswordConfirm')}
+          />
+        </FieldsContainer>
+      </ContentWrapper>
       <NavButton 
         isActive={isAllFieldsValid && !isSubmitting} 
         onClick={handleSubmit}
@@ -387,9 +389,26 @@ export default function ChangePassword() {
       >
         {isSubmitting ? '변경 중...' : '변경하기'}
       </NavButton>
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
 
 const FieldsContainer = styled.div`
   display: flex;

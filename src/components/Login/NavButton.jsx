@@ -2,18 +2,15 @@ import styled from 'styled-components';
 import { c, typography } from '../../styles/themeUtils';
 
 const ButtonWrapper = styled.div`
-  position: ${({ $isRelative }) => ($isRelative ? 'relative' : 'fixed')};
-  bottom: ${({ $isRelative }) => ($isRelative ? 'auto' : 'clamp(32px, 6vh, 52px)')};
+  position: fixed;
+  bottom: ${({ $keyboardHeight }) => ($keyboardHeight > 0 ? `${$keyboardHeight + 52}px` : '52px')};
   left: 0;
   right: 0;
-  padding: ${({ $isRelative }) => ($isRelative ? '0 16px' : '0 16px')};
+  padding: 0 16px;
   width: 100%;
   box-sizing: border-box;
-  z-index: ${({ $isRelative }) => ($isRelative ? 'auto' : '1000')};
-  margin-top: ${({ $isRelative }) => ($isRelative ? 'clamp(12px, 2.5vh, 20px)' : '0')};
-  margin-bottom: ${({ $isRelative }) => ($isRelative ? 'clamp(32px, 6vh, 52px)' : '0')};
-  flex-shrink: 0;
-  min-height: fit-content;
+  z-index: 1000;
+  transition: bottom 0.3s ease;
 `;
 
 const Button = styled.button`
@@ -50,9 +47,9 @@ const Button = styled.button`
   }
 `;
 
-export default function NavButton({ children = '가입하기', disabled = false, isActive = false, onClick, $outline = false, $isRelative = false, ...props }) {
+export default function NavButton({ children = '가입하기', disabled = false, isActive = false, onClick, $outline = false, $keyboardHeight = 0, ...props }) {
   return (
-    <ButtonWrapper $isRelative={$isRelative}>
+    <ButtonWrapper $keyboardHeight={$keyboardHeight}>
       <Button disabled={disabled} isActive={isActive} onClick={onClick} $outline={$outline} {...props}>
         {children}
       </Button>

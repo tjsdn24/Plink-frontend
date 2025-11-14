@@ -101,6 +101,8 @@ const BottomSheet = styled.div`
   animation: slideUp 0.3s ease-out;
   z-index: 10;
   will-change: transform;
+  overflow-y: auto;
+  overflow-x: hidden;
   
   @keyframes slideUp {
     from {
@@ -321,9 +323,14 @@ function NicknameTextField({
 }
 
 const ButtonContainer = styled.div`
+  position: sticky;
+  bottom: 0;
   margin-top: auto;
   padding-top: ${s('lg')};
+  padding-bottom: ${s('md')};
   width: 100%;
+  background: ${c('neutral.white')};
+  z-index: 1;
 `;
 
 const LoginButton = styled.button`

@@ -8,6 +8,23 @@ import NavButton from '../../components/Signup/NavButton';
 import SignUpChangeIcon from '../../assets/icons/SignUpChange.svg';
 import { isGuestSession, getStoredNickname, getStoredSlug } from '../../utils/guestSession';
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
+
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -123,34 +140,36 @@ export default function Nickname({ userName = '숨쉬는 고양이' }) {
   };
 
   return (
-    <div>
-      <PageHeader title="회원가입" onBack={handleBack} />
-      <SignUpTitle 
-        title={
-          <>
-            PLINK에서 사용할<br />
-            멋진 닉네임을 알려주세요!
-          </>
-        }
-      />
-      <FieldsContainer>
-        <TextField
-          name="nickname"
-          placeholder={`${userName}`}
-          helperText={
-            showError && errorMessage 
-              ? errorMessage 
-              : fromGuest 
-                ? '게스트 로그인 시 사용한 닉네임입니다. 변경하려면 수정해주세요.' 
-                : '닉네임을 입력해주세요.'
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="회원가입" onBack={handleBack} />
+        <SignUpTitle 
+          title={
+            <>
+              PLINK에서 사용할<br />
+              멋진 닉네임을 알려주세요!
+            </>
           }
-          value={formData.nickname}
-          onChange={handleChange}
-          icon={SignUpChangeIcon}
-          onIconClick={handleRandomNickname}
         />
-
-          </FieldsContainer>
-      <NavButton isActive={isAllFieldsFilled} onClick={handleNext}>다음 단계로(1/2)</NavButton></div>
+        <FieldsContainer>
+          <TextField
+            name="nickname"
+            placeholder={`${userName}`}
+            helperText={
+              showError && errorMessage 
+                ? errorMessage 
+                : fromGuest 
+                  ? '게스트 로그인 시 사용한 닉네임입니다. 변경하려면 수정해주세요.' 
+                  : '닉네임을 입력해주세요.'
+            }
+            value={formData.nickname}
+            onChange={handleChange}
+            icon={SignUpChangeIcon}
+            onIconClick={handleRandomNickname}
+          />
+        </FieldsContainer>
+      </ContentWrapper>
+      <NavButton isActive={isAllFieldsFilled} onClick={handleNext}>다음 단계로(1/2)</NavButton>
+    </Container>
   );
 }

@@ -6,6 +6,23 @@ import TextField from '../../components/Signup/TextField';
 import SignUpTitle from '../../components/Signup/SignUpTitle';
 import NavButton from '../../components/Signup/NavButton';
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px;
+`;
+
 const FieldsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -44,27 +61,29 @@ export default function Password() {
   };
 
   return (
-    <div>
-      <PageHeader title="비밀번호 찾기" onBack={handleBack} />
-      <SignUpTitle 
-        title={
-          <>
-            비밀번호를 재설정할<br />
-            이메일 주소를 입력해주세요.
-          </>
-        }
-      />
-      <FieldsContainer>
-        <TextField
-          name="email"
-          placeholder="이메일 주소"
-          helperText="이메일 주소를 입력해주세요."
-          value={formData.email}
-          onChange={handleChange}
+    <Container>
+      <ContentWrapper>
+        <PageHeader title="비밀번호 찾기" onBack={handleBack} />
+        <SignUpTitle 
+          title={
+            <>
+              비밀번호를 재설정할<br />
+              이메일 주소를 입력해주세요.
+            </>
+          }
         />
-      </FieldsContainer>
+        <FieldsContainer>
+          <TextField
+            name="email"
+            placeholder="이메일 주소"
+            helperText="이메일 주소를 입력해주세요."
+            value={formData.email}
+            onChange={handleChange}
+          />
+        </FieldsContainer>
+      </ContentWrapper>
       <NavButton isActive={isAllFieldsFilled} onClick={handleSubmit}>인증 메일 받기</NavButton>
-    </div>
+    </Container>
   );
 }
 

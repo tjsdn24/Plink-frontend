@@ -8,12 +8,11 @@ export default function VoteBox({ popularPoll }) {
 
   const poll = popularPoll.poll;
 
-  // VoteChart에 맞게 변환
+  // VoteChart 용 데이터 변환
   const answers = poll.result.map(opt => ({
     id: opt.optionId,
     label: opt.content,
-    percent: opt.voteRate, // ➜ 0~100
-    count: opt.voteCount, // (필요하면 표시 가능)
+    percent: opt.voteRate,
   }));
 
   return (
@@ -28,7 +27,6 @@ export default function VoteBox({ popularPoll }) {
         question={popularPoll.title}
         answers={answers}
         hasVoted={popularPoll.hasVoted ?? false}
-        myVote={popularPoll.myVote ?? null}
         totalVotes={poll.totalVotes}
       />
     </BoxContainer>

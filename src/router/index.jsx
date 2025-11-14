@@ -104,7 +104,6 @@ export default function Router() {
             </PageLayout>
           }
         />
-
         {/*  마이페이지 (Header + Navbar 유지)*/}
         <Route
           path="/mypage"

@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 import { c, typography } from '../../styles/themeUtils';
-import CheckIcon from '../../assets/icons/HomeChecked.svg?react';
 
-export default function VoteChart({ question, answers, hasVoted, myVote, totalVotes }) {
+export default function VoteChart({ question, answers, totalVotes }) {
   if (!answers) return null;
 
   const maxPercent = Math.max(...answers.map(a => a.percent));
@@ -12,26 +11,21 @@ export default function VoteChart({ question, answers, hasVoted, myVote, totalVo
       <Question>{question}</Question>
 
       {answers.map(ans => {
-        const isMyVote = myVote === ans.id;
         const isTop = ans.percent === maxPercent;
 
         return (
           <AnswerWrapper key={ans.id}>
-            <AnswerBar isTop={isTop}>
-              <Fill isTop={isTop} style={{ width: `${hasVoted ? ans.percent : 0}%` }} />
+            <AnswerBar>
+              <Fill isTop={isTop} style={{ width: `${ans.percent}%` }} />
 
-              <Text>
-                {ans.label}
-                {isMyVote && <CheckIcon />}
-              </Text>
-
-              {hasVoted && <Percent>{ans.percent}%</Percent>}
+              <LeftText>{ans.label}</LeftText>
+              <RightText>{ans.percent}%</RightText>
             </AnswerBar>
           </AnswerWrapper>
         );
       })}
 
-      {hasVoted && <TotalVotes>총 {totalVotes}명 참여</TotalVotes>}
+      <TotalVotes>총 {totalVotes}명 참여</TotalVotes>
     </Container>
   );
 }
@@ -56,6 +50,7 @@ const AnswerWrapper = styled.div`
 `;
 
 const AnswerBar = styled.div`
+  position: relative;
   height: 48px;
   background: ${c('neutral.bg')};
   border-radius: 12px;
@@ -64,35 +59,31 @@ const AnswerBar = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  position: relative;
+  overflow: hidden;
 `;
 
 const Fill = styled.div`
-  background: ${({ isTop }) => (isTop ? c('brand.lightPink') : c('neutral.gray'))};
   position: absolute;
   inset: 0;
-  border-radius: 12px;
-  transition: width 0.3s ease;
   z-index: 0;
+  border-radius: 12px;
+  background: ${({ isTop }) => (isTop ? c('brand.lightPink') : c('neutral.gray'))};
+  transition: width 0.3s ease;
 `;
 
-const Text = styled.span`
-  position: relative;
+const LeftText = styled.span`
   z-index: 1;
-  display: flex;
-  gap: 4px;
 `;
 
-const Percent = styled.span`
-  position: relative;
+const RightText = styled.span`
   z-index: 1;
+  color: ${c('neutral.gray600')};
   ${typography('body02')};
-  color: ${c('neutral.gray500')};
 `;
 
 const TotalVotes = styled.div`
+  text-align: right;
+  margin-top: 8px;
   ${typography('body02')};
   color: ${c('neutral.gray600')};
-  margin-top: 8px;
-  text-align: right;
 `;

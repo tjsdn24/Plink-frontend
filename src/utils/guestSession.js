@@ -7,6 +7,25 @@ export const isGuestSession = () => {
   }
 };
 
+export const isUserRole = () => {
+  try {
+    return localStorage.getItem('userRole') === 'USER';
+  } catch (error) {
+    console.error('사용자 역할 확인 실패', error);
+    return false;
+  }
+};
+
+export const canWritePost = () => {
+  try {
+    // ROLE이 USER인 경우에만 작성 가능
+    return localStorage.getItem('userRole') === 'USER';
+  } catch (error) {
+    console.error('게시글 작성 권한 확인 실패', error);
+    return false;
+  }
+};
+
 export const sanitizeNickname = nickname => {
   if (typeof nickname !== 'string') return '';
   return nickname.replace(/님!?$/, '');

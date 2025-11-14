@@ -49,26 +49,17 @@ export default function Logout() {
       if (email || password) {
         await logoutUser({ email, password });
       }
+      // 로그아웃 API 호출 성공 시 로컬스토리지의 모든 항목 삭제
+      localStorage.clear();
+      window.dispatchEvent(new Event('storage'));
+      navigate('/login');
     } catch (error) {
       const message =
         error?.data?.message || error?.message || '로그아웃 처리 중 오류가 발생했습니다.';
       console.error(message, error);
       window.alert(message);
     } finally {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('userPassword');
-      localStorage.removeItem('isGuest');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('nickname');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userSlug');
-      localStorage.removeItem('userProfileImage');
-
-      window.dispatchEvent(new Event('storage'));
       setIsSubmitting(false);
-      navigate('/login');
     }
   };
 
@@ -109,6 +100,8 @@ export default function Logout() {
         '로그아웃 후 PLINK를',
         '사용하기 위해서는 재로그인이 필요합니다.',
       ]}
+      subMessagesAlign="center"
+      subMessagesTextAlign="center"
       buttonText={isSubmitting ? '로그아웃 중...' : '로그아웃하기'}
       buttonDisabled={isSubmitting}
       onButtonClick={handleLogout}

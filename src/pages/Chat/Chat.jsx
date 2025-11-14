@@ -11,6 +11,7 @@ import SearchIcon from '../../assets/icons/SearchIcon.svg';
 import { c, s, typography } from '../../styles/themeUtils';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
+import { canWritePost } from '../../utils/guestSession';
 
 export default function Chat() {
   const [openWrite, setOpenWrite] = useState(false);
@@ -19,6 +20,14 @@ export default function Chat() {
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const slug = 'line4thon';
+
+  const handleWriteClick = () => {
+    if (!canWritePost()) {
+      alert('게시글을 작성하려면 로그인이 필요합니다. 로그인해주세요.');
+      return;
+    }
+    setOpenWrite(true);
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -91,9 +100,9 @@ export default function Chat() {
         {posts.length > 0 ? (
           <Post postData={posts} highlightKeyword={searchKeyword} />
         ) : (
-          <NonSearch onWrite={() => setOpenWrite(true)} />
+          <NonSearch onWrite={handleWriteClick} />
         )}
-        <WriteButton onClick={() => setOpenWrite(true)} />
+        <WriteButton onClick={handleWriteClick} />
         {openWrite && <WritePost onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />}
       </ChatBottom>
     </ChatWrapper>

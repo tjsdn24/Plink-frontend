@@ -282,6 +282,13 @@ export const Input = styled.input`
   border-radius: 20px;
   ${typography('body02')};
   outline: none;
+
+  &:disabled {
+    background: ${c('neutral.gray')};
+    color: ${c('neutral.gray2')};
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 export const Arrow = styled.img`

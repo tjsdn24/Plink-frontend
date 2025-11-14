@@ -3,24 +3,24 @@ import { c } from '../../styles/themeUtils';
 
 export default function ChatCatagory({ selectedCategory, onSelectCategory }) {
   const categories = [
-    '전체',
-    '만남/동행',
-    '정보/공유',
-    '질문/요청',
-    '분실물',
-    '굿즈/이벤트',
-    '기타',
+    { name: '전체', id: null },
+    { name: '만남/동행', id: 1 },
+    { name: '정보/공유', id: 2 },
+    { name: '질문/요청', id: 3 },
+    { name: '분실물', id: 4 },
+    { name: '굿즈/이벤트', id: 5 },
+    { name: '기타', id: 6 },
   ];
 
   return (
     <ChatCatagoryWrapper>
       {categories.map(cat => (
         <CategoryItem
-          key={cat}
-          onClick={() => onSelectCategory(cat)}
-          selected={selectedCategory === cat}
+          key={cat.name}
+          onClick={() => onSelectCategory(cat.id)} // 숫자 id 전달
+          selected={selectedCategory === cat.id}
         >
-          {cat}
+          {cat.name}
         </CategoryItem>
       ))}
     </ChatCatagoryWrapper>

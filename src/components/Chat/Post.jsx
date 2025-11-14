@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PostItem from './PostItem';
 import Report from './Report';
 import { ChatWrapper } from './Post.styles';
 import { votePoll } from '../../api/Chat/voteApi';
 
-export default function Post({ postData, highlightKeyword = '' }) {
+export default function Post({ postData, slug, highlightKeyword = '' }) {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
   const navigate = useNavigate();
-  const { slug } = useParams();
 
   // 댓글 클릭 → 상세 페이지 이동
   const handlePostClick = postId => {
-    navigate(`/${slug}/comments/${postId}`, {
+    navigate(`/chat/post/${postId}`, {
       state: { post: postData.find(p => p.id === postId) },
     });
   };

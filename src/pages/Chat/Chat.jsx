@@ -1,5 +1,3 @@
-//Chat.jsx
-
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import ChatCatagory from '../../components/Chat/ChatCatagory';
@@ -8,62 +6,65 @@ import NonSearch from '../../components/Chat/NonSearch';
 import WriteButton from '../../components/Chat/WriteButton';
 import WritePost from '../../components/Chat/WritePost';
 import SearchIcon from '../../assets/icons/SearchIcon.svg';
-import { c, s, typography } from '../../styles/themeUtils';
+import { c, typography, s } from '../../styles/themeUtils';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 
-export default function Chat() {
+// tagName → tagId 매핑
+const tagMap = {
+  전체: '',
+  '만남/동행': 1,
+  '정보/공유': 2,
+  '질문/요청': 3,
+  분실물: 4,
+  '굿즈/이벤트': 5,
+  기타: 6,
+};
+
+export default function Chat({ slug }) {
+  // slug가 props로 안 오면 URL param 등에서 가져올 수도 있음
+  if (!slug) slug = 'line4thon';
+
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  const slug = 'line4thon';
-
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        const tagId = tagMap[selectedCategory];
+
         if (searchKeyword.trim()) {
-          // 검색 시 - 카테고리 필터링도 함께 적용
-          const tag = selectedCategory === '전체' ? '' : selectedCategory;
-          console.log('검색 요청:', { slug, keyword: searchKeyword, tag });
+          console.log('검색 요청:', { slug, keyword: searchKeyword, tagId });
 
-          const res = await searchPosts(slug, searchKeyword, tag);
+          const res = await searchPosts(slug, searchKeyword, tagId);
 
-          console.log('검색 API 응답:', res);
-          console.log('검색 API 응답 데이터:', res.data);
-          console.log('검색된 게시글 수:', res.data.posts.length);
-
+          console.log('검색 응답:', res.data);
           setPosts(res.data.posts);
         } else {
-          // 검색어 없을 때 - 카테고리별 목록
-          const tag = selectedCategory === '전체' ? '' : selectedCategory;
-          console.log('목록 요청:', { slug, tag });
+          console.log('목록 요청:', { slug, tagId });
 
-          const res = await getPostsByTag(slug, tag);
+          const res = await getPostsByTag(slug, tagId);
 
-          console.log('목록 API 응답:', res.data);
-          console.log('불러온 게시글 수:', res.data.posts.length);
-
+          console.log('목록 응답:', res.data);
           setPosts(res.data.posts);
         }
       } catch (err) {
-        console.error('=== 게시글 불러오기 실패 ===');
-        console.error('에러:', err);
-        console.error('에러 응답:', err.response);
-        console.error('에러 데이터:', err.response?.data);
+        console.error('게시글 불러오기 실패:', err);
+        console.error('응답:', err.response);
       }
     };
 
     fetchPosts();
-  }, [selectedCategory, searchKeyword]);
+  }, [selectedCategory, searchKeyword, slug]);
 
   const handleAddPost = newPost => {
     setPosts(prev => [newPost, ...prev]);
   };
 
-  const handleSearchChange = useCallback(event => {
-    setSearchKeyword(event.target.value);
+  const handleSearchChange = useCallback(e => {
+    setSearchKeyword(e.target.value);
   }, []);
 
   return (
@@ -84,26 +85,28 @@ export default function Chat() {
             </SearchIconWrapper>
           </SearchBar>
         </SearchBarContainer>
+
         <ChatCatagory selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
       </ChatTop>
 
       <ChatBottom>
         {posts.length > 0 ? (
-          <Post postData={posts} highlightKeyword={searchKeyword} />
+          <Post postData={posts} slug={slug} highlightKeyword={searchKeyword} />
         ) : (
           <NonSearch onWrite={() => setOpenWrite(true)} />
         )}
+
         <WriteButton onClick={() => setOpenWrite(true)} />
-        {openWrite && <WritePost onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />}
+
+        {openWrite && (
+          <WritePost slug={slug} onClose={() => setOpenWrite(false)} onAddPost={handleAddPost} />
+        )}
       </ChatBottom>
     </ChatWrapper>
   );
 }
 
-const ChatWrapper = styled.div`
-  // background-color: ${c('neutral.white')};
-  //height: 100%;
-`;
+const ChatWrapper = styled.div``;
 
 const ChatTop = styled.div`
   background: ${c('neutral.bg')};

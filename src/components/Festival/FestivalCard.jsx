@@ -107,7 +107,7 @@ export default function FestivalCard({ festival, disabled, guestMode = false, gu
       
       if (hasWelcomed) {
         // 이미 환영 페이지를 본 축제면 바로 홈으로 이동
-        navigate('/');
+        navigate('/home');
       } else {
         // 처음 보는 축제면 환영 페이지로 이동
         const targetSlug = guestSlug || 'line4thon';

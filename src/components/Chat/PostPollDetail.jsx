@@ -3,12 +3,10 @@ import ChatPollChecked from '../../assets/icons/ChatPollChecked.svg';
 import { PollBox, PollOption, PollBar, PollText, PollTotal, PollLeft } from './Comments.styles';
 
 export default function PostPollDetail({ pollData, pollVotes = [], onPollVote }) {
-  // pollData와 options 존재 여부 체크
   if (!pollData || !Array.isArray(pollData.options)) {
     return <div>투표 데이터가 없습니다.</div>;
   }
 
-  // 초기 votes 상태 안전하게 설정
   const [localVotes, setLocalVotes] = useState(() => {
     if (Array.isArray(pollVotes) && pollVotes.length > 0) return pollVotes;
     if (Array.isArray(pollData.votes)) return pollData.votes;
@@ -23,25 +21,25 @@ export default function PostPollDetail({ pollData, pollVotes = [], onPollVote })
     }
   }, [pollVotes]);
 
-  const handleVote = async index => {
-    // 낙관적 업데이트
+  const handleVote = async optionId => {
+    const index = pollData.options.findIndex(opt => opt.id === optionId);
+    if (index === -1) return;
+
+    const originalVotes = [...localVotes];
     const updatedVotes = [...localVotes];
+
     updatedVotes[index] = (updatedVotes[index] || 0) + 1;
     setLocalVotes(updatedVotes);
     setSelectedIndex(index);
 
-    // 부모 컴포넌트로 투표 정보 전달 (API 호출)
-    if (onPollVote) {
-      try {
-        await onPollVote(pollData, index);
-      } catch (error) {
-        console.log(error);
-        // 실패 시 롤백
-        const revertedVotes = [...localVotes];
-        revertedVotes[index] = Math.max(0, revertedVotes[index] || 0);
-        setLocalVotes(revertedVotes);
-        setSelectedIndex(null);
-      }
+    try {
+      await onPollVote(pollData.id, optionId);
+    } catch (e) {
+      console.error(e);
+
+      // 실패 시 롤백
+      setLocalVotes(originalVotes);
+      setSelectedIndex(null);
     }
   };
 
@@ -56,15 +54,12 @@ export default function PostPollDetail({ pollData, pollVotes = [], onPollVote })
         const isMax = votes === maxVotes && totalVotes > 0;
         const isMine = selectedIndex === i;
 
-        // option이 문자열인지 객체인지 처리
-        const optionText = typeof option === 'string' ? option : option.text || option.name || '';
-
         return (
-          <PollOption key={i} $isMax={isMax} onClick={() => handleVote(i)}>
+          <PollOption key={option.id} $isMax={isMax} onClick={() => handleVote(option.id)}>
             <PollBar $percentage={percentage} $isMax={isMax} />
             <PollText>
               <PollLeft $isMax={isMax}>
-                <span>{optionText}</span>
+                <span>{option.text}</span>
                 {isMine && <img src={ChatPollChecked} alt="checked" />}
               </PollLeft>
               <span>{percentage.toFixed(0)}%</span>

@@ -13,6 +13,7 @@ export const PostWrapper = styled.div`
   gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid ${c('neutral.gray')};
+  background-color: ${c('neutral.white')};
 `;
 
 export const ProfileImg = styled.img`
@@ -115,3 +116,5 @@ export const Time = styled.div`
   ${typography('caption01')};
   color: ${c('neutral.gray2')};
 `;
+
+export const PollTitle = styled.div``;

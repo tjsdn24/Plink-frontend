@@ -3,13 +3,17 @@ import { c, typography } from '../../styles/themeUtils';
 
 const ButtonWrapper = styled.div`
   position: ${({ $isRelative }) => ($isRelative ? 'relative' : 'fixed')};
-  bottom: ${({ $isRelative }) => ($isRelative ? 'auto' : '52px')};
+  bottom: ${({ $isRelative }) => ($isRelative ? 'auto' : 'clamp(32px, 6vh, 52px)')};
   left: 0;
   right: 0;
-  padding: ${({ $isRelative }) => ($isRelative ? '0' : '0 16px')};
+  padding: ${({ $isRelative }) => ($isRelative ? '0 16px' : '0 16px')};
   width: 100%;
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: ${({ $isRelative }) => ($isRelative ? 'auto' : '1000')};
+  margin-top: ${({ $isRelative }) => ($isRelative ? 'clamp(12px, 2.5vh, 20px)' : '0')};
+  margin-bottom: ${({ $isRelative }) => ($isRelative ? 'clamp(32px, 6vh, 52px)' : '0')};
+  flex-shrink: 0;
+  min-height: fit-content;
 `;
 
 const Button = styled.button`

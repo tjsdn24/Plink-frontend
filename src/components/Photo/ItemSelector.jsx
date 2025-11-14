@@ -25,7 +25,7 @@ export default function ItemSelector({ items, selected, onSelect, renderItem, it
             ) : isImage(item) ? (
               <img src={item} alt={`item-${i}`} />
             ) : (
-              <span>{item}</span>
+              <img src={item} alt={`item-${i}`} />
             )}
           </ItemButton>
         ))}

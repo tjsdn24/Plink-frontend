@@ -1,8 +1,34 @@
+import { useState, useEffect } from 'react';
 import ActivityLayout from '../../../components/MyPage/ActivityLayout';
-import { useActivityData } from '../../../components/MyPage/useActivityData';
+import { getMyPosts } from '../../../api/mypage';
 
 export default function MyActivityChat() {
-  const { stories, storyStatus } = useActivityData();
+  const [stories, setStories] = useState([]);
+  const [storyStatus, setStoryStatus] = useState({ loading: false, error: null });
+
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      // slug 가져오기
+      const slug = localStorage.getItem('userSlug') || 'line4thon';
+      
+      setStoryStatus({ loading: true, error: null });
+      
+      try {
+        console.log('내가 작성한 글 조회 API 호출:', { slug });
+        const myPosts = await getMyPosts({ slug });
+        console.log('내가 작성한 글 조회 성공:', myPosts);
+        setStories(myPosts || []);
+        setStoryStatus({ loading: false, error: null });
+      } catch (error) {
+        console.error('내가 작성한 글 조회 실패:', error);
+        const errorMessage = error?.message || '작성한 글을 불러오지 못했어요.';
+        setStoryStatus({ loading: false, error: errorMessage });
+        setStories([]);
+      }
+    };
+
+    fetchMyPosts();
+  }, []);
 
   return (
     <ActivityLayout

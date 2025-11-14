@@ -12,7 +12,7 @@ import avatar2 from '../../assets/icons/profile/avatar2.svg';
 import avatar3 from '../../assets/icons/profile/avatar3.svg';
 import avatar4 from '../../assets/icons/profile/avatar4.svg';
 import avatar5 from '../../assets/icons/profile/avatar5.svg';
-import { getStoredNickname, getStoredSlug, getStoredEmail } from '../../utils/guestSession';
+import { getStoredNickname, getStoredSlug } from '../../utils/guestSession';
 
 const avatarPool = [avatar1, avatar2, avatar3, avatar4, avatar5];
 
@@ -36,8 +36,8 @@ export default function SignUp() {
   const nickname = nicknameCandidate || '숨쉬는 고양이';
   const slugFromState = typeof location.state?.slug === 'string' ? location.state.slug : null;
   const slug = slugFromState || getStoredSlug('line4thon');
-  const emailFromState = typeof location.state?.email === 'string' ? location.state.email : '';
-  const initialEmail = emailFromState || (fromGuest ? getStoredEmail() : '');
+  // 게스트 로그인 후 회원가입 시 이메일 필드는 비워둠 (사용자가 직접 입력)
+  const initialEmail = '';
 
   
   const [formData, setFormData] = useState(() => ({

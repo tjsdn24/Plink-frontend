@@ -12,16 +12,13 @@ import { categories } from '../../components/Chat/Categories';
 
 import { getPostsByTag, searchPosts } from '../../api/Chat/CommentsApi';
 
-/* ----------------------------------------------------
-    태그 매핑
------------------------------------------------------ */
-
 export default function Chat({ slug = 'line4thon' }) {
   const location = useLocation();
   const [openWrite, setOpenWrite] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [searchKeyword, setSearchKeyword] = useState('');
+
   /* ChatBox → Chat 이동 시 카테고리 자동 선택 */
   useEffect(() => {
     if (location.state?.category) {
@@ -29,45 +26,40 @@ export default function Chat({ slug = 'line4thon' }) {
     }
   }, [location.state]);
 
-  /* 게시글 불러오기 */
-  useEffect(() => {
-    fetchPosts();
-  }, [selectedCategory, searchKeyword, slug]);
-
   /* ----------------------------------------------------
-      게시글 불러오기
+      게시글 불러오기 함수 (밖으로 이동)
   ----------------------------------------------------- */
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        // tagName 매핑 (여기가 중요!)
-        const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
-        const tagName = tagMap[selectedCategory] ?? null;
+  const fetchPosts = async () => {
+    try {
+      const tagMap = Object.fromEntries(categories.map(cat => [cat.name, cat.tagName]));
+      const tagName = tagMap[selectedCategory] ?? null;
 
-        // 검색
-        if (searchKeyword.trim()) {
-          const res = await searchPosts(slug, searchKeyword, tagName);
-          setPosts(res.data.posts);
-        }
-        // 카테고리 조회
-        else {
-          const res = await getPostsByTag(slug, tagName);
-          setPosts(res.data.posts);
-        }
-      } catch (err) {
-        console.error('게시글 불러오기 실패:', err);
+      // 검색
+      if (searchKeyword.trim()) {
+        const res = await searchPosts(slug, searchKeyword, tagName);
+        setPosts(res.data.posts);
       }
-    };
+      // 카테고리 조회
+      else {
+        const res = await getPostsByTag(slug, tagName);
+        setPosts(res.data.posts);
+      }
+    } catch (err) {
+      console.error('게시글 불러오기 실패:', err);
+    }
+  };
 
+  /* 게시글 불러오기 실행 */
+  useEffect(() => {
     fetchPosts();
   }, [selectedCategory, searchKeyword, slug]);
 
-  /* 새로운 게시글 추가 시 */
+  /* 새로운 게시글 추가 핸들러 */
   const handleAddPost = newPost => {
     setPosts(prev => [newPost, ...prev]);
   };
 
-  /* 검색 */
+  /* 검색 핸들러 */
   const handleSearchChange = useCallback(e => {
     setSearchKeyword(e.target.value);
   }, []);
